@@ -53,8 +53,6 @@ export function InputBar({
     };
   }, []);
 
-  const sourceCity = cities.find(c => c.id === sourceId);
-
   let displayHour = hour;
   let period = hour >= 12 ? 'PM' : 'AM';
   if (!use24Hour) {
@@ -174,7 +172,10 @@ export function InputBar({
           ref={dateTriggerRef}
           className="input-bar__date-pill"
           onClick={() => setShowDatePicker(true)}
+          type="button"
           aria-label="Open date picker"
+          aria-haspopup="dialog"
+          aria-expanded={showDatePicker}
         >
           <div className="input-bar__date-icon-btn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -196,7 +197,10 @@ export function InputBar({
               ref={timePickerBtnRef}
               className="input-bar__clock-btn"
               onClick={() => setShowTimePicker(true)}
+              type="button"
               aria-label="Open time picker"
+              aria-haspopup="dialog"
+              aria-expanded={showTimePicker}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="10" />
@@ -217,8 +221,10 @@ export function InputBar({
             <button 
               className={`input-bar__period-toggle ${use24Hour ? 'input-bar__period-toggle--hidden' : ''}`}
               onClick={handlePeriodToggle}
+              type="button"
               aria-hidden={use24Hour}
               tabIndex={use24Hour ? -1 : 0}
+              aria-label="Toggle AM PM"
             >
               {period}
             </button>
@@ -228,12 +234,18 @@ export function InputBar({
             <button
               className={`input-bar__format-btn ${!use24Hour ? 'input-bar__format-btn--active' : ''}`}
               onClick={() => use24Hour && onToggleFormat()}
+              type="button"
+              aria-pressed={!use24Hour}
+              disabled={!use24Hour}
             >
               12h
             </button>
             <button
               className={`input-bar__format-btn ${use24Hour ? 'input-bar__format-btn--active' : ''}`}
               onClick={() => !use24Hour && onToggleFormat()}
+              type="button"
+              aria-pressed={use24Hour}
+              disabled={use24Hour}
             >
               24h
             </button>
@@ -243,7 +255,7 @@ export function InputBar({
 
       <div className="input-bar__item input-bar__item--now">
         <span className="input-bar__static-label">(or)</span>
-        <button className="input-bar__now-btn" onClick={onSetNow}>
+        <button className="input-bar__now-btn" onClick={onSetNow} type="button">
           <span className={`input-bar__now-indicator ${isPulse ? 'input-bar__now-indicator--pulse' : ''}`} />
           Now
         </button>

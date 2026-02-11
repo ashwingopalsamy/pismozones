@@ -10,7 +10,6 @@ export function TimeCard({
     id,
     name,
     flag,
-    address,
     formattedTime,
     formattedSeconds,
     formattedDate,
@@ -18,6 +17,7 @@ export function TimeCard({
     utcOffset,
     isDST,
     gradientColors,
+    contrastOverlay,
     hour,
   } = city;
 
@@ -34,8 +34,16 @@ export function TimeCard({
     if (onSelect) onSelect(id);
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
   const gradientStyle = {
     background: `linear-gradient(135deg, ${gradientColors.top} 0%, ${gradientColors.bottom} 100%)`,
+    '--card-overlay-alpha': contrastOverlay ?? 0,
   };
 
   return (
@@ -44,8 +52,10 @@ export function TimeCard({
       data-city={id}
       style={gradientStyle}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
       tabIndex={0}
       role="button"
+      aria-pressed={isSource}
       aria-label={`${name} - Click to set as source`}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
@@ -57,7 +67,9 @@ export function TimeCard({
           <span className="time-card__city">{name}</span>
         </div>
         <div className="time-card__meta-top">
-          {isSource && <span className="time-card__source-badge">Source</span>}
+          <span className="time-card__source-slot" aria-hidden={!isSource}>
+            {isSource ? <span className="time-card__source-badge">Source</span> : null}
+          </span>
           <span className="time-card__utc">{utcOffset}</span>
           {isDST && <span className="time-card__dst-badge">☀️ DST</span>}
         </div>
@@ -69,7 +81,9 @@ export function TimeCard({
         </span>
         <span className="time-card__seconds"><span className="time-colon">:</span>{formattedSeconds}</span>
         {!use24Hour && <span className="time-card__period">{period}</span>}
-        {dayLabel && <span className="time-card__day-label">{dayLabel}</span>}
+        <span className="time-card__day-slot" aria-hidden={!dayLabel}>
+          {dayLabel ? <span className="time-card__day-label">{dayLabel}</span> : null}
+        </span>
         <span className="time-card__date-hover">{formattedDate}</span>
       </div>
     </motion.article>

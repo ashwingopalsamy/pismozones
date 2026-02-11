@@ -189,23 +189,6 @@ export function TimePicker({
     }
   }, [isOpen]);
   
-  useEffect(() => {
-    if (!isOpen) return;
-    
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onClose();
-      } else if (e.key === 'Enter') {
-        e.preventDefault();
-        handleConfirm();
-      }
-    };
-    
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose, selectedHour, selectedMinute]);
-  
   const hourItems = use24Hour 
     ? Array.from({ length: 24 }, (_, i) => i)
     : Array.from({ length: 12 }, (_, i) => i === 0 ? 12 : i);
@@ -238,10 +221,27 @@ export function TimePicker({
     }
   };
   
-  const handleConfirm = () => {
+  const handleConfirm = useCallback(() => {
     onTimeSelect({ hour: selectedHour, minute: selectedMinute });
     onClose();
-  };
+  }, [onTimeSelect, onClose, selectedHour, selectedMinute]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        handleConfirm();
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose, handleConfirm]);
   
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -293,18 +293,22 @@ export function TimePicker({
               
               {!use24Hour && (
                 <div className="time-picker-period">
-                  <span 
+                  <button
+                    type="button"
                     className={selectedPeriod === 'AM' ? 'active' : ''}
                     onClick={() => setPeriod('AM')}
+                    aria-pressed={selectedPeriod === 'AM'}
                   >
                     AM
-                  </span>
-                  <span 
+                  </button>
+                  <button
+                    type="button"
                     className={selectedPeriod === 'PM' ? 'active' : ''}
                     onClick={() => setPeriod('PM')}
+                    aria-pressed={selectedPeriod === 'PM'}
                   >
                     PM
-                  </span>
+                  </button>
                 </div>
               )}
             </div>

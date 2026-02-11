@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { AnchorCard } from './components/AnchorCard';
 import { TimeCard } from './components/TimeCard';
@@ -10,7 +10,7 @@ import './styles/components.css';
 
 function ThemeToggle({ theme, onToggle }) {
   return (
-    <button className="theme-toggle" onClick={onToggle} aria-label="Toggle theme">
+    <button className="theme-toggle" onClick={onToggle} aria-label="Toggle theme" type="button">
       {theme === 'dark' ? (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="12" r="5"/>
@@ -185,7 +185,7 @@ export default function App() {
               use24Hour={use24Hour}
             />
             <WorkStateSection
-              title="Starting Soon"
+              title="STARTING SOON"
               indicator="starting"
               cities={groupedCities.startingSoon}
               sourceId={sourceId}
@@ -205,7 +205,7 @@ export default function App() {
             />
 
             <WorkStateSection
-              title="Starting Soon"
+              title="STARTING SOON"
               indicator="starting"
               cities={groupedCities.startingSoon}
               sourceId={sourceId}
@@ -216,7 +216,7 @@ export default function App() {
         )}
 
         <WorkStateSection
-          title="Outside Hours"
+          title="OUTSIDE HOURS"
           indicator="outside"
           cities={groupedCities.outside}
           sourceId={sourceId}

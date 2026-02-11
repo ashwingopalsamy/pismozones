@@ -67,6 +67,27 @@ export function DatePicker({
     }
   }, [isOpen]);
   
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 10 }, (_, i) => currentYear - 2 + i);
+
+  const getDaysInMonth = (m, y) => new Date(y, m + 1, 0).getDate();
+  const maxDays = getDaysInMonth(selectedMonth, selectedYear);
+  const days = Array.from({ length: maxDays }, (_, i) => i + 1);
+
+  useEffect(() => {
+    if (selectedDay > maxDays) {
+      setSelectedDay(maxDays);
+    }
+  }, [selectedMonth, selectedYear, maxDays, selectedDay]);
+
+  const handleConfirm = useCallback(() => {
+    const y = selectedYear;
+    const m = String(selectedMonth + 1).padStart(2, '0');
+    const d = String(selectedDay).padStart(2, '0');
+    onDateSelect(`${y}-${m}-${d}`);
+    onClose();
+  }, [selectedYear, selectedMonth, selectedDay, onDateSelect, onClose]);
+
   useEffect(() => {
     if (!isOpen) return;
     
@@ -82,28 +103,7 @@ export function DatePicker({
     
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose, selectedMonth, selectedDay, selectedYear]);
-
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 10 }, (_, i) => currentYear - 2 + i);
-
-  const getDaysInMonth = (m, y) => new Date(y, m + 1, 0).getDate();
-  const maxDays = getDaysInMonth(selectedMonth, selectedYear);
-  const days = Array.from({ length: maxDays }, (_, i) => i + 1);
-
-  useEffect(() => {
-    if (selectedDay > maxDays) {
-      setSelectedDay(maxDays);
-    }
-  }, [selectedMonth, selectedYear, maxDays, selectedDay]);
-
-  const handleConfirm = () => {
-    const y = selectedYear;
-    const m = String(selectedMonth + 1).padStart(2, '0');
-    const d = String(selectedDay).padStart(2, '0');
-    onDateSelect(`${y}-${m}-${d}`);
-    onClose();
-  };
+  }, [isOpen, onClose, handleConfirm]);
   
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {

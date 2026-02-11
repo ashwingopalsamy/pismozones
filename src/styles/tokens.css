@@ -1,20 +1,29 @@
 :root {
-  --space-1: 8px;
-  --space-2: 16px;
-  --space-3: 24px;
-  --space-4: 32px;
+  /* 4pt Grid System (Layout & Spacing) */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
 
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
 
+  /* Typography Scale */
   --text-xs: 11px;
   --text-sm: 13px;
   --text-md: 15px;
   --text-lg: 17px;
   --text-xl: 20px;
-  --text-2xl: 26px;
-  --text-3xl: 34px;
-  --text-4xl: 44px;
+  --text-2xl: 24px;
+  --text-3xl: 32px;
+  --text-4xl: 40px;
   --text-5xl: 56px;
 
   --weight-regular: 400;
@@ -22,100 +31,132 @@
   --weight-semibold: 600;
   --weight-bold: 700;
 
-  --radius-sm: 12px;
-  --radius-md: 16px;
-  --radius-lg: 22px;
-  --radius-xl: 28px;
-  --radius-2xl: 36px;
+  /* Radii (Unified Geometry) */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-card: 24px; /* Default Card Radius */
   --radius-full: 9999px;
 
+  /* Motion & Physics */
   --duration-fast: 150ms;
   --duration-normal: 250ms;
-  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1); /* Premium weight */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
+  /* Shadows (Refined Depth) */
   --shadow-card: 
-    0 2px 8px rgba(0, 0, 0, 0.08),
-    0 8px 24px rgba(0, 0, 0, 0.12);
+    0 1px 2px rgba(0, 0, 0, 0.04), /* Ambient */
+    0 4px 16px rgba(0, 0, 0, 0.08); /* Directional */
+  
   --shadow-card-hover: 
-    0 4px 12px rgba(0, 0, 0, 0.1),
-    0 12px 32px rgba(0, 0, 0, 0.16);
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.12);
 
-  --text-shadow-city: 0 1px 3px rgba(0, 0, 0, 0.5);
-  --text-shadow-time: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --text-shadow-city: 0 1px 2px rgba(0, 0, 0, 0.1); /* Subtle */
+  --text-shadow-time: 0 1px 2px rgba(0, 0, 0, 0.05); /* Barely there */
+
+  /* Glass Effects (Liquid Glass) */
+  --glass-glow: inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  --glass-border-gradient: linear-gradient(to bottom, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.05) 100%);
 }
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
     --bg-primary: #f2f2f7;
-    --bg-card: rgba(255, 255, 255, 0.9);
-    --bg-card-hover: rgba(242, 242, 247, 0.95);
+    --bg-card: rgba(255, 255, 255, 0.85); /* Slightly more transparent for glass */
+    --bg-card-hover: rgba(255, 255, 255, 0.95);
     --bg-input: rgba(118, 118, 128, 0.12);
+    
     --border-subtle: rgba(0, 0, 0, 0.05);
     --border-medium: rgba(0, 0, 0, 0.08);
+    
     --text-primary: #000000;
     --text-secondary: rgba(0, 0, 0, 0.75);
-    --text-tertiary: rgba(0, 0, 0, 0.55);
-    --text-muted: rgba(0, 0, 0, 0.4);
-    --bg-glass-bar: rgba(255, 255, 255, 0.1);
+    --text-tertiary: rgba(0, 0, 0, 0.7); /* Accessibility Boost (was 0.55) */
+    --text-muted: rgba(0, 0, 0, 0.5); /* Accessibility Boost (was 0.4) */
+    
+    --bg-glass-bar: rgba(255, 255, 255, 0.6); /* Frosted */
     --bg-control: rgba(0, 0, 0, 0.05);
-    --bg-control-hover: rgba(0, 0, 0, 0.1);
-    --border-control: rgba(0, 0, 0, 0.08);
+    --bg-control-hover: rgba(0, 0, 0, 0.08);
+    --border-control: rgba(0, 0, 0, 0.06);
+
+    /* Light Mode Button Glow */
+    --shadow-active-glow: 0 0 0 2px rgba(0, 0, 0, 0.05), inset 0 1px 4px rgba(0,0,0,0.1);
   }
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     --bg-primary: #000000;
-    --bg-card: rgba(28, 28, 30, 0.85);
-    --bg-card-hover: rgba(44, 44, 46, 0.9);
+    --bg-card: rgba(28, 28, 30, 0.6); /* More glass */
+    --bg-card-hover: rgba(44, 44, 46, 0.75);
     --bg-input: rgba(44, 44, 46, 0.6);
+    
     --border-subtle: rgba(255, 255, 255, 0.08);
     --border-medium: rgba(255, 255, 255, 0.12);
+    
     --text-primary: #ffffff;
-    --text-secondary: rgba(255, 255, 255, 0.75);
-    --text-tertiary: rgba(255, 255, 255, 0.55);
-    --text-muted: rgba(255, 255, 255, 0.4);
-    --bg-glass-bar: rgba(30, 30, 32, 0.1);
+    --text-secondary: rgba(255, 255, 255, 0.85);
+    --text-tertiary: rgba(255, 255, 255, 0.65);
+    --text-muted: rgba(255, 255, 255, 0.45);
+    
+    --bg-glass-bar: rgba(30, 30, 32, 0.4);
     --bg-control: rgba(255, 255, 255, 0.1);
-    --bg-control-hover: rgba(255, 255, 255, 0.18);
+    --bg-control-hover: rgba(255, 255, 255, 0.15);
     --border-control: rgba(255, 255, 255, 0.12);
+
+    /* Dark Mode Button Glow */
+    --shadow-active-glow: 0 0 12px rgba(255, 255, 255, 0.15);
   }
 }
 
 :root,
 [data-theme="dark"] {
   --bg-primary: #000000;
-  --bg-card: rgba(28, 28, 30, 0.85);
-  --bg-card-hover: rgba(44, 44, 46, 0.9);
+  --bg-card: rgba(28, 28, 30, 0.6);
+  --bg-card-hover: rgba(44, 44, 46, 0.75);
   --bg-input: rgba(44, 44, 46, 0.6);
+  
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-medium: rgba(255, 255, 255, 0.12);
+  
   --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.75);
-  --text-tertiary: rgba(255, 255, 255, 0.55);
-  --text-muted: rgba(255, 255, 255, 0.4);
-  --bg-glass-bar: rgba(30, 30, 32, 0.1);
+  --text-secondary: rgba(255, 255, 255, 0.85);
+  --text-tertiary: rgba(255, 255, 255, 0.65);
+  --text-muted: rgba(255, 255, 255, 0.45);
+  
+  --bg-glass-bar: rgba(30, 30, 32, 0.4);
   --bg-control: rgba(255, 255, 255, 0.1);
-  --bg-control-hover: rgba(255, 255, 255, 0.18);
+  --bg-control-hover: rgba(255, 255, 255, 0.15);
   --border-control: rgba(255, 255, 255, 0.12);
+  
+  --shadow-active-glow: 0 0 12px rgba(255, 255, 255, 0.15);
+
   --icon-chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 }
 
 [data-theme="light"] {
   --bg-primary: #f2f2f7;
-  --bg-card: rgba(255, 255, 255, 0.9);
-  --bg-card-hover: rgba(242, 242, 247, 0.95);
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-card-hover: rgba(255, 255, 255, 0.95);
   --bg-input: rgba(118, 118, 128, 0.12);
+  
   --border-subtle: rgba(0, 0, 0, 0.05);
   --border-medium: rgba(0, 0, 0, 0.08);
+  
   --text-primary: #000000;
   --text-secondary: rgba(0, 0, 0, 0.75);
-  --text-tertiary: rgba(0, 0, 0, 0.55);
-  --text-muted: rgba(0, 0, 0, 0.4);
-  --bg-glass-bar: rgba(255, 255, 255, 0.1);
+  --text-tertiary: rgba(0, 0, 0, 0.7);
+  --text-muted: rgba(0, 0, 0, 0.5);
+  
+  --bg-glass-bar: rgba(255, 255, 255, 0.6);
   --bg-control: rgba(0, 0, 0, 0.05);
-  --bg-control-hover: rgba(0, 0, 0, 0.1);
-  --border-control: rgba(0, 0, 0, 0.08);
+  --bg-control-hover: rgba(0, 0, 0, 0.08);
+  --border-control: rgba(0, 0, 0, 0.06);
+  
+  --shadow-active-glow: 0 0 0 2px rgba(0, 0, 0, 0.05), inset 0 1px 4px rgba(0,0,0,0.1);
+
   --icon-chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 }

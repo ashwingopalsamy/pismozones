@@ -4,13 +4,13 @@ export function AnchorCard({ city, use24Hour }) {
   const {
     name,
     flag,
-    address,
     formattedTime,
     formattedSeconds,
     formattedDate,
     utcOffset,
     isDST,
     gradientColors,
+    contrastOverlay,
     hour,
     dayLabel,
   } = city;
@@ -26,6 +26,7 @@ export function AnchorCard({ city, use24Hour }) {
 
   const gradientStyle = {
     background: `linear-gradient(180deg, ${gradientColors.top} 0%, ${gradientColors.bottom} 100%)`,
+    '--card-overlay-alpha': contrastOverlay ?? 0,
   };
 
   return (
