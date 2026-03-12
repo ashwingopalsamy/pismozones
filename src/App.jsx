@@ -1,40 +1,48 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { AnchorCard } from './components/AnchorCard';
-import { TimeCard } from './components/TimeCard';
-import { useTimeConversion } from './hooks/useTimeConversion';
-
-import './styles/tokens.css';
-import './styles/layout.css';
-import './styles/components.css';
-
-function ThemeToggle({ theme, onToggle }) {
-  return (
-    <button className="theme-toggle" onClick={onToggle} aria-label="Toggle theme" type="button">
-      {theme === 'dark' ? (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <circle cx="12" cy="12" r="5"/>
-          <line x1="12" y1="1" x2="12" y2="3"/>
-          <line x1="12" y1="21" x2="12" y2="23"/>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-          <line x1="1" y1="12" x2="3" y2="12"/>
-          <line x1="21" y1="12" x2="23" y2="12"/>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-        </svg>
-      ) : (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-        </svg>
-      )}
-    </button>
-  );
-}
-
+import { AnchorCard, TimeCard } from './components/Cards';
+import { HolidayPanel } from './components/HolidayPanel';
 import { InputBar } from './components/InputBar';
+import { useTimeConversion } from './hooks/useTimeConversion';
+import './styles/styles.css';
 
-function WorkStateSection({ title, indicator, cities, sourceId, onSelect, use24Hour }) {
+// ─── i18n ──────────────────────────────────────────────────
+const T = {
+  en: {
+    subtitle:      'Track timezones across our globally distributed workplaces.',
+    source:        'Source',
+    on:            'On',
+    at:            'At',
+    now:           'Now',
+    working:       'WORKING HOURS',
+    startingSoon:  'STARTING SOON',
+    outside:       'OUTSIDE HOURS',
+    footerLocal:   '100% Local · Everything happens within your browser',
+    footerOpenSrc: 'Open Source',
+    footerBy:      'Crafted with',
+    footerRole:    'Engineering, PCI-ISO, Auth Tribe @ Pismo',
+    footerPrivacy: 'Zero data captured. Not your timezone, not your preferences, not your IP, not even a single pixel of telemetry. Everything literally happens inside your browser tab.',
+    holidayTitle:  'Pismo Holidays',
+  },
+  pt: {
+    subtitle:      'Acompanhe os fusos horários dos nossos escritórios ao redor do mundo.',
+    source:        'Origem',
+    on:            'Em',
+    at:            'Às',
+    now:           'Agora',
+    working:       'EM HORÁRIO',
+    startingSoon:  'INÍCIO EM BREVE',
+    outside:       'FORA DO HORÁRIO',
+    footerLocal:   '100% Local · Tudo acontece no seu navegador',
+    footerOpenSrc: 'Código Aberto',
+    footerBy:      'Criado com',
+    footerRole:    'Engenharia, PCI-ISO, Auth Tribe @ Pismo',
+    footerPrivacy: 'Nenhum dado capturado. Nem fuso horário, preferências, IP ou qualquer telemetria. Tudo acontece dentro da aba do seu navegador.',
+    holidayTitle:  'Feriados Pismo',
+  },
+};
+
+function WorkStateSection({ title, indicator, cities, sourceId, onSelect, use24Hour, lang }) {
   if (cities.length === 0) return null;
 
   return (
@@ -62,20 +70,18 @@ function WorkStateSection({ title, indicator, cities, sourceId, onSelect, use24H
   );
 }
 
-function Footer() {
+function Footer({ tx }) {
   return (
     <footer className="footer">
       <div className="footer__main">
         <span className="footer__privacy-wrapper">
-          <span className="footer__privacy-trigger">🔒</span>
-          <span className="footer__privacy-tooltip">
-            Zero data captured. Not your timezone, not your preferences, not your IP, not even a single pixel of telemetry. Everything literally happens inside your browser tab.
-          </span>
+          <span className="footer__privacy-trigger">:lock:</span>
+          <span className="footer__privacy-tooltip">{tx.footerPrivacy}</span>
         </span>
-        100% Local · Everything happens within your browser · <a href="https://github.com/ashwingopalsamy/pismozones" target="_blank" rel="noopener noreferrer">Open Source</a>
+        {tx.footerLocal} · <a href="https://github.com/ashwingopalsamy/pismozones" target="_blank" rel="noopener noreferrer">{tx.footerOpenSrc}</a>
       </div>
       <div className="footer__attribution">
-        Crafted with <span className="footer__heart">♥</span> by <a href="https://linkedin.com/in/ashwingopalsamy" target="_blank" rel="noopener noreferrer" className="footer__author">Ashwin Gopalsamy</a> · Engineering, PCI-ISO, Auth Tribe @ Pismo
+        {tx.footerBy} <span className="footer__heart">♥</span> by <a href="https://linkedin.com/in/ashwingopalsamy" target="_blank" rel="noopener noreferrer" className="footer__author">Ashwin Gopalsamy</a> · {tx.footerRole}
       </div>
     </footer>
   );
@@ -98,6 +104,10 @@ export default function App() {
   const [isExplicitChoice, setIsExplicitChoice] = useState(() => {
     return localStorage.getItem('pismo-theme-explicit') === 'true';
   });
+
+  const [showHolidayPanel, setShowHolidayPanel] = useState(false);
+  const [lang, setLang] = useState('en');
+  const tx = T[lang];
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -127,6 +137,7 @@ export default function App() {
     groupedCities,
     sourceTimeComponents,
     cities,
+    sortedCities,
     updateTime,
     setToNow,
     setSource,
@@ -135,32 +146,9 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="header">
-        <div className="header__brand">
-          <svg className="header__logo" viewBox="0 0 32 32">
-            <defs>
-              <linearGradient id="globe" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#4A90D9"/>
-                <stop offset="50%" stopColor="#F5A623"/>
-                <stop offset="100%" stopColor="#E8984A"/>
-              </linearGradient>
-            </defs>
-            <circle cx="16" cy="16" r="14" fill="url(#globe)" opacity="0.9"/>
-            <ellipse cx="16" cy="16" rx="6" ry="14" fill="none" stroke="#0A0A0B" strokeWidth="1.5" opacity="0.6"/>
-            <line x1="2" y1="16" x2="30" y2="16" stroke="#0A0A0B" strokeWidth="1.5" opacity="0.6"/>
-            <circle cx="16" cy="16" r="14" fill="none" stroke="#0A0A0B" strokeWidth="1.5" opacity="0.3"/>
-          </svg>
-          <div className="header__text">
-            <h1 className="header__title">Pismo Zones</h1>
-            <p className="header__subtitle">Track timezones across our globally distributed workplaces.</p>
-          </div>
-        </div>
-        <ThemeToggle theme={theme} onToggle={toggleTheme} />
-      </header>
-
       <InputBar
         sourceId={sourceId}
-        cities={cities}
+        cities={sortedCities}
         hour={sourceTimeComponents.hour}
         minute={sourceTimeComponents.minute}
         date={sourceTimeComponents.date}
@@ -169,63 +157,83 @@ export default function App() {
         onUpdateTime={updateTime}
         onSetNow={setToNow}
         onToggleFormat={toggleFormat}
+        lang={lang}
+        theme={theme}
+        onToggleLang={setLang}
+        onToggleTheme={toggleTheme}
+        onShowHoliday={() => setShowHolidayPanel(true)}
       />
 
       <main className="main">
-        <AnchorCard city={brazilTime} use24Hour={use24Hour} />
+        <AnchorCard
+          city={brazilTime}
+          use24Hour={use24Hour}
+          onSelect={setSource}
+          isSource={sourceId === 'saopaulo'}
+        />
 
         {groupedCities.working.length === 1 && groupedCities.startingSoon.length === 1 ? (
           <div className="work-state-combined-row">
             <WorkStateSection
-              title="WORKING HOURS"
+              title={tx.working}
               indicator="working"
               cities={groupedCities.working}
               sourceId={sourceId}
               onSelect={setSource}
               use24Hour={use24Hour}
+              lang={lang}
             />
             <WorkStateSection
-              title="STARTING SOON"
+              title={tx.startingSoon}
               indicator="starting"
               cities={groupedCities.startingSoon}
               sourceId={sourceId}
               onSelect={setSource}
               use24Hour={use24Hour}
+              lang={lang}
             />
           </div>
         ) : (
           <>
             <WorkStateSection
-              title="WORKING HOURS"
+              title={tx.working}
               indicator="working"
               cities={groupedCities.working}
               sourceId={sourceId}
               onSelect={setSource}
               use24Hour={use24Hour}
+              lang={lang}
             />
-
             <WorkStateSection
-              title="STARTING SOON"
+              title={tx.startingSoon}
               indicator="starting"
               cities={groupedCities.startingSoon}
               sourceId={sourceId}
               onSelect={setSource}
               use24Hour={use24Hour}
+              lang={lang}
             />
           </>
         )}
 
         <WorkStateSection
-          title="OUTSIDE HOURS"
+          title={tx.outside}
           indicator="outside"
           cities={groupedCities.outside}
           sourceId={sourceId}
           onSelect={setSource}
           use24Hour={use24Hour}
+          lang={lang}
         />
       </main>
 
-      <Footer />
+      <Footer tx={tx} />
+
+      <HolidayPanel
+        isOpen={showHolidayPanel}
+        onClose={() => setShowHolidayPanel(false)}
+        lang={lang}
+      />
     </div>
   );
 }

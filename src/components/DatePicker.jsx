@@ -2,13 +2,11 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { Wheel } from './TimePicker';
-import '../styles/tokens.css';
-import '../styles/components.css';
 
 export function DatePicker({
-  isOpen, 
-  onClose, 
-  dateStr, 
+  isOpen,
+  onClose,
+  dateStr,
   onDateSelect,
   triggerRef,
 }) {
@@ -16,11 +14,11 @@ export function DatePicker({
   const [selectedDay, setSelectedDay] = useState(1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [position, setPosition] = useState({ top: 0, left: 0 });
-  
+
   const modalRef = useRef(null);
-  
+
   const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ];
 
@@ -33,7 +31,7 @@ export function DatePicker({
           d.setFullYear(parts[0], parts[1] - 1, parts[2]);
         }
       }
-      
+
       setSelectedYear(d.getFullYear());
       setSelectedMonth(d.getMonth());
       setSelectedDay(d.getDate());
@@ -45,10 +43,10 @@ export function DatePicker({
       const rect = triggerRef.current.getBoundingClientRect();
       const pickerWidth = 320;
       const pickerHeight = 280;
-      
+
       let left = rect.left + rect.width / 2 - pickerWidth / 2;
       let top = rect.bottom + 8;
-      
+
       if (left < 16) left = 16;
       if (left + pickerWidth > window.innerWidth - 16) {
         left = window.innerWidth - pickerWidth - 16;
@@ -56,7 +54,7 @@ export function DatePicker({
       if (top + pickerHeight > window.innerHeight - 16) {
         top = rect.top - pickerHeight - 8;
       }
-      
+
       setPosition({ top, left });
     }
   }, [isOpen, triggerRef]);
@@ -66,7 +64,7 @@ export function DatePicker({
       modalRef.current.focus();
     }
   }, [isOpen]);
-  
+
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 10 }, (_, i) => currentYear - 2 + i);
 
@@ -90,7 +88,7 @@ export function DatePicker({
 
   useEffect(() => {
     if (!isOpen) return;
-    
+
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         e.preventDefault();
@@ -100,17 +98,17 @@ export function DatePicker({
         handleConfirm();
       }
     };
-    
+
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose, handleConfirm]);
-  
+
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
   };
-  
+
   const content = (
     <AnimatePresence>
       {isOpen && (
@@ -125,9 +123,9 @@ export function DatePicker({
           <motion.div
             ref={modalRef}
             className="time-picker-dropdown"
-            style={{ 
-              top: position.top, 
-              left: position.left, 
+            style={{
+              top: position.top,
+              left: position.left,
               width: 320
             }}
             initial={{ opacity: 0, scale: 0.9, y: -10 }}
@@ -147,14 +145,14 @@ export function DatePicker({
                 onChange={(val) => setSelectedMonth(months.indexOf(val))}
                 label="Month"
               />
-              
+
               <Wheel
                 items={days}
                 value={selectedDay}
                 onChange={setSelectedDay}
                 label="Day"
               />
-              
+
               <Wheel
                 items={years}
                 value={selectedYear}
@@ -162,16 +160,16 @@ export function DatePicker({
                 label="Year"
               />
             </div>
-            
+
             <div className="time-picker-actions">
-              <button 
+              <button
                 className="time-picker-btn time-picker-btn--cancel"
                 onClick={onClose}
                 type="button"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 className="time-picker-btn time-picker-btn--confirm"
                 onClick={handleConfirm}
                 type="button"
@@ -184,6 +182,7 @@ export function DatePicker({
       )}
     </AnimatePresence>
   );
-  
+
   return createPortal(content, document.body);
 }
+
