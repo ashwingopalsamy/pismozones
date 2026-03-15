@@ -566,7 +566,8 @@ body {
   display: flex;
   align-items: center;
   height: var(--control-height);
-  background: var(--bg-glass-bar);
+  /* Option A: same track as lang-toggle */
+  background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--border-control);
   border-radius: var(--radius-full);
   overflow: hidden;
@@ -606,13 +607,16 @@ body {
 }
 
 .input-bar__format-btn--active {
-  background: rgba(0, 0, 0, 0.06);
-  color: var(--text-primary);
-  box-shadow: none;
+  /* Solid white pill — clearly elevated, not glassy */
+  background: rgba(255, 255, 255, 0.92);
+  color: #1c1c1e;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.30), 0 0 0 0.5px rgba(0, 0, 0, 0.08);
 }
 
-[data-theme="dark"] .input-bar__format-btn--active {
-  background: rgba(255, 255, 255, 0.08);
+[data-theme="light"] .input-bar__format-btn--active {
+  background: #ffffff;
+  color: #1c1c1e;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
 }
 
 
@@ -2082,7 +2086,8 @@ body {
   display: flex;
   align-items: center;
   height: 34px;
-  background: var(--bg-control);
+  /* Option A: same track as format-toggle */
+  background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--border-control);
   border-radius: var(--radius-full);
   padding: 3px;
@@ -2116,9 +2121,16 @@ body {
 }
 
 .lang-btn--active {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  /* Solid white pill — clearly elevated, not glassy */
+  background: rgba(255, 255, 255, 0.92);
+  color: #1c1c1e;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.30), 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .lang-btn--active {
+  background: #ffffff;
+  color: #1c1c1e;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
 }
 
 /* ── Country Tabs — flag-only segmented control ── */

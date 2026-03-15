@@ -267,12 +267,12 @@ function CitySelector({ cities, value, onChange, activeCityIds, onAddCity, onRem
         {/* 4 — time + day-offset + UTC offset */}
         <div className="cs-time">
           <div className="cs-time-top">
-            <span className="cs-time-val">{snap.time}</span>
             {snap.dayOffset !== 0 && (
               <span className={`cs-day-badge cs-day-badge--${snap.dayOffset > 0 ? 'ahead' : 'behind'}`}>
                 {snap.dayOffset > 0 ? `+${snap.dayOffset}d` : `${snap.dayOffset}d`}
               </span>
             )}
+            <span className="cs-time-val">{snap.time}</span>
           </div>
           {snap.utcOffset && <span className="cs-utc">{snap.utcOffset}</span>}
         </div>
