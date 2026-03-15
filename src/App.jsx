@@ -54,7 +54,7 @@ function WorkStateSection({ title, indicator, cities, sourceId, onSelect, use24H
         </div>
       </header>
       <div className="work-state-section__cards">
-        <AnimatePresence>
+        <AnimatePresence mode="popLayout">
           {cities.map(city => (
             <TimeCard
               key={city.id}
@@ -136,8 +136,12 @@ export default function App() {
     brazilTime,
     groupedCities,
     sourceTimeComponents,
-    cities,
     sortedCities,
+    allCities,
+    activeCityIds,
+    addCity,
+    removeCity,
+    resetToDefaults,
     updateTime,
     setToNow,
     setSource,
@@ -149,6 +153,8 @@ export default function App() {
       <InputBar
         sourceId={sourceId}
         cities={sortedCities}
+        allCities={allCities}
+        activeCityIds={activeCityIds}
         hour={sourceTimeComponents.hour}
         minute={sourceTimeComponents.minute}
         date={sourceTimeComponents.date}
@@ -157,6 +163,9 @@ export default function App() {
         onUpdateTime={updateTime}
         onSetNow={setToNow}
         onToggleFormat={toggleFormat}
+        onAddCity={addCity}
+        onRemoveCity={removeCity}
+        onResetDefaults={resetToDefaults}
         lang={lang}
         theme={theme}
         onToggleLang={setLang}

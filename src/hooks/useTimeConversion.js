@@ -74,7 +74,33 @@ export const CITIES = [
     flag: '🇨🇴',
     address: 'Pismo Bogota Office',
   },
+  {
+    id: 'sydney',
+    name: 'Sydney',
+    country: 'Australia',
+    timezone: 'Australia/Sydney',
+    flag: '🇦🇺',
+    address: 'Pismo Sydney Office',
+  },
 ];
+
+// Cities always shown by default
+export const DEFAULT_CITY_IDS = [
+  'saopaulo', 'austin', 'bristol', 'bangalore', 'singapore', 'warsaw',
+];
+
+const STORAGE_KEY = 'pismo-active-cities';
+
+const loadActiveCityIds = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch { /* ignore */ }
+  return DEFAULT_CITY_IDS;
+};
 
 const GRADIENT_STOPS = [
   { time: 0,  top: [14, 16, 44],    bottom: [24, 18, 54]    },  // midnight — desaturated navy
@@ -161,7 +187,26 @@ export function useTimeConversion() {
   });
   const [use24Hour, setUse24Hour] = useState(false);
   const [tick, setTick] = useState(0);
+  const [activeCityIds, setActiveCityIds] = useState(loadActiveCityIds);
   const intervalRef = useRef(null);
+
+  // Persist activeCityIds whenever it changes
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(activeCityIds)); } catch { /* ignore */ }
+  }, [activeCityIds]);
+
+  const addCity = useCallback((id) => {
+    setActiveCityIds(prev => prev.includes(id) ? prev : [...prev, id]);
+  }, []);
+
+  const removeCity = useCallback((id) => {
+    if (id === 'saopaulo') return; // anchor city is always shown
+    setActiveCityIds(prev => prev.filter(c => c !== id));
+  }, []);
+
+  const resetToDefaults = useCallback(() => {
+    setActiveCityIds([...DEFAULT_CITY_IDS]);
+  }, []);
 
   // Refs to avoid stale closures in the tick interval
   const isLiveRef = useRef(true);
@@ -188,7 +233,10 @@ export function useTimeConversion() {
     // Keep `tick` as an explicit dependency to recompute seconds every second.
     void tick;
 
-    return CITIES.map(city => {
+    // Always include saopaulo (anchor) + whatever is active
+    const citySet = new Set(['saopaulo', ...activeCityIds]);
+
+    return CITIES.filter(city => citySet.has(city.id)).map(city => {
       const convertedDt = sourceDateTime.setZone(city.timezone);
       const nowInZone = DateTime.now().setZone(city.timezone);
       const hour = convertedDt.hour;
@@ -257,13 +305,17 @@ export function useTimeConversion() {
 
   const brazilTime = convertedTimes.find(c => c.id === 'saopaulo');
 
-  const sortedCities = useMemo(() => {
+  // allCities is the full registry sorted by UTC offset — for the selector pool
+  const allCities = useMemo(() => {
     return [...CITIES].sort((a, b) => {
       const offA = DateTime.now().setZone(a.timezone).offset;
       const offB = DateTime.now().setZone(b.timezone).offset;
       return offA !== offB ? offA - offB : a.name.localeCompare(b.name);
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // sortedCities alias kept for backward compat with CitySelector source picker
+  const sortedCities = allCities;
 
   const updateTime = useCallback((updates) => {
     isLiveRef.current = false; // User is pinning a specific time
@@ -317,6 +369,11 @@ export function useTimeConversion() {
     sourceTimeComponents,
     cities: CITIES,
     sortedCities,
+    allCities,
+    activeCityIds,
+    addCity,
+    removeCity,
+    resetToDefaults,
     updateTime,
     setToNow,
     setSource,
