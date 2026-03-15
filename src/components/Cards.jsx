@@ -87,6 +87,7 @@ export function TimeCard({ city, isSource = false, onSelect, use24Hour }) {
     <motion.article
       className="time-card"
       data-city={id}
+      layout
       style={{
         background: `linear-gradient(135deg, ${gradientColors.top} 0%, ${gradientColors.bottom} 100%)`,
         '--card-overlay-alpha': contrastOverlay ?? 0,
@@ -97,9 +98,12 @@ export function TimeCard({ city, isSource = false, onSelect, use24Hour }) {
       role="button"
       aria-pressed={isSource}
       aria-label={`${name} - Click to set as source`}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: [0.25, 1, 0.5, 1] }}
+      initial={{ opacity: 0, scale: 0.85 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.85 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.97 }}
     >
       <header className="time-card__header">
         <div className="time-card__location">
