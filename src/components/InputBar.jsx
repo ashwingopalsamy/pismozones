@@ -11,18 +11,18 @@ const T = {
 
 function GlobeLogo() {
   return (
-    <svg className="input-bar__brand-logo" viewBox="0 0 32 32">
+    <svg className="input-bar__brand-logo" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="globe-pill" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="4A90D9_1"/>
-          <stop offset="50%" stopColor="F5A623_1"/>
-          <stop offset="100%" stopColor="E8984A_1"/>
+          <stop offset="0%" stopColor="#4A90D9"/>
+          <stop offset="50%" stopColor="#F5A623"/>
+          <stop offset="100%" stopColor="#E8984A"/>
         </linearGradient>
       </defs>
       <circle cx="16" cy="16" r="14" fill="url(#globe-pill)" opacity="0.9"/>
-      <ellipse cx="16" cy="16" rx="6" ry="14" fill="none" stroke="0A0A0B_1" strokeWidth="1.5" opacity="0.6"/>
-      <line x1="2" y1="16" x2="30" y2="16" stroke="0A0A0B_1" strokeWidth="1.5" opacity="0.6"/>
-      <circle cx="16" cy="16" r="14" fill="none" stroke="0A0A0B_1" strokeWidth="1.5" opacity="0.3"/>
+      <ellipse cx="16" cy="16" rx="6" ry="14" fill="none" stroke="#0A0A0B" strokeWidth="1.5" opacity="0.6"/>
+      <line x1="2" y1="16" x2="30" y2="16" stroke="#0A0A0B" strokeWidth="1.5" opacity="0.6"/>
+      <circle cx="16" cy="16" r="14" fill="none" stroke="#0A0A0B" strokeWidth="1.5" opacity="0.3"/>
     </svg>
   );
 }

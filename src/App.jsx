@@ -9,36 +9,36 @@ import './styles/styles.css';
 // ─── i18n ──────────────────────────────────────────────────
 const T = {
   en: {
-    subtitle:      'Track timezones across our globally distributed workplaces.',
-    source:        'Source',
-    on:            'On',
-    at:            'At',
-    now:           'Now',
-    working:       'WORKING HOURS',
-    startingSoon:  'STARTING SOON',
-    outside:       'OUTSIDE HOURS',
-    footerLocal:   '100% Local · Everything happens within your browser',
+    subtitle: 'Track timezones across our globally distributed workplaces.',
+    source: 'Source',
+    on: 'On',
+    at: 'At',
+    now: 'Now',
+    working: 'WORKING HOURS',
+    startingSoon: 'STARTING SOON',
+    outside: 'OUTSIDE HOURS',
+    footerLocal: '100% Local · Everything happens within your browser',
     footerOpenSrc: 'Open Source',
-    footerBy:      'Crafted with',
-    footerRole:    'Engineering, PCI-ISO, Auth Tribe @ Pismo',
+    footerBy: 'Crafted with',
+    footerRole: 'Engineering, PCI-ISO, Auth Tribe @ Pismo',
     footerPrivacy: 'Zero data captured. Not your timezone, not your preferences, not your IP, not even a single pixel of telemetry. Everything literally happens inside your browser tab.',
-    holidayTitle:  'Pismo Holidays',
+    holidayTitle: 'Pismo Holidays',
   },
   pt: {
-    subtitle:      'Acompanhe os fusos horários dos nossos escritórios ao redor do mundo.',
-    source:        'Origem',
-    on:            'Em',
-    at:            'Às',
-    now:           'Agora',
-    working:       'EM HORÁRIO',
-    startingSoon:  'INÍCIO EM BREVE',
-    outside:       'FORA DO HORÁRIO',
-    footerLocal:   '100% Local · Tudo acontece no seu navegador',
+    subtitle: 'Acompanhe os fusos horários dos nossos escritórios ao redor do mundo.',
+    source: 'Origem',
+    on: 'Em',
+    at: 'Às',
+    now: 'Agora',
+    working: 'EM HORÁRIO',
+    startingSoon: 'INÍCIO EM BREVE',
+    outside: 'FORA DO HORÁRIO',
+    footerLocal: '100% Local · Tudo acontece no seu navegador',
     footerOpenSrc: 'Código Aberto',
-    footerBy:      'Criado com',
-    footerRole:    'Engenharia, PCI-ISO, Auth Tribe @ Pismo',
-    footerPrivacy: 'Nenhum dado capturado. Nem fuso horário, preferências, IP ou qualquer telemetria. Tudo acontece dentro da aba do seu navegador.',
-    holidayTitle:  'Feriados Pismo',
+    footerBy: 'Criado com',
+    footerRole: 'Engenharia, PCI-ISO, Auth Tribe @ Pismo',
+    footerPrivacy: 'Nenhum dado captured. Nem fuso horário, preferências, IP ou qualquer telemetria. Tudo acontece dentro da aba do seu navegador.',
+    holidayTitle: 'Feriados Pismo',
   },
 };
 
@@ -75,7 +75,7 @@ function Footer({ tx }) {
     <footer className="footer">
       <div className="footer__main">
         <span className="footer__privacy-wrapper">
-          <span className="footer__privacy-trigger">:lock:</span>
+          <span className="footer__privacy-trigger">🔒</span>
           <span className="footer__privacy-tooltip">{tx.footerPrivacy}</span>
         </span>
         {tx.footerLocal} · <a href="https://github.com/ashwingopalsamy/pismozones" target="_blank" rel="noopener noreferrer">{tx.footerOpenSrc}</a>
