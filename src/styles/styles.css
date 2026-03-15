@@ -1370,23 +1370,26 @@ body {
   justify-content: center;
   width: 34px;
   height: 34px;
-  background: var(--bg-control);
+  /* Solid white — matching active segmented pill */
+  background: rgba(255, 255, 255, 0.92);
   border: 1px solid var(--border-control);
   border-radius: var(--radius-full);
   cursor: pointer;
-  color: var(--text-secondary);
+  color: #1c1c1e;
   transition: all var(--duration-fast) var(--ease-out);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.30);
 }
 
 [data-theme="light"] .theme-toggle {
-  background: rgba(0, 0, 0, 0.08);
-  border-color: rgba(0, 0, 0, 0.10);
+  background: #ffffff;
+  border-color: var(--border-control);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 
 .theme-toggle:hover {
-  background: var(--bg-control-hover);
-  color: var(--text-primary);
-  transform: scale(1.05);
+  background: #ffffff;
+  transform: scale(1.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .theme-toggle svg {
@@ -2473,23 +2476,26 @@ body {
   justify-content: center;
   width: 34px;
   height: 34px;
-  background: var(--bg-control);
+  /* Solid white — matching active segmented pill */
+  background: rgba(255, 255, 255, 0.92);
   border: 1px solid var(--border-control);
   border-radius: var(--radius-full);
   cursor: pointer;
-  color: var(--text-secondary);
+  color: #1c1c1e;
   transition: all var(--duration-fast) var(--ease-out);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.30);
 }
 
 [data-theme="light"] .holiday-btn {
-  background: rgba(0, 0, 0, 0.08);
-  border-color: rgba(0, 0, 0, 0.10);
+  background: #ffffff;
+  border-color: var(--border-control);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 
 .holiday-btn:hover {
-  background: var(--bg-control-hover);
-  color: var(--text-primary);
-  transform: scale(1.05);
+  background: #ffffff;
+  transform: scale(1.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .holiday-btn svg {
