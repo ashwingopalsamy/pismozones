@@ -1,19 +1,116 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { TimePicker } from './TimePicker';
 import { DatePicker } from './DatePicker';
+import { CitySelector } from './CitySelector';
+// Only the three labels InputBar renders — full i18n lives in App.jsx
+const T = {
+  en: { source: 'Source', on: 'On', now: 'Now' },
+  pt: { source: 'Origem', on: 'Em', now: 'Agora' },
+};
+
+function GlobeLogo() {
+  return (
+    <svg className="input-bar__brand-logo" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="globe-pill" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#4A90D9"/>
+          <stop offset="50%" stopColor="#F5A623"/>
+          <stop offset="100%" stopColor="#E8984A"/>
+        </linearGradient>
+      </defs>
+      <circle cx="16" cy="16" r="14" fill="url(#globe-pill)" opacity="0.9"/>
+      <ellipse cx="16" cy="16" rx="6" ry="14" fill="none" stroke="#0A0A0B" strokeWidth="1.5" opacity="0.6"/>
+      <line x1="2" y1="16" x2="30" y2="16" stroke="#0A0A0B" strokeWidth="1.5" opacity="0.6"/>
+      <circle cx="16" cy="16" r="14" fill="none" stroke="#0A0A0B" strokeWidth="1.5" opacity="0.3"/>
+    </svg>
+  );
+}
+
+function LangToggle({ lang, onToggle }) {
+  return (
+    <div className="lang-toggle">
+      <button
+        className={`lang-btn${lang === 'en' ? ' lang-btn--active' : ''}`}
+        onClick={() => onToggle('en')}
+        type="button"
+      >EN</button>
+      <button
+        className={`lang-btn${lang === 'pt' ? ' lang-btn--active' : ''}`}
+        onClick={() => onToggle('pt')}
+        type="button"
+      >PT</button>
+    </div>
+  );
+}
+
+function ThemeToggle({ theme, onToggle }) {
+  return (
+    <button className="theme-toggle" onClick={onToggle} aria-label="Toggle theme" type="button">
+      {theme === 'dark' ? (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      )}
+    </button>
+  );
+}
+
+function HolidayButton({ onClick }) {
+  return (
+    <button className="holiday-btn" onClick={onClick} aria-label="View Pismo India holidays" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+        <path d="M8 14h.01"/>
+        <path d="M12 14h.01"/>
+        <path d="M16 14h.01"/>
+        <path d="M8 18h.01"/>
+        <path d="M12 18h.01"/>
+      </svg>
+    </button>
+  );
+}
+
 
 export function InputBar({
   sourceId,
   cities,
+  allCities,
+  activeCityIds,
   hour,
   minute,
   date,
   use24Hour,
+  lang = 'en',
+  theme,
   onSetSource,
   onUpdateTime,
   onSetNow,
   onToggleFormat,
+  onToggleLang,
+  onToggleTheme,
+  onShowHoliday,
+  onAddCity,
+  onRemoveCity,
+  onResetDefaults,
+  meetMode = false,
+  onToggleMeetMode,
 }) {
+  const tx = T[lang];
   const [timeInput, setTimeInput] = useState('');
   const [isFreshTime, setIsFreshTime] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -28,19 +125,19 @@ export function InputBar({
     const syncToSecond = () => {
       const now = new Date();
       const msUntilNextSecond = 1000 - now.getMilliseconds();
-      
+
       const timeout = setTimeout(() => {
         setIsPulse(true);
         setTimeout(() => setIsPulse(false), 500);
-        
+
         const interval = setInterval(() => {
           setIsPulse(true);
           setTimeout(() => setIsPulse(false), 500);
         }, 1000);
-        
+
         timeoutRef.current = interval;
       }, msUntilNextSecond);
-      
+
       return timeout;
     };
 
@@ -66,22 +163,19 @@ export function InputBar({
     try {
       const parts = dateStr.split('-');
       if (parts.length !== 3) return dateStr;
-      
       const year = parseInt(parts[0]);
       const month = parseInt(parts[1]) - 1;
       const day = parseInt(parts[2]);
-      
       const d = new Date(year, month, day);
-      return d.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        year: 'numeric' 
+      return d.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
       });
     } catch {
       return dateStr;
     }
   };
-
+  
   const handleTimeFocus = useCallback((e) => {
     e.target.select();
     setIsFreshTime(false);
@@ -90,46 +184,34 @@ export function InputBar({
 
   const handleTimeInput = useCallback((e) => {
     let value = e.target.value.replace(/[^\d:]/g, '');
-    
-    if (value.length > 5) {
-      value = value.slice(0, 5);
-    }
-    
+    if (value.length > 5) value = value.slice(0, 5);
     setTimeInput(value);
     setIsFreshTime(true);
 
     const parseAndUpdateTime = (hStr, mStr) => {
       let h = parseInt(hStr, 10);
+      let hVal = h;
       let m = parseInt(mStr, 10);
-      
-      if (isNaN(h) || isNaN(m) || m > 59 || m < 0) return;
-      
+      if (isNaN(hVal) || isNaN(m) || m > 59 || m < 0) return;
       if (use24Hour) {
-        h = Math.min(23, Math.max(0, h));
+        hVal = Math.min(23, Math.max(0, hVal));
       } else {
-        h = Math.min(12, Math.max(1, h));
-        if (period === 'PM' && h !== 12) h += 12;
-        else if (period === 'AM' && h === 12) h = 0;
+        hVal = Math.min(12, Math.max(1, hVal));
+        if (period === 'PM' && hVal !== 12) hVal += 12;
+        else if (period === 'AM' && hVal === 12) hVal = 0;
       }
-      
-      onUpdateTime({ hour: h, minute: m });
+      onUpdateTime({ hour: hVal, minute: m });
       setIsFreshTime(false);
     };
 
     if (value.includes(':')) {
       const [hStr, mStr] = value.split(':');
-      if (mStr && mStr.length === 2) {
-        parseAndUpdateTime(hStr, mStr);
-      }
+      if (mStr && mStr.length === 2) parseAndUpdateTime(hStr, mStr);
     } else {
       if (value.length === 4) {
-        const hStr = value.slice(0, 2);
-        const mStr = value.slice(2, 4);
-        parseAndUpdateTime(hStr, mStr);
+        parseAndUpdateTime(value.slice(0, 2), value.slice(2, 4));
       } else if (value.length === 3) {
-        const hStr = value.slice(0, 1);
-        const mStr = value.slice(1, 3);
-        parseAndUpdateTime(hStr, mStr);
+        parseAndUpdateTime(value.slice(0, 1), value.slice(1, 3));
       }
     }
   }, [use24Hour, period, onUpdateTime]);
@@ -140,35 +222,58 @@ export function InputBar({
   }, []);
 
   const handlePeriodToggle = useCallback(() => {
-    let newHour = hour;
-    if (hour < 12) newHour = hour + 12;
-    else newHour = hour - 12;
+    const newHour = hour < 12 ? hour + 12 : hour - 12;
     onUpdateTime({ hour: newHour });
   }, [hour, onUpdateTime]);
 
   return (
     <div className="input-bar">
-      
-      <div className="input-bar__item input-bar__item--source">
-        <span className="input-bar__static-label">From</span>
-        <div className="input-bar__group">
-          <select 
-            className="input-bar__select"
-            value={sourceId}
-            onChange={(e) => onSetSource(e.target.value)}
-          >
-            {cities.map(city => (
-              <option key={city.id} value={city.id}>
-                {city.flag} {city.name}
-              </option>
-            ))}
-          </select>
-        </div>
+
+      {/* ── Brand ── */}
+      <div className="input-bar__brand">
+        <GlobeLogo />
+        <span className="input-bar__brand-name">Pismo Zones</span>
       </div>
 
-      <div className="input-bar__item input-bar__item--date">
-        <span className="input-bar__static-label">On Date</span>
-        <button 
+      <div className="input-bar__divider" />
+
+      {/* ── Mode Toggle ── */}
+      <div className="input-bar__mode-toggle">
+        <button
+          className={`input-bar__mode-btn${!meetMode ? ' input-bar__mode-btn--active' : ''}`}
+          onClick={() => meetMode && onToggleMeetMode()}
+          type="button"
+        >Time</button>
+        <button
+          className={`input-bar__mode-btn${meetMode ? ' input-bar__mode-btn--active input-bar__mode-btn--meet' : ''}`}
+          onClick={() => !meetMode && onToggleMeetMode()}
+          type="button"
+        >Meet</button>
+      </div>
+      <div className="input-bar__divider" />
+
+      {/* ── Source: city + Now ── */}
+      <div className="input-bar__item input-bar__item--source">
+        <CitySelector
+          cities={allCities || cities}
+          value={sourceId}
+          onChange={onSetSource}
+          activeCityIds={activeCityIds}
+          onAddCity={onAddCity}
+          onRemoveCity={onRemoveCity}
+          onResetDefaults={onResetDefaults}
+        />
+        <button className="input-bar__now-btn" onClick={onSetNow} type="button">
+          <span className={`input-bar__now-indicator${isPulse ? ' input-bar__now-indicator--pulse' : ''}`} />
+          {tx.now}
+        </button>
+      </div>
+
+      <div className="input-bar__divider" />
+
+      {/* ── Date picker + time picker + format toggle ── */}
+      <div className="input-bar__item input-bar__item--time">
+        <button
           ref={dateTriggerRef}
           className="input-bar__date-pill"
           onClick={() => setShowDatePicker(true)}
@@ -187,10 +292,7 @@ export function InputBar({
           </div>
           <span className="input-bar__date-text">{formatDateDisplay(date)}</span>
         </button>
-      </div>
 
-      <div className="input-bar__item input-bar__item--time">
-        <span className="input-bar__static-label">At</span>
         <div className="input-bar__row">
           <div ref={timePillRef} className="input-bar__time-pill">
             <button
@@ -218,8 +320,8 @@ export function InputBar({
               onBlur={handleTimeBlur}
               placeholder="HH:MM"
             />
-            <button 
-              className={`input-bar__period-toggle ${use24Hour ? 'input-bar__period-toggle--hidden' : ''}`}
+            <button
+              className={`input-bar__period-toggle${use24Hour ? ' input-bar__period-toggle--hidden' : ''}`}
               onClick={handlePeriodToggle}
               type="button"
               aria-hidden={use24Hour}
@@ -232,7 +334,7 @@ export function InputBar({
 
           <div className="input-bar__format-toggle">
             <button
-              className={`input-bar__format-btn ${!use24Hour ? 'input-bar__format-btn--active' : ''}`}
+              className={`input-bar__format-btn${!use24Hour ? ' input-bar__format-btn--active' : ''}`}
               onClick={() => use24Hour && onToggleFormat()}
               type="button"
               aria-pressed={!use24Hour}
@@ -241,7 +343,7 @@ export function InputBar({
               12h
             </button>
             <button
-              className={`input-bar__format-btn ${use24Hour ? 'input-bar__format-btn--active' : ''}`}
+              className={`input-bar__format-btn${use24Hour ? ' input-bar__format-btn--active' : ''}`}
               onClick={() => !use24Hour && onToggleFormat()}
               type="button"
               aria-pressed={use24Hour}
@@ -253,12 +355,13 @@ export function InputBar({
         </div>
       </div>
 
-      <div className="input-bar__item input-bar__item--now">
-        <span className="input-bar__static-label">(or)</span>
-        <button className="input-bar__now-btn" onClick={onSetNow} type="button">
-          <span className={`input-bar__now-indicator ${isPulse ? 'input-bar__now-indicator--pulse' : ''}`} />
-          Now
-        </button>
+      <div className="input-bar__divider" />
+
+      {/* ── Actions: lang + theme + holidays ── */}
+      <div className="input-bar__item input-bar__item--actions">
+        <LangToggle lang={lang} onToggle={onToggleLang} />
+        <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+        <HolidayButton onClick={onShowHoliday} />
       </div>
 
       <TimePicker
@@ -270,7 +373,7 @@ export function InputBar({
         onTimeSelect={onUpdateTime}
         triggerRef={timePillRef}
       />
-      
+
       <DatePicker
         isOpen={showDatePicker}
         onClose={() => setShowDatePicker(false)}

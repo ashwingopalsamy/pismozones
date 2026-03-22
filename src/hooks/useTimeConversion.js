@@ -6,6 +6,7 @@ export const CITIES = [
     id: 'saopaulo',
     name: 'São Paulo',
     country: 'Brazil',
+    code: 'BR',
     timezone: 'America/Sao_Paulo',
     flag: '🇧🇷',
     address: 'Av. Brg. Faria Lima, 4221 São Paulo, SP, 04538-133',
@@ -14,6 +15,7 @@ export const CITIES = [
     id: 'austin',
     name: 'Austin',
     country: 'USA',
+    code: 'US',
     timezone: 'America/Chicago',
     flag: '🇺🇸',
     address: '12401 Research Blvd, Building II, Austin, Texas, 78759',
@@ -22,6 +24,7 @@ export const CITIES = [
     id: 'bristol',
     name: 'Bristol',
     country: 'UK',
+    code: 'UK',
     timezone: 'Europe/London',
     flag: '🇬🇧',
     address: 'One Temple Quay, Temple Back E, Bristol, BS1 6DZ',
@@ -30,6 +33,7 @@ export const CITIES = [
     id: 'bangalore',
     name: 'Bangalore',
     country: 'India',
+    code: 'IN',
     timezone: 'Asia/Kolkata',
     flag: '🇮🇳',
     address: 'Regus The Estate, 8th Floor, Dickenson Road, Bangalore, 560042',
@@ -38,22 +42,86 @@ export const CITIES = [
     id: 'singapore',
     name: 'Singapore',
     country: 'Singapore',
+    code: 'SG',
     timezone: 'Asia/Singapore',
     flag: '🇸🇬',
     address: 'Level 8, 71 Robinson Road, Singapore, 068895',
   },
+  {
+    id: 'warsaw',
+    name: 'Warsaw',
+    country: 'Poland',
+    code: 'PL',
+    timezone: 'Europe/Warsaw',
+    flag: '🇵🇱',
+    address: 'Pismo Warsaw Office',
+  },
+  {
+    id: 'mexicocity',
+    name: 'Mexico City',
+    country: 'Mexico',
+    code: 'MX',
+    timezone: 'America/Mexico_City',
+    flag: '🇲🇽',
+    address: 'Pismo Mexico City Office',
+  },
+  {
+    id: 'buenosaires',
+    name: 'Buenos Aires',
+    country: 'Argentina',
+    code: 'AR',
+    timezone: 'America/Argentina/Buenos_Aires',
+    flag: '🇦🇷',
+    address: 'Pismo Buenos Aires Office',
+  },
+  {
+    id: 'bogota',
+    name: 'Bogota',
+    country: 'Colombia',
+    code: 'CO',
+    timezone: 'America/Bogota',
+    flag: '🇨🇴',
+    address: 'Pismo Bogota Office',
+  },
+  {
+    id: 'sydney',
+    name: 'Sydney',
+    country: 'Australia',
+    code: 'AU',
+    timezone: 'Australia/Sydney',
+    flag: '🇦🇺',
+    address: 'Pismo Sydney Office',
+  },
 ];
 
+// Cities always shown by default
+export const DEFAULT_CITY_IDS = [
+  'austin', 'saopaulo', 'bristol', 'bangalore',
+];
+
+const STORAGE_KEY = 'pismo-active-cities';
+
+const loadActiveCityIds = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch { /* ignore */ }
+  return DEFAULT_CITY_IDS;
+};
+
 const GRADIENT_STOPS = [
-  { time: 0, top: [10, 10, 18], bottom: [26, 26, 46] },
-  { time: 4, top: [30, 42, 74], bottom: [42, 26, 10] },
-  { time: 6, top: [74, 106, 154], bottom: [245, 166, 35] },
-  { time: 9, top: [125, 211, 252], bottom: [224, 242, 254] },
-  { time: 12, top: [135, 206, 235], bottom: [186, 230, 253] },
-  { time: 17, top: [251, 191, 36], bottom: [96, 165, 250] },
-  { time: 19, top: [249, 115, 22], bottom: [49, 46, 129] },
-  { time: 21, top: [30, 27, 75], bottom: [15, 10, 26] },
-  { time: 24, top: [10, 10, 18], bottom: [26, 26, 46] },
+  { time: 0,  top: [14, 16, 44],    bottom: [24, 18, 54]    },  // midnight — desaturated navy
+  { time: 4,  top: [28, 40, 80],    bottom: [52, 18, 6]     },  // pre-dawn — blue softened
+  { time: 6,  top: [66, 100, 164],  bottom: [240, 146, 20]  },  // dawn — unchanged
+  { time: 9,  top: [98, 168, 222],  bottom: [165, 194, 224] },  // morning — unchanged
+  { time: 12, top: [102, 164, 212], bottom: [135, 180, 220] },  // noon — unchanged
+  { time: 17, top: [222, 158, 52],  bottom: [70, 138, 240]  },  // dusk — amber desaturated
+  { time: 19, top: [206, 110, 56],  bottom: [46, 42, 116]   },  // sunset — orange-red & blue desaturated
+  { time: 21, top: [26, 22, 70],    bottom: [14, 12, 40]    },  // night — indigo desaturated
+  { time: 24, top: [14, 16, 44],    bottom: [24, 18, 54]    },  // back to midnight
 ];
 
 const srgbToLinear = (value) => {
@@ -71,22 +139,22 @@ const relativeLuminance = ([r, g, b]) => {
 
 const getGradientColors = (hour, minute) => {
   const timeValue = hour + (minute / 60);
-  
+
   let i = 0;
   while(i < GRADIENT_STOPS.length - 1 && timeValue >= GRADIENT_STOPS[i+1].time) i++;
-  
+
   const lower = GRADIENT_STOPS[i];
   const upper = GRADIENT_STOPS[i+1] || GRADIENT_STOPS[0];
-  
+
   const range = upper.time - lower.time;
   const t = range > 0 ? (timeValue - lower.time) / range : 0;
-  
+
   const lerp = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
   const topColor = lerp(lower.top, upper.top, t);
   const bottomColor = lerp(lower.bottom, upper.bottom, t);
   const averageLuminance = (relativeLuminance(topColor) + relativeLuminance(bottomColor)) / 2;
   const contrastOverlay = Math.max(0, Math.min(0.22, (averageLuminance - 0.42) * 0.48));
-  
+
   return {
     top: `rgb(${topColor.join(',')})`,
     bottom: `rgb(${bottomColor.join(',')})`,
@@ -103,17 +171,17 @@ const getWorkState = (hour) => {
 const detectUserTimezone = () => {
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    
+
     const exactMatch = CITIES.find(c => c.timezone === tz);
     if (exactMatch) return exactMatch.id;
-    
+
     const now = DateTime.now();
     const userOffset = now.offset;
     const sameOffsetCity = CITIES.find(city => {
       const cityOffset = now.setZone(city.timezone).offset;
       return cityOffset === userOffset;
     });
-    
+
     return sameOffsetCity ? sameOffsetCity.id : 'saopaulo';
   } catch {
     return 'saopaulo';
@@ -129,10 +197,41 @@ export function useTimeConversion() {
   });
   const [use24Hour, setUse24Hour] = useState(false);
   const [tick, setTick] = useState(0);
+  const [activeCityIds, setActiveCityIds] = useState(loadActiveCityIds);
   const intervalRef = useRef(null);
 
+  // Persist activeCityIds whenever it changes
   useEffect(() => {
-    intervalRef.current = setInterval(() => setTick(t => t + 1), 1000);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(activeCityIds)); } catch { /* ignore */ }
+  }, [activeCityIds]);
+
+  const addCity = useCallback((id) => {
+    setActiveCityIds(prev => prev.includes(id) ? prev : [...prev, id]);
+  }, []);
+
+  const removeCity = useCallback((id) => {
+    if (id === 'saopaulo') return; // anchor city is always shown
+    setActiveCityIds(prev => prev.filter(c => c !== id));
+  }, []);
+
+  const resetToDefaults = useCallback(() => {
+    setActiveCityIds([...DEFAULT_CITY_IDS]);
+  }, []);
+
+  // Refs to avoid stale closures in the tick interval
+  const isLiveRef = useRef(true);
+  const sourceIdRef = useRef(sourceId);
+  useEffect(() => { sourceIdRef.current = sourceId; }, [sourceId]);
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setTick(t => t + 1);
+      // Auto-advance time when in live mode so dates + HH:MM update continuously
+      if (isLiveRef.current) {
+        const city = CITIES.find(c => c.id === sourceIdRef.current) || CITIES[0];
+        setSourceDateTime(DateTime.now().setZone(city.timezone));
+      }
+    }, 1000);
     return () => clearInterval(intervalRef.current);
   }, []);
 
@@ -143,37 +242,42 @@ export function useTimeConversion() {
   const convertedTimes = useMemo(() => {
     // Keep `tick` as an explicit dependency to recompute seconds every second.
     void tick;
-    
-    return CITIES.map(city => {
+
+    // Always include saopaulo (anchor) + whatever is active
+    const citySet = new Set(['saopaulo', ...activeCityIds]);
+
+    return CITIES.filter(city => citySet.has(city.id)).map(city => {
       const convertedDt = sourceDateTime.setZone(city.timezone);
       const nowInZone = DateTime.now().setZone(city.timezone);
       const hour = convertedDt.hour;
       const minute = convertedDt.minute;
-      
+
       const gradientColors = getGradientColors(hour, minute);
       const workState = getWorkState(hour);
-      
-      const sourceDay = sourceDateTime.startOf('day');
-      const cityDay = convertedDt.startOf('day');
+
+      // Compare local calendar dates as plain ISO strings — avoids UTC-midnight
+      // comparison bug where timezones far apart yield wrong ±1d results.
+      const sourceDay = DateTime.fromISO(sourceDateTime.toISODate());
+      const cityDay   = DateTime.fromISO(convertedDt.toISODate());
       const dayOffset = Math.round(cityDay.diff(sourceDay, 'days').days);
-      
+
       let dayLabel = null;
-      if (dayOffset === 1) dayLabel = 'Tomorrow';
-      else if (dayOffset === -1) dayLabel = 'Yesterday';
-      else if (dayOffset > 1) dayLabel = `+${dayOffset} days`;
-      else if (dayOffset < -1) dayLabel = `${dayOffset} days`;
-      
+      if (dayOffset === 1) dayLabel = '+1d';
+      else if (dayOffset === -1) dayLabel = '-1d';
+      else if (dayOffset > 1) dayLabel = `+${dayOffset}d`;
+      else if (dayOffset < -1) dayLabel = `${dayOffset}d`;
+
       const offsetMinutes = convertedDt.offset;
       const offsetHours = Math.floor(Math.abs(offsetMinutes) / 60);
       const offsetMins = Math.abs(offsetMinutes) % 60;
       const offsetSign = offsetMinutes >= 0 ? '+' : '-';
-      const utcOffset = offsetMins > 0 
+      const utcOffset = offsetMins > 0
         ? `UTC${offsetSign}${offsetHours}:${String(offsetMins).padStart(2, '0')}`
         : `UTC${offsetSign}${offsetHours}`;
-      
+
       const isDST = convertedDt.isInDST;
       const tzAbbreviation = convertedDt.toFormat('ZZZZ');
-      
+
       return {
         ...city,
         dateTime: convertedDt,
@@ -194,20 +298,37 @@ export function useTimeConversion() {
         formattedDate: convertedDt.toFormat('EEE, MMM d'),
       };
     });
-  }, [sourceDateTime, sourceId, tick]);
+  }, [sourceDateTime, sourceId, tick, activeCityIds]);
 
   const groupedCities = useMemo(() => {
     const others = convertedTimes.filter(c => c.id !== 'saopaulo');
+    const sortByOffsetThenName = (a, b) =>
+      a.dateTime.offset !== b.dateTime.offset
+        ? a.dateTime.offset - b.dateTime.offset
+        : a.name.localeCompare(b.name);
     return {
-      working: others.filter(c => c.workState === 'working'),
-      startingSoon: others.filter(c => c.workState === 'startingSoon'),
-      outside: others.filter(c => c.workState === 'outside'),
+      working: others.filter(c => c.workState === 'working').sort(sortByOffsetThenName),
+      startingSoon: others.filter(c => c.workState === 'startingSoon').sort(sortByOffsetThenName),
+      outside: others.filter(c => c.workState === 'outside').sort(sortByOffsetThenName),
     };
   }, [convertedTimes]);
 
   const brazilTime = convertedTimes.find(c => c.id === 'saopaulo');
 
+  // allCities is the full registry sorted by UTC offset — for the selector pool
+  const allCities = useMemo(() => {
+    return [...CITIES].sort((a, b) => {
+      const offA = DateTime.now().setZone(a.timezone).offset;
+      const offB = DateTime.now().setZone(b.timezone).offset;
+      return offA !== offB ? offA - offB : a.name.localeCompare(b.name);
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // sortedCities alias kept for backward compat with CitySelector source picker
+  const sortedCities = allCities;
+
   const updateTime = useCallback((updates) => {
+    isLiveRef.current = false; // User is pinning a specific time
     setSourceDateTime(prev => {
       let newDt = prev;
       if (updates.hour !== undefined) newDt = newDt.set({ hour: updates.hour });
@@ -221,6 +342,7 @@ export function useTimeConversion() {
   }, []);
 
   const setToNow = useCallback(() => {
+    isLiveRef.current = true; // Resume live mode
     const now = DateTime.now().setZone(sourceCity.timezone);
     setSourceDateTime(now);
   }, [sourceCity]);
@@ -248,6 +370,7 @@ export function useTimeConversion() {
   }, [sourceDateTime]);
 
   return {
+    sourceDateTime,
     sourceId,
     sourceCity,
     use24Hour,
@@ -256,6 +379,12 @@ export function useTimeConversion() {
     convertedTimes,
     sourceTimeComponents,
     cities: CITIES,
+    sortedCities,
+    allCities,
+    activeCityIds,
+    addCity,
+    removeCity,
+    resetToDefaults,
     updateTime,
     setToNow,
     setSource,
