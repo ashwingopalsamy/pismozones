@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AnchorCard, TimeCard } from './components/Cards';
 import { HolidayPanel } from './components/HolidayPanel';
 import { InputBar } from './components/InputBar';
 import { MeetPanel } from './components/MeetPanel';
+import { MeshBackground } from './components/MeshBackground';
 import { useTimeConversion } from './hooks/useTimeConversion';
 import { useMeetingSuggestions } from './hooks/useMeetingSuggestions';
 import './styles/styles.css';
@@ -53,21 +54,26 @@ function WorkStateSection({ title, indicator, cities, sourceId, onSelect, use24H
 
   return (
     <section className="work-state-section">
-      <header className="work-state-section__header">
-        <div className="work-state-section__title">
-          <span className={`work-state-section__indicator work-state-section__indicator--${indicator}`} />
-          {title}
-        </div>
+      <header className="work-state-section__header work-state-section__header--centered">
+        <div className="work-state-section__line work-state-section__line--left" />
+        <span className={`work-state-section__indicator work-state-section__indicator--${indicator}`} />
+        <div className="work-state-section__title">{title}</div>
+        <span className={`work-state-section__count work-state-section__count--${indicator}`}>
+          {cities.length}
+        </span>
+        <div className="work-state-section__line work-state-section__line--right" />
       </header>
       <div className="work-state-section__cards">
         <AnimatePresence mode="popLayout">
-          {cities.map(city => (
+          {cities.map((city, index) => (
             <TimeCard
               key={city.id}
               city={city}
+              index={index}
               isSource={city.id === sourceId}
               onSelect={onSelect}
               use24Hour={use24Hour}
+              lang={lang}
             />
           ))}
         </AnimatePresence>
@@ -164,37 +170,50 @@ export default function App() {
 
   return (
     <div className="app">
-      <InputBar
-        sourceId={sourceId}
-        cities={sortedCities}
-        allCities={allCities}
-        activeCityIds={activeCityIds}
-        hour={sourceTimeComponents.hour}
-        minute={sourceTimeComponents.minute}
-        date={sourceTimeComponents.date}
-        use24Hour={use24Hour}
-        onSetSource={setSource}
-        onUpdateTime={updateTime}
-        onSetNow={setToNow}
-        onToggleFormat={toggleFormat}
-        onAddCity={addCity}
-        onRemoveCity={removeCity}
-        onResetDefaults={resetToDefaults}
-        lang={lang}
-        theme={theme}
-        onToggleLang={setLang}
-        onToggleTheme={toggleTheme}
-        onShowHoliday={() => setShowHolidayPanel(true)}
-        meetMode={meetOpen}
-        onToggleMeetMode={() => setMeetOpen(true)}
-      />
+      <MeshBackground />
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
+      >
+        <InputBar
+          sourceId={sourceId}
+          cities={sortedCities}
+          allCities={allCities}
+          activeCityIds={activeCityIds}
+          hour={sourceTimeComponents.hour}
+          minute={sourceTimeComponents.minute}
+          date={sourceTimeComponents.date}
+          use24Hour={use24Hour}
+          onSetSource={setSource}
+          onUpdateTime={updateTime}
+          onSetNow={setToNow}
+          onToggleFormat={toggleFormat}
+          onAddCity={addCity}
+          onRemoveCity={removeCity}
+          onResetDefaults={resetToDefaults}
+          lang={lang}
+          theme={theme}
+          onToggleLang={setLang}
+          onToggleTheme={toggleTheme}
+          onShowHoliday={() => setShowHolidayPanel(true)}
+          meetMode={meetOpen}
+          onToggleMeetMode={() => setMeetOpen(true)}
+        />
+      </motion.div>
 
-      <main className="main">
+      <motion.main
+        className="main"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.12, duration: 0.3 }}
+      >
         <AnchorCard
           city={brazilTime}
           use24Hour={use24Hour}
           onSelect={setSource}
           isSource={sourceId === 'saopaulo'}
+          lang={lang}
         />
 
         {groupedCities.working.length === 1 && groupedCities.startingSoon.length === 1 ? (
@@ -207,7 +226,6 @@ export default function App() {
               onSelect={setSource}
               use24Hour={use24Hour}
               lang={lang}
-
             />
             <WorkStateSection
               title={tx.startingSoon}
@@ -217,7 +235,6 @@ export default function App() {
               onSelect={setSource}
               use24Hour={use24Hour}
               lang={lang}
-
             />
           </div>
         ) : (
@@ -230,7 +247,6 @@ export default function App() {
               onSelect={setSource}
               use24Hour={use24Hour}
               lang={lang}
-
             />
             <WorkStateSection
               title={tx.startingSoon}
@@ -240,7 +256,6 @@ export default function App() {
               onSelect={setSource}
               use24Hour={use24Hour}
               lang={lang}
-
             />
           </>
         )}
@@ -254,7 +269,7 @@ export default function App() {
           use24Hour={use24Hour}
           lang={lang}
         />
-      </main>
+      </motion.main>
 
       <Footer tx={tx} />
 

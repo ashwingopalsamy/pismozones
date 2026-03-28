@@ -2,10 +2,10 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { TimePicker } from './TimePicker';
 import { DatePicker } from './DatePicker';
 import { CitySelector } from './CitySelector';
-// Only the three labels InputBar renders — full i18n lives in App.jsx
+// Only the labels InputBar renders — full i18n lives in App.jsx
 const T = {
-  en: { source: 'Source', on: 'On', now: 'Now' },
-  pt: { source: 'Origem', on: 'Em', now: 'Agora' },
+  en: { source: 'Source', on: 'On', now: 'Now', time: 'Time', meet: 'Meet' },
+  pt: { source: 'Origem', on: 'Em', now: 'Agora', time: 'Hora', meet: 'Reuniao' },
 };
 
 function GlobeLogo() {
@@ -29,6 +29,10 @@ function GlobeLogo() {
 function LangToggle({ lang, onToggle }) {
   return (
     <div className="lang-toggle">
+      <div
+        className="lang-toggle__pill"
+        style={{ transform: lang === 'pt' ? 'translateX(100%)' : 'translateX(0)' }}
+      />
       <button
         className={`lang-btn${lang === 'en' ? ' lang-btn--active' : ''}`}
         onClick={() => onToggle('en')}
@@ -239,16 +243,20 @@ export function InputBar({
 
       {/* ── Mode Toggle ── */}
       <div className="input-bar__mode-toggle">
+        <div
+          className="input-bar__toggle-pill"
+          style={{ transform: meetMode ? 'translateX(100%)' : 'translateX(0)' }}
+        />
         <button
           className={`input-bar__mode-btn${!meetMode ? ' input-bar__mode-btn--active' : ''}`}
           onClick={() => meetMode && onToggleMeetMode()}
           type="button"
-        >Time</button>
+        >{tx.time}</button>
         <button
           className={`input-bar__mode-btn${meetMode ? ' input-bar__mode-btn--active input-bar__mode-btn--meet' : ''}`}
           onClick={() => !meetMode && onToggleMeetMode()}
           type="button"
-        >Meet</button>
+        >{tx.meet}</button>
       </div>
       <div className="input-bar__divider" />
 
@@ -333,21 +341,23 @@ export function InputBar({
           </div>
 
           <div className="input-bar__format-toggle">
+            <div
+              className="input-bar__toggle-pill"
+              style={{ transform: use24Hour ? 'translateX(100%)' : 'translateX(0)' }}
+            />
             <button
               className={`input-bar__format-btn${!use24Hour ? ' input-bar__format-btn--active' : ''}`}
-              onClick={() => use24Hour && onToggleFormat()}
+              onClick={onToggleFormat}
               type="button"
               aria-pressed={!use24Hour}
-              disabled={!use24Hour}
             >
               12h
             </button>
             <button
               className={`input-bar__format-btn${use24Hour ? ' input-bar__format-btn--active' : ''}`}
-              onClick={() => !use24Hour && onToggleFormat()}
+              onClick={onToggleFormat}
               type="button"
               aria-pressed={use24Hour}
-              disabled={use24Hour}
             >
               24h
             </button>

@@ -147,26 +147,43 @@ function HolidayList({ country, lang }) {
   // lang-aware: Brazil has PT name + EN note; other countries note = context only
   const getLabel = (h) => (lang === 'en' && h.note) ? h.note : h.name;
 
+  // Build flat index for stagger across all month groups
+  let flatIndex = 0;
+  const monthEntries = Object.entries(monthGroups);
+
   return (
     <div ref={contentRef} className="holiday-panel__content">
-      {Object.entries(monthGroups).map(([month, holidays]) => (
+      {monthEntries.map(([month, holidays]) => (
         <div
           key={month}
           className="holiday-month-group"
           ref={month === firstActiveMonth ? scrollTargetRef : null}
         >
           <div className="holiday-month-label">{month}</div>
-          {holidays.map(h => (
-            <div key={h.date + h.name} className={`holiday-item holiday-item--${h.state}`}>
-              <span className="holiday-dot" />
-              <span className="holiday-name">{getLabel(h)}</span>
-              <div className="holiday-item__right">
-                {h.state === 'today' && <span className="badge holiday-chip--today">TODAY</span>}
-                {h.state === 'next'  && <span className="badge holiday-chip--next">NEXT</span>}
-                <span className="holiday-date">{h.dt.toFormat('MMM d')}</span>
-              </div>
-            </div>
-          ))}
+          {holidays.map(h => {
+            const idx = flatIndex++;
+            return (
+              <motion.div
+                key={h.date + h.name}
+                className={`holiday-item holiday-item--${h.state}`}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  delay: 0.12 + idx * 0.056,
+                  duration: 0.2,
+                  ease: [0.2, 0.8, 0.2, 1],
+                }}
+              >
+                <span className="holiday-dot" />
+                <span className="holiday-name">{getLabel(h)}</span>
+                <div className="holiday-item__right">
+                  {h.state === 'today' && <span className="badge holiday-chip--today">TODAY</span>}
+                  {h.state === 'next'  && <span className="badge holiday-chip--next">NEXT</span>}
+                  <span className="holiday-date">{h.dt.toFormat('MMM d')}</span>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       ))}
     </div>
@@ -174,6 +191,31 @@ function HolidayList({ country, lang }) {
 }
 
 // ─── PanelContent ──────────────────────────────────────────────────
+function HeroCard({ country }) {
+  const processed = processHolidays(country.holidays, country.timezone);
+  const nextUp = processed.find(h => h.state === 'today' || h.state === 'next');
+  if (!nextUp) return null;
+
+  const nowLocal = DateTime.now().setZone(country.timezone).startOf('day');
+  const daysUntil = Math.round(nextUp.dt.diff(nowLocal, 'days').days);
+
+  return (
+    <div className={`holiday-hero holiday-hero--${country.id}`}>
+      <div className="holiday-hero__icon">{country.flag}</div>
+      <div className="holiday-hero__info">
+        <span className="holiday-hero__name">{nextUp.name}</span>
+        <span className="holiday-hero__date">{nextUp.dt.toFormat('EEE, MMM d')}</span>
+      </div>
+      <div className="holiday-hero__countdown">
+        <span className="holiday-hero__days">{daysUntil}</span>
+        <span className="holiday-hero__label">
+          {daysUntil === 0 ? 'today' : daysUntil === 1 ? 'day' : 'days'}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function PanelContent({ onClose, lang }) {
   const [activeTab, setActiveTab] = useState('brazil');
   const tx = PANEL_LABELS[lang] ?? PANEL_LABELS.en;
@@ -233,11 +275,15 @@ function PanelContent({ onClose, lang }) {
           </div>
         </div>
 
+        <HeroCard country={country} />
+
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            initial={{ opacity: 0, x: 8 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -8 }}
+            transition={{ duration: 0.16, ease: [0.2, 0.8, 0.2, 1] }}
             style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
           >
             <HolidayList country={country} lang={lang === 'pt' ? 'pt' : 'en'} />

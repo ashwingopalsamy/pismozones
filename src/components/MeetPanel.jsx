@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { DateTime } from 'luxon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { CitySelector } from './CitySelector';
@@ -60,6 +61,19 @@ function formatTimeFull(hour, minute, use24Hour) {
   return `${h12}:${String(minute).padStart(2, '0')} ${period}`;
 }
 
+const TZ_ABBR = {
+  "Asia/Kolkata": "IST",
+  "America/Sao_Paulo": "BRT",
+  "America/Chicago": "CST",
+  "Europe/London": "GMT",
+  "Asia/Singapore": "SGT",
+  "Europe/Warsaw": "CET",
+  "America/Mexico_City": "CST",
+  "America/Argentina/Buenos_Aires": "ART",
+  "America/Bogota": "COT",
+  "Australia/Sydney": "AEST",
+};
+
 function splitTime(timeStr, use24Hour) {
   if (use24Hour) return { time: timeStr, period: '' };
   const match = timeStr.match(/^(\d+:\d+)\s*(AM|PM)$/);
@@ -87,7 +101,14 @@ function officeHoursPosition(sourceOffset, cityOffset) {
   startHour = ((startHour % 24) + 24) % 24;
   const left = (startHour / 24) * 100;
   const width = (9 / 24) * 100;
-  return { left, width };
+  // If bar wraps past midnight, split into two segments
+  if (left + width > 100) {
+    return [
+      { left, width: 100 - left },           // right segment: start to midnight
+      { left: 0, width: (left + width) - 100 }, // left segment: midnight to end
+    ];
+  }
+  return [{ left, width }];
 }
 
 function stateWord(state, tx) {
@@ -112,6 +133,8 @@ function ModalContent({
 }) {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [customSlot, setCustomSlot] = useState(null);
+  const [trackTooltip, setTrackTooltip] = useState(null); // { x, time, trackIdx }
+  const [previewSlot, setPreviewSlot] = useState(null);
   const tx = T[lang] || T.en;
   const trackRef = useRef(null);
 
@@ -124,8 +147,10 @@ function ModalContent({
 
   // customSlot overrides suggestion selection when user clicks timeline
   const selectedSlot = customSlot ?? suggestions?.[selectedIdx] ?? suggestions?.[0] ?? null;
+  // Compute source offset directly from timezone using Luxon.
+  // Cannot rely on cityScores because the source city may not be in the active set.
   const sourceOffset = sourceCity
-    ? (selectedSlot?.cityScores?.find(cs => cs.id === sourceCity.id)?.offset ?? 0)
+    ? DateTime.now().setZone(sourceCity.timezone).offset
     : 0;
 
   const sourceCityData = sourceCity
@@ -171,6 +196,31 @@ function ModalContent({
     setSelectedIdx(idx);
   }, []);
 
+  // Timeline track hover — show local time tooltip at cursor X
+  const handleTrackHover = useCallback((e, city) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const pct = x / rect.width;
+    const sourceHour = pct * 24;
+    const cityOffset = selectedSlot?.cityScores?.find(cs => cs.id === city.id)?.offset ?? 0;
+    const localHour = ((sourceHour + (cityOffset - sourceOffset) / 60) % 24 + 24) % 24;
+    const h = Math.floor(localHour < 0 ? localHour + 24 : localHour);
+    const m = Math.round((localHour - Math.floor(localHour)) * 60) % 60;
+    const tzAbbr = TZ_ABBR[city.timezone] || "";
+    if (use24Hour) {
+      const timeStr = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")} ${tzAbbr}`;
+      setTrackTooltip({ x, time: timeStr, cityId: city.id });
+    } else {
+      const h12 = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+      const pm = h >= 12 ? "PM" : "AM";
+      const timeStr = `${String(h12).padStart(2, "0")}:${String(m).padStart(2, "0")} ${pm} ${tzAbbr}`;
+      setTrackTooltip({ x, time: timeStr, cityId: city.id });
+    }
+  }, [selectedSlot, use24Hour, sourceOffset]);
+
+  // Derive display slot: previewSlot (from alt hover) overrides selected
+  const displaySlot = previewSlot || selectedSlot;
+
   // Hero card data (rank 1)
   const heroSlot = suggestions?.[0] ?? null;
   const heroTime = heroSlot ? splitTime(formatTimeFull(heroSlot.hour, heroSlot.minute || 0, use24Hour), use24Hour) : { time: '--:--', period: '' };
@@ -184,15 +234,15 @@ function ModalContent({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.15 }}
         />
         {/* Animated modal — sibling to backdrop, centered by overlay flex */}
         <motion.div
           className="meet-modal"
-          initial={{ opacity: 0, scale: 0.96, y: 20 }}
+          initial={{ opacity: 0, scale: 0.98, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: 20 }}
-          transition={{ duration: 0.25, ease: [0.25, 1, 0.5, 1] }}
+          exit={{ opacity: 0, scale: 0.98, y: 10 }}
+          transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}
           role="dialog"
           aria-modal="true"
           aria-label="Sweet Spot — Meeting Time Finder"
@@ -236,7 +286,7 @@ function ModalContent({
 
         {/* ── HERO CARD (Rank #1) ── */}
         {heroSlot && (
-          <div className="meet-modal__hero">
+          <div className="meet-modal__hero" onClick={() => handleSelectSuggestion(0)} style={{ cursor: "pointer" }}>
             <div className="meet-modal__hero-top">
               <div className="meet-modal__hero-badge">1</div>
               <div className="meet-modal__hero-center">
@@ -289,6 +339,7 @@ function ModalContent({
 
         {/* ── SECTION: Timeline ── */}
         <div className="meet-modal__section-label">
+          <span className="meet-modal__section-line" />
           <span className="meet-modal__section-text">{tx.sectionTimeline}</span>
           <span className="meet-modal__section-line" />
         </div>
@@ -310,8 +361,8 @@ function ModalContent({
             </div>
 
             {/* City rows */}
-            {cities.map((city) => {
-              const cityScore = selectedSlot?.cityScores?.find(cs => cs.id === city.id);
+            {cities.map((city, cityIdx) => {
+              const cityScore = displaySlot?.cityScores?.find(cs => cs.id === city.id);
               const cityOffset = cityScore?.offset ?? 0;
               const office = officeHoursPosition(sourceOffset, cityOffset);
               const localTime = cityScore
@@ -321,7 +372,10 @@ function ModalContent({
               const isSource = city.id === sourceId;
 
               return [
-                <div key={`${city.id}-label`} className="meet-modal__tl-lw">
+                <div
+                  key={`${city.id}-label`}
+                  className="meet-modal__tl-lw"
+                >
                   <span className="meet-modal__tl-flag">{city.flag}</span>
                   <div className="meet-modal__tl-name-col">
                     <span className={`meet-modal__tl-code${isSource ? ' meet-modal__tl-code--source' : ''}`}>
@@ -330,18 +384,29 @@ function ModalContent({
                     <span className="meet-modal__tl-utc">{formatUtcOffset(cityOffset)}</span>
                   </div>
                 </div>,
-                <div key={`${city.id}-track`} className="meet-modal__tl-tw">
-                  <div className="meet-modal__tl-track" onClick={handleTrackClick}>
-                    <div
-                      className="meet-modal__tl-office"
-                      style={{ left: `${office.left}%`, width: `${office.width}%` }}
-                    />
-                    {selectedSlot && (
+                <div
+                  key={`${city.id}-track`}
+                  className="meet-modal__tl-tw"
+                >
+                  <div
+                    className="meet-modal__tl-track"
+                    onClick={handleTrackClick}
+                    onMouseMove={(e) => handleTrackHover(e, city)}
+                    onMouseLeave={() => setTrackTooltip(null)}
+                  >
+                    {office.map((seg, si) => (
                       <div
-                        className="meet-modal__tl-sweet"
+                        key={si}
+                        className="meet-modal__tl-office"
+                        style={{ left: `${seg.left}%`, width: `${seg.width}%` }}
+                      />
+                    ))}
+                    {displaySlot && (
+                      <div
+                        className={`meet-modal__tl-sweet${previewSlot ? ' meet-modal__tl-sweet--preview' : ''}`}
                         style={{
-                          left: `${selectedSlot.sweetLeft}%`,
-                          width: `${selectedSlot.sweetWidth}%`,
+                          left: `${displaySlot.sweetLeft}%`,
+                          width: `${displaySlot.sweetWidth}%`,
                         }}
                       >
                         <div className="meet-modal__tl-sweet-handle">
@@ -355,6 +420,15 @@ function ModalContent({
                       <span className="meet-modal__tl-local">{localTime}</span>
                     </div>
                   </div>
+                  {/* Tooltip + hairline rendered outside track to avoid overflow:hidden clip */}
+                  {trackTooltip && trackTooltip.cityId === city.id && (
+                    <>
+                      <div className="meet-modal__tl-hairline" style={{ left: trackTooltip.x }} />
+                      <div className="meet-modal__tl-tooltip" style={{ left: trackTooltip.x }}>
+                        {trackTooltip.time}
+                      </div>
+                    </>
+                  )}
                 </div>,
               ];
             })}
@@ -393,6 +467,7 @@ function ModalContent({
         {suggestions.length > 1 && (
           <>
             <div className="meet-modal__section-label">
+              <span className="meet-modal__section-line" />
               <span className="meet-modal__section-text">{tx.sectionAlts}</span>
               <span className="meet-modal__section-line" />
             </div>
@@ -408,6 +483,8 @@ function ModalContent({
                     key={slot.rank}
                     className={`meet-modal__alt${selectedIdx === realIdx ? ' meet-modal__alt--selected' : ''}`}
                     onClick={() => handleSelectSuggestion(realIdx)}
+                    onMouseEnter={() => setPreviewSlot(slot)}
+                    onMouseLeave={() => setPreviewSlot(null)}
                   >
                     <div className="meet-modal__alt-row">
                       <div className="meet-modal__alt-rank">{slot.rank}</div>

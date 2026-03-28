@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { DateTime } from 'luxon';
+import { isHoliday } from '../data/holidays';
 
 export const CITIES = [
   {
@@ -162,7 +163,10 @@ const getGradientColors = (hour, minute) => {
   };
 };
 
-const getWorkState = (hour) => {
+const getWorkState = (hour, weekday, country, isoDate) => {
+  // Weekend (Sat=6, Sun=7 in Luxon) or holiday = outside
+  if (weekday === 6 || weekday === 7) return 'outside';
+  if (country && isoDate && isHoliday(country, isoDate)) return 'outside';
   if (hour >= 9 && hour < 18) return 'working';
   if (hour >= 7 && hour < 9) return 'startingSoon';
   return 'outside';
@@ -253,7 +257,7 @@ export function useTimeConversion() {
       const minute = convertedDt.minute;
 
       const gradientColors = getGradientColors(hour, minute);
-      const workState = getWorkState(hour);
+      const workState = getWorkState(hour, convertedDt.weekday, city.country, convertedDt.toISODate());
 
       // Compare local calendar dates as plain ISO strings — avoids UTC-midnight
       // comparison bug where timezones far apart yield wrong ±1d results.
