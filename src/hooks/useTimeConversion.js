@@ -227,17 +227,32 @@ export function useTimeConversion() {
   const sourceIdRef = useRef(sourceId);
   useEffect(() => { sourceIdRef.current = sourceId; }, [sourceId]);
 
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setTick(t => t + 1);
-      // Auto-advance time when in live mode so dates + HH:MM update continuously
-      if (isLiveRef.current) {
-        const city = CITIES.find(c => c.id === sourceIdRef.current) || CITIES[0];
-        setSourceDateTime(DateTime.now().setZone(city.timezone));
-      }
-    }, 1000);
-    return () => clearInterval(intervalRef.current);
+  const doTick = useCallback(() => {
+    setTick(t => t + 1);
+    if (isLiveRef.current) {
+      const city = CITIES.find(c => c.id === sourceIdRef.current) || CITIES[0];
+      setSourceDateTime(DateTime.now().setZone(city.timezone));
+    }
   }, []);
+
+  useEffect(() => {
+    intervalRef.current = setInterval(doTick, 1000);
+
+    const handleVisibility = () => {
+      if (document.hidden) {
+        clearInterval(intervalRef.current);
+      } else {
+        doTick();
+        intervalRef.current = setInterval(doTick, 1000);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      clearInterval(intervalRef.current);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [doTick]);
 
   const sourceCity = useMemo(() => {
     return CITIES.find(c => c.id === sourceId) || CITIES[0];

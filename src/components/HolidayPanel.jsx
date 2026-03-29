@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { DateTime } from 'luxon';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 
 // ─── Panel labels (only strings this component needs from i18n) ───
 const PANEL_LABELS = {
@@ -218,6 +219,8 @@ function HeroCard({ country }) {
 
 function PanelContent({ onClose, lang }) {
   const [activeTab, setActiveTab] = useState('brazil');
+  const panelRef = useRef(null);
+  useFocusTrap(panelRef, true);
   const tx = PANEL_LABELS[lang] ?? PANEL_LABELS.en;
   const country = COUNTRIES[activeTab];
 
@@ -230,6 +233,7 @@ function PanelContent({ onClose, lang }) {
         onClick={onClose}
       />
       <motion.div
+        ref={panelRef}
         className="holiday-panel"
         initial={{ x: window.innerWidth <= 768 ? 0 : '100%', y: window.innerWidth <= 768 ? '100%' : 0 }}
         animate={{ x: 0, y: 0 }}

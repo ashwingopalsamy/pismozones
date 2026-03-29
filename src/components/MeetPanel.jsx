@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { CitySelector } from './CitySelector';
 import { useIsMobile } from './MobileDock';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 
 // ─── i18n ───────────────────────────────────────────────────
 const T = {
@@ -27,6 +28,8 @@ const T = {
     inHours: 'in hours',
     closing: 'closing',
     late: 'late',
+    share: 'Share',
+    copied: 'Copied!',
   },
   pt: {
     title: 'Melhor Horario',
@@ -48,6 +51,8 @@ const T = {
     inHours: 'em horario',
     closing: 'fechando',
     late: 'tarde',
+    share: 'Compartilhar',
+    copied: 'Copiado!',
   },
 };
 
@@ -136,8 +141,11 @@ function ModalContent({
   const [customSlot, setCustomSlot] = useState(null);
   const [trackTooltip, setTrackTooltip] = useState(null); // { x, time, trackIdx }
   const [previewSlot, setPreviewSlot] = useState(null);
+  const [copiedSlotRank, setCopiedSlotRank] = useState(null);
   const tx = T[lang] || T.en;
   const trackRef = useRef(null);
+  const modalRef = useRef(null);
+  useFocusTrap(modalRef, true);
   const isMobile = useIsMobile();
 
   // Escape key
@@ -220,6 +228,28 @@ function ModalContent({
     }
   }, [selectedSlot, use24Hour, sourceOffset]);
 
+  const handleShare = useCallback(async (slot) => {
+    const lines = slot.cityScores.map((cs) => {
+      const city = cities.find(c => c.id === cs.id);
+      const timeStr = formatTimeFull(cs.hour, cs.minute, use24Hour);
+      const tz = TZ_ABBR[city?.timezone] || '';
+      return `${city?.flag || ''} ${city?.name || cs.id}: ${timeStr} ${tz}`;
+    });
+    const text = `Meeting time suggestion:\n${lines.join('\n')}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Pismo Zones - Meeting Time', text });
+      } catch { /* user cancelled */ }
+    } else {
+      try {
+        await navigator.clipboard.writeText(text);
+        setCopiedSlotRank(slot.rank);
+        setTimeout(() => setCopiedSlotRank(null), 2000);
+      } catch { /* clipboard failed */ }
+    }
+  }, [cities, use24Hour]);
+
   // Derive display slot: previewSlot (from alt hover) overrides selected
   const displaySlot = previewSlot || selectedSlot;
 
@@ -241,6 +271,7 @@ function ModalContent({
         {/* Animated modal — sibling to backdrop, centered by overlay flex */}
         <motion.div
           className="meet-modal"
+          ref={modalRef}
           initial={{
             opacity: 0,
             y: window.innerWidth <= 768 ? '100%' : 10,
@@ -314,6 +345,20 @@ function ModalContent({
               <div className="meet-modal__hero-right">
                 <span className="meet-modal__hero-qt">{tx.best}</span>
               </div>
+              <button
+                className="meet-modal__share-btn"
+                onClick={(e) => { e.stopPropagation(); handleShare(heroSlot); }}
+                type="button"
+                aria-label={tx.share}
+                title={tx.share}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
+                  <polyline points="16 6 12 2 8 6" />
+                  <line x1="12" y1="2" x2="12" y2="15" />
+                </svg>
+                {copiedSlotRank === heroSlot.rank && <span className="meet-modal__copied">{tx.copied}</span>}
+              </button>
             </div>
             <div className="meet-modal__hero-sep" />
             <div className="meet-modal__hero-cities">
@@ -358,6 +403,20 @@ function ModalContent({
               <div className="meet-mobile__hero-summary">
                 <strong>{heroSlot.okCount} of {cityCount}</strong> {tx.officesInHours}
               </div>
+              <button
+                className="meet-modal__share-btn"
+                onClick={(e) => { e.stopPropagation(); handleShare(heroSlot); }}
+                type="button"
+                aria-label={tx.share}
+                title={tx.share}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
+                  <polyline points="16 6 12 2 8 6" />
+                  <line x1="12" y1="2" x2="12" y2="15" />
+                </svg>
+                {copiedSlotRank === heroSlot.rank && <span className="meet-modal__copied">{tx.copied}</span>}
+              </button>
             </div>
 
             {/* ── MOBILE CITY LIST (replaces timeline + pills) ── */}
@@ -555,6 +614,20 @@ function ModalContent({
                       <span className={`meet-modal__alt-qt meet-modal__alt-qt--${slot.quality}`}>
                         {qualityLabel}
                       </span>
+                      <button
+                        className="meet-modal__share-btn meet-modal__share-btn--sm"
+                        onClick={(e) => { e.stopPropagation(); handleShare(slot); }}
+                        type="button"
+                        aria-label={tx.share}
+                        title={tx.share}
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
+                          <polyline points="16 6 12 2 8 6" />
+                          <line x1="12" y1="2" x2="12" y2="15" />
+                        </svg>
+                        {copiedSlotRank === slot.rank && <span className="meet-modal__copied">{tx.copied}</span>}
+                      </button>
                     </div>
                     {!isMobile && (
                       <div className="meet-modal__alt-pills">

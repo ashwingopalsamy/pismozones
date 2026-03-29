@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    
+    <meta name="color-scheme" content="light dark" />
+
     <!-- Primary Meta Tags -->
     <title>Pismo Zones – Timezone Converter for Pismo's Global Workspaces</title>
     <meta name="title" content="Pismo Zones – Timezone Converter for Pismo's Global Workspaces" />
@@ -49,8 +50,10 @@
     <link rel="manifest" href="/manifest.json" />
     
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
     
     <!-- JSON-LD Structured Data -->
@@ -78,6 +81,14 @@
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;padding:2rem;text-align:center;background:#0f0f11;color:#fff;">
+        <div>
+          <h1 style="font-size:1.5rem;margin-bottom:0.5rem;">Pismo Zones</h1>
+          <p style="opacity:0.6;font-size:0.9rem;">This app requires JavaScript to run. Please enable JavaScript in your browser settings.</p>
+        </div>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
     <script>
       if ('serviceWorker' in navigator) {

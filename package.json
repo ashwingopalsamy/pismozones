@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node -e \"const fs=require('fs');const f='dist/sw.js';fs.writeFileSync(f,fs.readFileSync(f,'utf8').replace('pismozones-v1','pismozones-'+Date.now().toString(36)))\"",
     "lint": "eslint .",
     "preview": "vite preview"
   },

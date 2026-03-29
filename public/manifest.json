@@ -4,10 +4,25 @@
   "description": "Timezone converter for Pismo's global workspaces",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
   "background_color": "#0f0f11",
   "theme_color": "#000000",
   "orientation": "portrait",
   "categories": ["utilities", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Meeting Finder",
+      "short_name": "Meet",
+      "url": "/?mode=meet",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Holidays",
+      "short_name": "Holidays",
+      "url": "/?panel=holidays",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
   "icons": [
     {
       "src": "/favicon.svg",

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnchorCard, TimeCard } from './components/Cards';
 import { HolidayPanel } from './components/HolidayPanel';
@@ -6,6 +6,7 @@ import { InputBar } from './components/InputBar';
 import { MeetPanel } from './components/MeetPanel';
 import { MobileDock } from './components/MobileDock';
 import { MeshBackground } from './components/MeshBackground';
+import { InstallBanner } from './components/InstallBanner';
 import { useTimeConversion } from './hooks/useTimeConversion';
 import { useMeetingSuggestions } from './hooks/useMeetingSuggestions';
 import './styles/styles.css';
@@ -23,8 +24,7 @@ const T = {
     outside: 'OUTSIDE HOURS',
     footerLocal: '100% Local · Everything happens within your browser',
     footerOpenSrc: 'Open Source',
-    footerBy: 'Crafted with',
-    footerRole: 'Engineering, PCI-ISO, Auth Tribe @ Pismo',
+    footerRole: 'Auth Tribe @ Pismo',
     footerPrivacy: 'Zero data captured. Not your timezone, not your preferences, not your IP, not even a single pixel of telemetry. Everything literally happens inside your browser tab.',
     holidayTitle: 'Pismo Holidays',
     meetTitle: 'Sweet Spot',
@@ -40,9 +40,8 @@ const T = {
     startingSoon: 'INÍCIO EM BREVE',
     outside: 'FORA DO HORÁRIO',
     footerLocal: '100% Local · Tudo acontece no seu navegador',
-    footerOpenSrc: 'Código Aberto',
-    footerBy: 'Criado com',
-    footerRole: 'Engenharia, PCI-ISO, Auth Tribe @ Pismo',
+    footerOpenSrc: 'Codigo Aberto',
+    footerRole: 'Auth Tribe @ Pismo',
     footerPrivacy: 'Nenhum dado captured. Nem fuso horário, preferências, IP ou qualquer telemetria. Tudo acontece dentro da aba do seu navegador.',
     holidayTitle: 'Feriados Pismo',
     meetTitle: 'Melhor Horario',
@@ -94,7 +93,9 @@ function Footer({ tx }) {
         {tx.footerLocal} · <a href="https://github.com/ashwingopalsamy/pismozones" target="_blank" rel="noopener noreferrer">{tx.footerOpenSrc}</a>
       </div>
       <div className="footer__attribution">
-        {tx.footerBy} <span className="footer__heart">♥</span> by <a href="https://linkedin.com/in/ashwingopalsamy" target="_blank" rel="noopener noreferrer" className="footer__author">Ashwin Gopalsamy</a> · {tx.footerRole}
+        <a href="https://linkedin.com/in/ashwingopalsamy" target="_blank" rel="noopener noreferrer" className="footer__author">Ashwin Gopalsamy</a>
+        <span className="footer__heart">♥</span>
+        <span className="footer__role">{tx.footerRole}</span>
       </div>
     </footer>
   );
@@ -120,7 +121,15 @@ export default function App() {
 
   const [showHolidayPanel, setShowHolidayPanel] = useState(false);
   const [meetOpen, setMeetOpen] = useState(false);
-  const [lang, setLang] = useState('en');
+  const [lang, setLang] = useState(() => {
+    try { return localStorage.getItem('pismozones-lang') || 'en'; }
+    catch { return 'en'; } // eslint-disable-line no-empty
+  });
+
+  const handleLangChange = (newLang) => {
+    setLang(newLang);
+    try { localStorage.setItem('pismozones-lang', newLang); } catch { /* ignore */ }
+  };
   const tx = T[lang];
 
   useEffect(() => {
@@ -142,6 +151,66 @@ export default function App() {
     setTheme(t => t === 'dark' ? 'light' : 'dark');
     setIsExplicitChoice(true);
     localStorage.setItem('pismo-theme-explicit', 'true');
+  };
+
+  // ─── Browser back button closes modals ───
+  const openModal = useCallback((setter) => {
+    window.history.pushState({ modal: true }, '');
+    setter(true);
+  }, []);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (showHolidayPanel) setShowHolidayPanel(false);
+      if (meetOpen) setMeetOpen(false);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [showHolidayPanel, meetOpen]);
+
+  // ─── PWA shortcut URL params ───
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'meet') setMeetOpen(true);
+    if (params.get('panel') === 'holidays') setShowHolidayPanel(true);
+    if (params.toString()) {
+      window.history.replaceState({}, '', '/');
+    }
+  }, []);
+
+  // ─── Service Worker update notification ───
+  const [swUpdateAvailable, setSwUpdateAvailable] = useState(false);
+
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    const handleMessage = (event) => {
+      if (event.data?.type === 'SW_UPDATED') {
+        setSwUpdateAvailable(true);
+      }
+    };
+    navigator.serviceWorker.addEventListener('message', handleMessage);
+    navigator.serviceWorker.ready.then((registration) => {
+      if (registration.waiting) setSwUpdateAvailable(true);
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        if (!newWorker) return;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            setSwUpdateAvailable(true);
+          }
+        });
+      });
+    });
+    return () => navigator.serviceWorker.removeEventListener('message', handleMessage);
+  }, []);
+
+  const handleSwUpdate = () => {
+    navigator.serviceWorker.ready.then((registration) => {
+      if (registration.waiting) {
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+    });
+    window.location.reload();
   };
 
   const {
@@ -171,6 +240,13 @@ export default function App() {
 
   return (
     <div className="app">
+      <a href="#main-content" className="skip-link">Skip to content</a>
+      {swUpdateAvailable && (
+        <div className="sw-update-toast">
+          <span>New version available</span>
+          <button onClick={handleSwUpdate} type="button">Update</button>
+        </div>
+      )}
       <MeshBackground />
       <motion.div
         initial={{ opacity: 0, y: -8 }}
@@ -195,16 +271,17 @@ export default function App() {
           onResetDefaults={resetToDefaults}
           lang={lang}
           theme={theme}
-          onToggleLang={setLang}
+          onToggleLang={handleLangChange}
           onToggleTheme={toggleTheme}
-          onShowHoliday={() => setShowHolidayPanel(true)}
+          onShowHoliday={() => openModal(setShowHolidayPanel)}
           meetMode={meetOpen}
-          onToggleMeetMode={() => setMeetOpen(true)}
+          onToggleMeetMode={() => openModal(setMeetOpen)}
         />
       </motion.div>
 
       <motion.main
         className="main"
+        id="main-content"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.12, duration: 0.3 }}
@@ -303,14 +380,16 @@ export default function App() {
         lang={lang}
       />
 
+      <InstallBanner lang={lang} />
+
       <MobileDock
         lang={lang}
-        onToggleLang={setLang}
+        onToggleLang={handleLangChange}
         theme={theme}
         onToggleTheme={toggleTheme}
         use24Hour={use24Hour}
         onToggleFormat={toggleFormat}
-        onShowHoliday={() => setShowHolidayPanel(true)}
+        onShowHoliday={() => openModal(setShowHolidayPanel)}
         sourceId={sourceId}
         allCities={allCities}
         onSetNow={setToNow}
@@ -318,9 +397,10 @@ export default function App() {
         hour={sourceTimeComponents.hour}
         minute={sourceTimeComponents.minute}
         meetMode={meetOpen}
-        onToggleMeetMode={() => setMeetOpen(prev => !prev)}
+        onToggleMeetMode={() => meetOpen ? setMeetOpen(false) : openModal(setMeetOpen)}
         onUpdateTime={updateTime}
       />
+      <div aria-live="polite" className="sr-only" id="a11y-announcer" />
     </div>
   );
 }

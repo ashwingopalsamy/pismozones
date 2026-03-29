@@ -1,3 +1,4 @@
+// Cache name uses a placeholder that gets replaced at build time
 const CACHE_NAME = 'pismozones-v1';
 const STATIC_ASSETS = [
   '/',
@@ -5,6 +6,7 @@ const STATIC_ASSETS = [
   '/icon-192.png',
   '/icon-512.png',
   '/manifest.json',
+  '/offline.html',
 ];
 
 // Install: pre-cache the app shell
@@ -15,24 +17,36 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate: clean up old caches
+// Activate: clean up old caches and notify clients
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    ).then(() => {
+      return self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({ type: 'SW_UPDATED' });
+        });
+      });
+    })
   );
   self.clients.claim();
+});
+
+// Listen for skip-waiting message from the app
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 // Fetch: network-first for navigations, cache-first for assets
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
-  // Skip non-GET and chrome-extension requests
   if (request.method !== 'GET' || request.url.startsWith('chrome-extension')) return;
 
-  // Navigation: network-first (always get latest HTML)
+  // Navigation: network-first with offline fallback
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
@@ -41,7 +55,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           return response;
         })
-        .catch(() => caches.match(request))
+        .catch(() => caches.match(request).then((cached) => cached || caches.match('/offline.html')))
     );
     return;
   }
@@ -51,7 +65,6 @@ self.addEventListener('fetch', (event) => {
     caches.match(request).then((cached) => {
       if (cached) return cached;
       return fetch(request).then((response) => {
-        // Cache successful responses for static assets
         if (response.ok && (request.url.includes('/assets/') || request.url.match(/\.(js|css|woff2?|svg|png)$/))) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
