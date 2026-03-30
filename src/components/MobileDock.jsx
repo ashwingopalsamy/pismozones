@@ -261,24 +261,32 @@ export function MobileDock({
         {/* Row 2: Date|Time + Time|Meet + Holiday */}
         <div className="mobile-action-bar__row">
           <div className="mobile-action-bar__datetime">
-            <button
-              className="mobile-action-bar__date-btn"
-              onClick={triggerDatePicker}
-              type="button"
-              aria-label="Change date"
-            >
+            <div className="mobile-action-bar__date-btn" aria-label="Change date">
               {dateStr}
-            </button>
+              <input
+                ref={nativeDateRef}
+                type="date"
+                value={date || ''}
+                onChange={handleNativeDateChange}
+                className="mobile-action-bar__native-overlay"
+                tabIndex={-1}
+                aria-hidden="true"
+              />
+            </div>
             <span className="mobile-action-bar__separator" />
-            <button
-              className="mobile-action-bar__time-btn"
-              onClick={triggerTimePicker}
-              type="button"
-              aria-label="Change time"
-            >
+            <div className="mobile-action-bar__time-btn" aria-label="Change time">
               {timeStr}
               {period && <span className="mobile-action-bar__period">{period}</span>}
-            </button>
+              <input
+                ref={nativeTimeRef}
+                type="time"
+                value={`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`}
+                onChange={handleNativeTimeChange}
+                className="mobile-action-bar__native-overlay"
+                tabIndex={-1}
+                aria-hidden="true"
+              />
+            </div>
           </div>
 
           <div className="mobile-action-bar__mode-toggle">
@@ -305,25 +313,7 @@ export function MobileDock({
         </div>
       </div>
 
-      {/* Hidden native inputs for OS date/time pickers */}
-      <input
-        ref={nativeDateRef}
-        type="date"
-        value={date || ''}
-        onChange={handleNativeDateChange}
-        className="mobile-action-bar__native-input"
-        tabIndex={-1}
-        aria-hidden="true"
-      />
-      <input
-        ref={nativeTimeRef}
-        type="time"
-        value={`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`}
-        onChange={handleNativeTimeChange}
-        className="mobile-action-bar__native-input"
-        tabIndex={-1}
-        aria-hidden="true"
-      />
+      {/* Native inputs moved inline into date/time buttons as overlays */}
     </>
   );
 }
