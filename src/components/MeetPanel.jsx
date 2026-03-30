@@ -3,6 +3,7 @@ import { DateTime } from 'luxon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { CitySelector } from './CitySelector';
+import { useIsMobile } from './MobileDock';
 
 // ─── i18n ───────────────────────────────────────────────────
 const T = {
@@ -137,6 +138,7 @@ function ModalContent({
   const [previewSlot, setPreviewSlot] = useState(null);
   const tx = T[lang] || T.en;
   const trackRef = useRef(null);
+  const isMobile = useIsMobile();
 
   // Escape key
   useEffect(() => {
@@ -239,9 +241,17 @@ function ModalContent({
         {/* Animated modal — sibling to backdrop, centered by overlay flex */}
         <motion.div
           className="meet-modal"
-          initial={{ opacity: 0, scale: 0.98, y: 10 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.98, y: 10 }}
+          initial={{
+            opacity: 0,
+            y: window.innerWidth <= 768 ? '100%' : 10,
+            scale: window.innerWidth <= 768 ? 1 : 0.98,
+          }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{
+            opacity: 0,
+            y: window.innerWidth <= 768 ? '100%' : 10,
+            scale: window.innerWidth <= 768 ? 1 : 0.98,
+          }}
           transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}
           role="dialog"
           aria-modal="true"
@@ -285,7 +295,7 @@ function ModalContent({
         <div className="meet-modal__sep" />
 
         {/* ── HERO CARD (Rank #1) ── */}
-        {heroSlot && (
+        {heroSlot && !isMobile && (
           <div className="meet-modal__hero" onClick={() => handleSelectSuggestion(0)} style={{ cursor: "pointer" }}>
             <div className="meet-modal__hero-top">
               <div className="meet-modal__hero-badge">1</div>
@@ -335,16 +345,64 @@ function ModalContent({
           </div>
         )}
 
+        {/* ── MOBILE HERO (Clean Hierarchy) ── */}
+        {heroSlot && isMobile && (
+          <>
+            <div className="meet-mobile__hero" onClick={() => handleSelectSuggestion(0)}>
+              <div className="meet-mobile__hero-rank">{tx.best}</div>
+              <div className="meet-mobile__hero-time-row">
+                <span className="meet-mobile__hero-time">{heroTime.time}</span>
+                {heroTime.period && <span className="meet-mobile__hero-period">{heroTime.period}</span>}
+              </div>
+              <div className="meet-mobile__hero-tz">{sourceCityData?.code || 'BRT'} &middot; {tx.duration}</div>
+              <div className="meet-mobile__hero-summary">
+                <strong>{heroSlot.okCount} of {cityCount}</strong> {tx.officesInHours}
+              </div>
+            </div>
+
+            {/* ── MOBILE CITY LIST (replaces timeline + pills) ── */}
+            <div className="meet-mobile__cities">
+              <div className="meet-mobile__cities-header">
+                {tx.sectionTimeline}
+              </div>
+              {displaySlot?.cityScores
+                ?.slice()
+                .sort((a, b) => {
+                  const ha = a.hour * 60 + (a.minute || 0);
+                  const hb = b.hour * 60 + (b.minute || 0);
+                  return ha - hb;
+                })
+                .map((cs) => {
+                  const city = cities.find(c => c.id === cs.id);
+                  const isSource = cs.id === sourceId;
+                  return (
+                    <div key={cs.id} className={`meet-mobile__city-row${isSource ? ' meet-mobile__city-row--source' : ''}`}>
+                      <span className="meet-mobile__city-flag">{city?.flag || ''}</span>
+                      <span className="meet-mobile__city-name">{city?.name || cs.id}</span>
+                      <span className={`meet-mobile__city-dot meet-mobile__city-dot--${cs.state}`} />
+                      <span className={`meet-mobile__city-state meet-mobile__city-state--${isSource ? 'source' : cs.state}`}>
+                        {isSource ? tx.source : stateWord(cs.state, tx)}
+                      </span>
+                      <span className="meet-mobile__city-time">
+                        {formatTimeFull(cs.hour, cs.minute, use24Hour)}
+                      </span>
+                    </div>
+                  );
+                })}
+            </div>
+          </>
+        )}
+
         <div className="meet-modal__sep" style={{ marginTop: 16 }} />
 
-        {/* ── SECTION: Timeline ── */}
-        <div className="meet-modal__section-label">
+        {/* ── SECTION: Timeline (desktop only) ── */}
+        {!isMobile && <div className="meet-modal__section-label">
           <span className="meet-modal__section-line" />
           <span className="meet-modal__section-text">{tx.sectionTimeline}</span>
           <span className="meet-modal__section-line" />
-        </div>
+        </div>}
 
-        <div className="meet-modal__timeline">
+        {!isMobile && <div className="meet-modal__timeline">
           <div className="meet-modal__tl-grid" ref={trackRef}>
             {/* Gutter */}
             <div />
@@ -459,7 +517,7 @@ function ModalContent({
 
             {/* Drag hint removed — interaction is self-discoverable */}
           </div>
-        </div>
+        </div>}
 
         <div className="meet-modal__sep" />
 
@@ -483,8 +541,8 @@ function ModalContent({
                     key={slot.rank}
                     className={`meet-modal__alt${selectedIdx === realIdx ? ' meet-modal__alt--selected' : ''}`}
                     onClick={() => handleSelectSuggestion(realIdx)}
-                    onMouseEnter={() => setPreviewSlot(slot)}
-                    onMouseLeave={() => setPreviewSlot(null)}
+                    onMouseEnter={() => !isMobile ? setPreviewSlot(slot) : undefined}
+                    onMouseLeave={() => !isMobile ? setPreviewSlot(null) : undefined}
                   >
                     <div className="meet-modal__alt-row">
                       <div className="meet-modal__alt-rank">{slot.rank}</div>
@@ -498,13 +556,15 @@ function ModalContent({
                         {qualityLabel}
                       </span>
                     </div>
-                    <div className="meet-modal__alt-pills">
-                      {slot.cityScores.map((cs) => (
-                        <span key={cs.id} className="meet-modal__alt-pill">
-                          {cities.find(c => c.id === cs.id)?.flag || ''} {formatTimeFull(cs.hour, cs.minute, use24Hour)}
-                        </span>
-                      ))}
-                    </div>
+                    {!isMobile && (
+                      <div className="meet-modal__alt-pills">
+                        {slot.cityScores.map((cs) => (
+                          <span key={cs.id} className="meet-modal__alt-pill">
+                            {cities.find(c => c.id === cs.id)?.flag || ''} {formatTimeFull(cs.hour, cs.minute, use24Hour)}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               })}

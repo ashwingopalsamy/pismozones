@@ -69,6 +69,44 @@ export function Wheel({ items, value, onChange, label }) {
     dragStartRef.current.moved = false;
   }, [handleMouseMove, itemHeight, snapToIndex]);
 
+  const handleTouchStart = (e) => {
+    const touch = e.touches[0];
+    setIsDragging(true);
+    dragStartRef.current = {
+      y: touch.clientY,
+      offset: scrollOffset,
+      moved: false,
+    };
+  };
+
+  const handleTouchMove = useCallback((e) => {
+    if (!isDragging) return;
+    const touch = e.touches[0];
+    const delta = touch.clientY - dragStartRef.current.y;
+
+    if (Math.abs(delta) > 5) {
+      dragStartRef.current.moved = true;
+    }
+
+    if (dragStartRef.current.moved) {
+      e.preventDefault();
+      setScrollOffset(dragStartRef.current.offset + delta);
+    }
+  }, [isDragging]);
+
+  const handleTouchEnd = useCallback((e) => {
+    setIsDragging(false);
+
+    if (dragStartRef.current.moved) {
+      const touch = e.changedTouches[0];
+      const currentOffset = dragStartRef.current.offset + (touch.clientY - dragStartRef.current.y);
+      const nearestIndex = Math.round(-currentOffset / itemHeight);
+      snapToIndex(nearestIndex);
+    }
+
+    dragStartRef.current.moved = false;
+  }, [itemHeight, snapToIndex]);
+
   const handleWheel = (e) => {
     e.preventDefault();
     const delta = e.deltaY > 0 ? 1 : -1;
@@ -102,12 +140,15 @@ export function Wheel({ items, value, onChange, label }) {
       ref={containerRef}
       className="time-picker-wheel"
       onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       onWheel={handleWheel}
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="listbox"
       aria-label={label}
-      style={{ height: itemHeight * visibleItems }}
+      style={{ height: itemHeight * visibleItems, touchAction: 'none' }}
     >
       <div
         className="time-picker-wheel__indicator"

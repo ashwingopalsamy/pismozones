@@ -231,7 +231,9 @@ function PanelContent({ onClose, lang }) {
       />
       <motion.div
         className="holiday-panel"
-        initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+        initial={{ x: window.innerWidth <= 768 ? 0 : '100%', y: window.innerWidth <= 768 ? '100%' : 0 }}
+        animate={{ x: 0, y: 0 }}
+        exit={{ x: window.innerWidth <= 768 ? 0 : '100%', y: window.innerWidth <= 768 ? '100%' : 0 }}
         transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
         role="dialog"
         aria-modal="true"

@@ -4,6 +4,7 @@ import { AnchorCard, TimeCard } from './components/Cards';
 import { HolidayPanel } from './components/HolidayPanel';
 import { InputBar } from './components/InputBar';
 import { MeetPanel } from './components/MeetPanel';
+import { MobileDock } from './components/MobileDock';
 import { MeshBackground } from './components/MeshBackground';
 import { useTimeConversion } from './hooks/useTimeConversion';
 import { useMeetingSuggestions } from './hooks/useMeetingSuggestions';
@@ -49,7 +50,7 @@ const T = {
   },
 };
 
-function WorkStateSection({ title, indicator, cities, sourceId, onSelect, use24Hour, lang }) {
+function WorkStateSection({ title, indicator, cities, sourceId, onSelect, use24Hour, lang, cardMode }) {
   if (cities.length === 0) return null;
 
   return (
@@ -63,7 +64,7 @@ function WorkStateSection({ title, indicator, cities, sourceId, onSelect, use24H
         </span>
         <div className="work-state-section__line work-state-section__line--right" />
       </header>
-      <div className="work-state-section__cards">
+      <div className="work-state-section__cards" data-card-mode={cardMode}>
         <AnimatePresence mode="popLayout">
           {cities.map((city, index) => (
             <TimeCard
@@ -226,6 +227,7 @@ export default function App() {
               onSelect={setSource}
               use24Hour={use24Hour}
               lang={lang}
+              cardMode={groupedCities.working.length <= 4 ? 'full' : 'compact'}
             />
             <WorkStateSection
               title={tx.startingSoon}
@@ -235,6 +237,7 @@ export default function App() {
               onSelect={setSource}
               use24Hour={use24Hour}
               lang={lang}
+              cardMode={groupedCities.startingSoon.length <= 4 ? 'full' : 'compact'}
             />
           </div>
         ) : (
@@ -247,6 +250,7 @@ export default function App() {
               onSelect={setSource}
               use24Hour={use24Hour}
               lang={lang}
+              cardMode={groupedCities.working.length <= 4 ? 'full' : 'compact'}
             />
             <WorkStateSection
               title={tx.startingSoon}
@@ -256,6 +260,7 @@ export default function App() {
               onSelect={setSource}
               use24Hour={use24Hour}
               lang={lang}
+              cardMode={groupedCities.startingSoon.length <= 4 ? 'full' : 'compact'}
             />
           </>
         )}
@@ -268,6 +273,7 @@ export default function App() {
           onSelect={setSource}
           use24Hour={use24Hour}
           lang={lang}
+          cardMode={groupedCities.outside.length > 1 ? 'compact' : 'full'}
         />
       </motion.main>
 
@@ -295,6 +301,25 @@ export default function App() {
         onSetSource={setSource}
         sourceId={sourceId}
         lang={lang}
+      />
+
+      <MobileDock
+        lang={lang}
+        onToggleLang={setLang}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        use24Hour={use24Hour}
+        onToggleFormat={toggleFormat}
+        onShowHoliday={() => setShowHolidayPanel(true)}
+        sourceId={sourceId}
+        allCities={allCities}
+        onSetNow={setToNow}
+        date={sourceTimeComponents.date}
+        hour={sourceTimeComponents.hour}
+        minute={sourceTimeComponents.minute}
+        meetMode={meetOpen}
+        onToggleMeetMode={() => setMeetOpen(prev => !prev)}
+        onUpdateTime={updateTime}
       />
     </div>
   );

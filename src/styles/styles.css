@@ -1189,16 +1189,18 @@ body {
 }
 
 @media (max-width: 768px) {
+  /* ─── Base layout ─── */
   html, body {
     height: auto;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   .app {
     padding: var(--space-2);
+    padding-top: calc(env(safe-area-inset-top, 0px) + var(--space-2));
     height: auto;
-    min-height: 100vh;
+    min-height: 100dvh;
     overflow: visible;
   }
 
@@ -1207,86 +1209,56 @@ body {
     overflow: visible;
     height: auto;
     padding: 0;
+    padding-top: 48px; /* slim settings bar (~36px) + 12px gap */
+    padding-bottom: 120px; /* two-row action bar (~100px) + safe area buffer */
+    gap: 8px;
   }
-  
+
+  /* ─── InputBar: hidden on mobile (stays mounted for picker state) ─── */
   .input-bar {
-    flex-direction: column;
-    align-items: stretch;
-    padding: var(--space-4);
-    margin: 0; /* Remove side margins on mobile */
-    height: auto;
-    border-radius: var(--radius-full);
-    gap: var(--space-4);
-    width: 100%; /* Full width on mobile */
-    overflow-x: auto;
-    overflow-y: hidden;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    position: absolute !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
   }
 
-  .input-bar::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .input-bar__item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-2);
-    width: 100%;
-  }
-
-  .input-bar__static-label {
-    padding-left: 2px;
-    font-size: var(--text-xs);
-    color: var(--text-tertiary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  
-  .input-bar__date-pill {
-    width: 100%;
-    margin: 0;
-    justify-content: flex-start;
-  }
-
-  .input-bar__date-text {
-    flex: 1;
-    text-align: center;
-    padding-right: 34px; 
-  }
-
-  .input-bar__item--time .input-bar__row {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .input-bar__time-pill {
-    flex: 1;
-    max-width: none;
-    justify-content: center;
-  }
-
-  .input-bar__time-input {
-    width: 60px;
-    text-align: center;
-  }
-
-  .input-bar__format-toggle {
-    flex-shrink: 0;
-  }
-
-  .input-bar__now-btn {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  .work-state-section__cards {
+  /* ─── Adaptive cards: full-width mode (per-section) ─── */
+  .work-state-section__cards[data-card-mode="full"] {
     grid-template-columns: 1fr;
+    gap: 6px;
   }
-  
+
+  /* ─── Adaptive cards: compact 2-column mode (per-section) ─── */
+  .work-state-section__cards[data-card-mode="compact"] {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 6px;
+  }
+
   .work-state-combined-row {
     grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  /* ─── Work state headers: compact ─── */
+  .work-state-section__header {
+    padding: 10px 4px 2px;
+  }
+
+  .work-state-section__indicator {
+    width: 6px;
+    height: 6px;
+  }
+
+  .work-state-section__title {
+    font-size: 10px;
+  }
+
+  .work-state-section__count {
+    font-size: 10px;
   }
 }
 
@@ -2084,23 +2056,122 @@ body {
 }
 
 @media (max-width: 768px) {
+  /* ─── Anchor card: compact, full-width hero ─── */
   .anchor-card {
-    padding: var(--space-4);
-    border-radius: var(--radius-xl);
+    padding: 12px 14px 10px;
+    border-radius: 20px;
+    min-height: auto;
+    gap: 4px;
   }
-  
+
+  .anchor-card__city {
+    font-size: 13px;
+  }
+
+  .anchor-card__footer {
+    flex-wrap: nowrap;
+    align-items: baseline;
+  }
+
   .anchor-card__time {
-    font-size: clamp(36px, 10vw, 52px);
+    font-size: clamp(28px, 9vw, 36px);
   }
-  
+
+  .anchor-card__seconds {
+    font-size: 14px;
+  }
+
+  .anchor-card__period {
+    font-size: 10px;
+  }
+
+  .anchor-card__footer-right {
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .anchor-card__date {
+    font-size: 10px;
+  }
+
+  /* ─── Time card: shared mobile base ─── */
   .time-card {
-    border-radius: var(--radius-lg);
+    min-height: auto;
+    min-width: 0;
+    overflow: hidden;
   }
-  
-  .time-card__time {
-    font-size: var(--text-3xl);
+
+  /* Hide secondary badges on mobile — source is in action bar, DST is secondary */
+  .time-card .badge--dst,
+  .time-card .badge--source,
+  .time-card .badge--source-ring {
+    display: none !important;
   }
-  
+
+  .time-card__source-slot {
+    display: none;
+  }
+
+  .time-card__time-row {
+    flex-wrap: nowrap;
+    align-items: baseline;
+    overflow: hidden;
+  }
+
+  .time-card__date-hover {
+    display: block;
+    opacity: 1;
+    margin-left: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  /* ─── Full-width time cards (<=4 cards, anchor-like) ─── */
+  [data-card-mode="full"] .time-card {
+    border-radius: 18px;
+    padding: 10px 14px 8px;
+    gap: 4px;
+  }
+
+  [data-card-mode="full"] .time-card__header { gap: 3px; }
+  [data-card-mode="full"] .time-card__location { gap: 4px; }
+  [data-card-mode="full"] .time-card__flag { font-size: 14px; }
+  [data-card-mode="full"] .time-card__city { font-size: 12px; }
+  [data-card-mode="full"] .time-card__meta-top { gap: 3px; }
+  [data-card-mode="full"] .time-card__time { font-size: 24px; }
+  [data-card-mode="full"] .time-card__seconds { display: inline; font-size: 11px; }
+  [data-card-mode="full"] .time-card__period { font-size: 9px; }
+  [data-card-mode="full"] .time-card__date-hover { font-size: 9px; }
+  [data-card-mode="full"] .badge { padding: 2px 6px; font-size: 8px; }
+
+  /* ─── Compact time cards (5+ cards, 2-column grid) ─── */
+  [data-card-mode="compact"] .time-card {
+    border-radius: 14px;
+    padding: 8px 10px 7px;
+    gap: 2px;
+  }
+
+  [data-card-mode="compact"] .time-card__header { gap: 2px; min-width: 0; }
+  [data-card-mode="compact"] .time-card__location { flex-shrink: 1; gap: 3px; }
+  [data-card-mode="compact"] .time-card__flag { font-size: 11px !important; }
+  [data-card-mode="compact"] .time-card__city { font-size: 9px !important; }
+  [data-card-mode="compact"] .time-card__meta-top { flex-shrink: 1; gap: 2px; min-width: 0; overflow: hidden; }
+  [data-card-mode="compact"] .time-card__time { font-size: 16px !important; }
+  [data-card-mode="compact"] .time-card__seconds { display: none !important; }
+  [data-card-mode="compact"] .time-card__period { font-size: 7px !important; }
+  /* Scale trick: browsers enforce ~10px minimum font-size. Use transform to shrink below that. */
+  [data-card-mode="compact"] .time-card__date-hover { font-size: 8px !important; transform: scale(0.85); transform-origin: right center; opacity: 0.65; }
+  [data-card-mode="compact"] .time-card .badge { font-size: 6px !important; padding: 1px 3px !important; line-height: 1.2; letter-spacing: -0.02em; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.10) !important; opacity: 0.6; }
+
+  .time-card:active {
+    transform: scale(0.98);
+    transition: transform 100ms;
+  }
+
+  /* ─── Pickers ─── */
   .time-picker-modal {
     min-width: auto;
     width: calc(100vw - var(--space-8));
@@ -2110,6 +2181,126 @@ body {
 
   .time-picker-wheel {
     width: 70px;
+  }
+
+  /* ─── Pickers: bottom-sheet positioning for thumb reach ─── */
+  .time-picker-overlay {
+    z-index: 9998;
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+  }
+
+  .time-picker-dropdown {
+    position: relative !important;
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 22px 22px 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    transform: none !important; /* override Framer Motion residual transforms */
+  }
+
+  /* ─── CitySelector: mobile bottom sheet ─── */
+  .city-selector__overlay {
+    position: fixed !important;
+    inset: 0;
+    z-index: 9998;
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  .city-selector__dropdown {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 22px 22px 0 0 !important;
+    max-height: calc(100vh - env(safe-area-inset-top, 0px) - 48px) !important;
+    z-index: 9999;
+    transform: none !important;
+    padding-bottom: calc(66px + env(safe-area-inset-bottom, 0px));
+    overflow: hidden !important;
+  }
+
+  /* ── Source Selector: polished mobile bottom sheet ── */
+  .city-selector__dropdown .cs-search { padding: 14px 16px 12px; }
+  .city-selector__dropdown .cs-search__input { font-size: 15px; }
+
+  .city-selector__dropdown .cs-legend {
+    padding: 6px 16px 8px;
+    font-size: 10px;
+    gap: 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .city-selector__dropdown .cs-legend::-webkit-scrollbar { display: none; }
+
+  .city-selector__dropdown .cs-row { padding: 10px 14px; margin: 0 4px; }
+  .city-selector__dropdown .cs-flag { font-size: 16px; }
+  .city-selector__dropdown .cs-name { font-size: 13px; }
+  .city-selector__dropdown .cs-country { font-size: 10px; }
+  .city-selector__dropdown .cs-time-val { font-size: 12px; }
+  .city-selector__dropdown .cs-utc { font-size: 9px; }
+  .city-selector__dropdown .cs-toggle { width: 28px; height: 28px; }
+  .city-selector__dropdown .cs-toggle svg { width: 12px; height: 12px; }
+  .city-selector__dropdown .cs-section__header { padding: 10px 14px 6px; }
+
+  /* Footer: fixed bottom pill matching meeting modal close style */
+  .city-selector__dropdown .cs-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    gap: 10px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background: rgba(28, 28, 32, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    z-index: 10;
+  }
+  [data-theme="light"] .city-selector__dropdown .cs-footer {
+    background: rgba(252, 252, 255, 0.92);
+    border-top-color: rgba(0, 0, 0, 0.06);
+  }
+  .city-selector__dropdown .cs-footer__keys { display: none; }
+  .city-selector__dropdown .cs-footer__done {
+    flex: 1;
+    height: 44px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  [data-theme="light"] .city-selector__dropdown .cs-footer__done {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.08);
+    color: #1a1a1a;
+  }
+  .city-selector__dropdown .cs-footer__reset {
+    font-size: 13px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  /* ─── Badges: shared mobile base ─── */
+  .badge {
+    padding: 2px 5px;
+    font-size: 8px;
   }
 }
 
@@ -4422,3 +4613,786 @@ body {
 [data-theme="dark"] .holiday-hero--uk .holiday-hero__days { color: #60a5fa; }
 [data-theme="dark"] .holiday-hero--usa .holiday-hero__days { color: #60a5fa; }
 [data-theme="dark"] .holiday-hero--poland .holiday-hero__days { color: #fb7185; }
+
+/* ═══ Mobile Settings Bar (top) + Action Bar (bottom) ══════ */
+.mobile-settings-bar,
+.mobile-action-bar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* ─── Settings Bar: slim centered pill at top ─── */
+  .mobile-settings-bar {
+    display: inline-flex;
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 12px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    border-radius: 9999px;
+    background: rgba(28, 28, 30, 0.55);
+    backdrop-filter: blur(50px) saturate(180%);
+    -webkit-backdrop-filter: blur(50px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
+      0 2px 8px rgba(0,0,0,0.06),
+      0 4px 16px rgba(0,0,0,0.10);
+    padding: 5px 14px;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .mobile-settings-bar__inner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .mobile-settings-bar__brand {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .mobile-settings-bar__logo {
+    width: 18px;
+    height: 18px;
+  }
+
+  .mobile-settings-bar__brand-name {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-primary);
+    opacity: 0.85;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+
+  .mobile-settings-bar__controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+  }
+
+  .mobile-settings-bar__toggle {
+    display: flex;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 9999px;
+    padding: 2px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    font-family: var(--font-sans);
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    gap: 0;
+  }
+
+  .mobile-settings-bar__toggle span {
+    padding: 3px 8px;
+    border-radius: 9999px;
+    opacity: 0.4;
+    transition: all 150ms var(--ease-out);
+  }
+
+  .mobile-settings-bar__toggle .mobile-settings-bar__active {
+    background: rgba(20, 20, 22, 0.85);
+    opacity: 1;
+    color: #ffffff;
+  }
+
+  .mobile-settings-bar__theme-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 9999px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+  }
+
+  .mobile-settings-bar__theme-btn svg {
+    width: 14px;
+    height: 14px;
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+
+  /* ─── Action Bar: two-row glass panel at bottom ─── */
+  .mobile-action-bar {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    left: 8px;
+    right: 8px;
+    z-index: 100;
+    border-radius: 22px;
+    padding: 10px 10px 10px;
+    background: rgba(28, 28, 30, 0.75);
+    backdrop-filter: blur(50px) saturate(180%);
+    -webkit-backdrop-filter: blur(50px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
+      0 2px 8px rgba(0,0,0,0.06),
+      0 8px 32px rgba(0,0,0,0.14),
+      0 20px 60px rgba(0,0,0,0.10);
+    gap: 6px;
+  }
+
+  .mobile-action-bar__row {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  /* ── Row 1: Source pill + Now button ── */
+  .mobile-action-bar__source {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    background: rgba(0, 0, 0, 0.30);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 9999px;
+    padding: 9px 14px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+  }
+
+  .mobile-action-bar__source:active {
+    background: rgba(0, 0, 0, 0.40);
+    transform: scale(0.98);
+  }
+
+  .mobile-action-bar__flag {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .mobile-action-bar__city-name {
+    font-size: 13px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mobile-action-bar__source-badge {
+    font-size: 7px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 5px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: var(--text-secondary);
+    opacity: 0.6;
+    flex-shrink: 0;
+  }
+
+  .mobile-action-bar__chevron {
+    margin-left: auto;
+    opacity: 0.35;
+    flex-shrink: 0;
+  }
+
+  .mobile-action-bar__chevron svg {
+    width: 10px;
+    height: 6px;
+  }
+
+  /* Now button: green dot + text */
+  .mobile-action-bar__now-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(52, 199, 89, 0.12);
+    border: 1.5px solid rgba(52, 199, 89, 0.35);
+    border-radius: 9999px;
+    padding: 8px 12px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+    color: rgba(52, 199, 89, 0.95);
+    font-family: var(--font-sans);
+  }
+
+  .mobile-action-bar__now-btn:active {
+    background: rgba(52, 199, 89, 0.22);
+    transform: scale(0.95);
+  }
+
+  .mobile-action-bar__now-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #34c759;
+    box-shadow: 0 0 6px rgba(52, 199, 89, 0.60);
+    flex-shrink: 0;
+    transition: box-shadow 300ms ease;
+  }
+
+  .mobile-action-bar__now-dot--pulse {
+    box-shadow: 0 0 12px rgba(52, 199, 89, 0.90);
+  }
+
+  .mobile-action-bar__now-text {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Row 2: Date|Time + Mode toggle + Holiday ── */
+  .mobile-action-bar__datetime {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.30);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+
+  .mobile-action-bar__date-btn,
+  .mobile-action-bar__time-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 9px 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .mobile-action-bar__date-btn:active,
+  .mobile-action-bar__time-btn:active {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .mobile-action-bar__separator {
+    width: 1px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.10);
+    flex-shrink: 0;
+  }
+
+  .mobile-action-bar__period {
+    font-size: 9px;
+    font-weight: 600;
+    opacity: 0.6;
+    margin-left: 1px;
+  }
+
+  /* Mode toggle pill */
+  .mobile-action-bar__mode-toggle {
+    display: flex;
+    background: rgba(0, 0, 0, 0.30);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 9999px;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+
+  .mobile-action-bar__mode-btn {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 7px 12px;
+    border-radius: 9999px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    color: var(--text-secondary);
+    opacity: 0.45;
+    transition: all 150ms var(--ease-out);
+  }
+
+  .mobile-action-bar__mode-btn--active {
+    background: rgba(20, 20, 22, 0.85);
+    opacity: 1;
+    color: #ffffff;
+  }
+
+  /* Holiday circle button */
+  .mobile-action-bar__holiday-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    background: rgba(0, 0, 0, 0.30);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+    padding: 0;
+  }
+
+  .mobile-action-bar__holiday-btn:active {
+    background: rgba(0, 0, 0, 0.40);
+    transform: scale(0.92);
+  }
+
+  .mobile-action-bar__holiday-btn svg {
+    width: 17px;
+    height: 17px;
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+
+  /* Hidden native date/time inputs — triggers OS picker */
+  .mobile-action-bar__native-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  /* ─── Light theme overrides ─── */
+  [data-theme="light"] .mobile-settings-bar {
+    background: rgba(255, 255, 255, 0.82);
+    border-color: rgba(0, 0, 0, 0.06);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.60),
+      0 2px 8px rgba(0,0,0,0.04),
+      0 4px 16px rgba(0,0,0,0.06);
+  }
+
+  [data-theme="light"] .mobile-settings-bar__toggle {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.04);
+  }
+
+  [data-theme="light"] .mobile-settings-bar__toggle .mobile-settings-bar__active {
+    background: #ffffff;
+    color: #1a1a1a;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  [data-theme="light"] .mobile-settings-bar__theme-btn {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.06);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  [data-theme="light"] .mobile-settings-bar__theme-btn svg {
+    color: #1a1a1a;
+    opacity: 0.8;
+  }
+
+  [data-theme="light"] .mobile-action-bar {
+    background: rgba(255, 255, 255, 0.88);
+    border-color: rgba(0, 0, 0, 0.06);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.60),
+      0 2px 8px rgba(0,0,0,0.04),
+      0 8px 32px rgba(0,0,0,0.06),
+      0 20px 60px rgba(0,0,0,0.04);
+  }
+
+  [data-theme="light"] .mobile-action-bar__source,
+  [data-theme="light"] .mobile-action-bar__datetime,
+  [data-theme="light"] .mobile-action-bar__mode-toggle,
+  [data-theme="light"] .mobile-action-bar__holiday-btn {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.06);
+  }
+
+  [data-theme="light"] .mobile-action-bar__separator {
+    background: rgba(0, 0, 0, 0.08);
+  }
+
+  [data-theme="light"] .mobile-action-bar__mode-btn--active {
+    background: #ffffff;
+    color: #1a1a1a;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  [data-theme="light"] .mobile-action-bar__now-btn {
+    background: rgba(52, 199, 89, 0.08);
+    border-color: rgba(52, 199, 89, 0.25);
+  }
+}
+
+/* ═══ Mobile: Mesh, Panels, Light Theme ═════════════════════ */
+@media (max-width: 768px) {
+  /* ─── Task 6: Mesh — smaller blobs, fewer particles, no parallax ─── */
+  .mesh-blob--blue {
+    width: 300px;
+    height: 300px;
+    filter: blur(90px);
+  }
+
+  .mesh-blob--amber {
+    width: 240px;
+    height: 240px;
+    filter: blur(80px);
+  }
+
+  .mesh-blob--rose {
+    width: 200px;
+    height: 200px;
+    filter: blur(80px);
+  }
+
+  .mesh-blob--indigo {
+    width: 180px;
+    height: 180px;
+    filter: blur(70px);
+  }
+
+  .mesh-particle--4,
+  .mesh-particle--5,
+  .mesh-particle--6 {
+    display: none;
+  }
+
+  .mesh-bg {
+    position: fixed;
+  }
+
+  .mesh-bg__blobs {
+    transform: none !important;
+  }
+
+  .footer {
+    padding: 2px 12px;
+    padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+    font-size: 8px;
+  }
+
+  /* Hide privacy line on mobile — attribution is sufficient */
+  .footer__main {
+    display: none;
+  }
+
+  .footer__attribution {
+    font-size: 8px;
+    margin: 0;
+  }
+
+  /* ─── Task 7: Holiday panel — full-screen bottom sheet ─── */
+  .holiday-panel {
+    width: 100%;
+    right: 0;
+    left: 0;
+    top: auto;
+    bottom: 0;
+    border-radius: 22px 22px 0 0;
+    max-height: calc(100vh - env(safe-area-inset-top, 0px) - 56px);
+    padding-bottom: calc(52px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .holiday-panel__backdrop {
+    z-index: 999;
+  }
+
+  /* Close button: full-width rounded button fixed at bottom of panel */
+  .holiday-panel .holiday-panel__close {
+    position: fixed;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    left: 16px;
+    right: 16px;
+    width: auto;
+    height: 44px;
+    padding: 0;
+    border-radius: 9999px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    justify-content: center;
+  }
+
+  .holiday-panel .holiday-panel__close svg {
+    display: none;
+  }
+
+  .holiday-panel .holiday-panel__close::after {
+    content: 'Close';
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.01em;
+  }
+
+  [data-theme="light"] .holiday-panel .holiday-panel__close {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+
+  /* ═══ Meet Panel — Mobile Bottom Sheet (Clean Hierarchy v2) ═══ */
+  .meet-modal__overlay {
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+
+  .meet-modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: calc(100vh - env(safe-area-inset-top, 0px) - 48px);
+    border-radius: 22px 22px 0 0 !important;
+    margin: 0;
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* ── Header ── */
+  .meet-modal__header {
+    padding: 16px 16px 12px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .meet-modal__title { font-size: 16px !important; }
+  .meet-modal__subtitle { font-size: 11px !important; }
+  .meet-modal__icon { width: 32px; height: 32px; }
+  .meet-modal__icon svg { width: 15px !important; height: 15px !important; }
+
+  /* City selector: full-width source row below title */
+  .meet-modal__header .city-selector { order: 3; width: 100%; }
+  .meet-modal__header .city-selector__trigger {
+    height: 40px;
+    font-size: 13px;
+    min-width: 0;
+    max-width: none;
+    width: 100%;
+    justify-content: flex-start;
+    padding: 0 14px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+  }
+  .meet-modal__header .city-selector__flag { font-size: 16px; }
+  .meet-modal__header .city-selector__name { font-size: 13px; font-weight: 600; }
+
+  /* Close button: full-width bottom pill */
+  .meet-modal .meet-modal__close {
+    position: fixed !important;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    left: 16px;
+    right: 16px;
+    width: auto !important;
+    height: 44px;
+    border-radius: 9999px;
+    z-index: 910;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    justify-content: center;
+  }
+  .meet-modal .meet-modal__close svg { display: none; }
+  .meet-modal .meet-modal__close::after {
+    content: 'Close';
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  [data-theme="light"] .meet-modal .meet-modal__close {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+
+  /* ── Separators ── */
+  .meet-modal__sep { margin: 6px 16px !important; }
+  .meet-modal__section-text { font-size: 10px !important; }
+
+  /* ── Mobile Hero (centered, spacious) ── */
+  .meet-mobile__hero {
+    padding: 20px 16px 16px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .meet-mobile__hero-rank {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--meet-accent);
+    margin-bottom: 8px;
+  }
+  .meet-mobile__hero-time-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+  }
+  .meet-mobile__hero-time {
+    font-family: var(--font-mono);
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: var(--meet-t1);
+  }
+  .meet-mobile__hero-period {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--meet-t3);
+  }
+  .meet-mobile__hero-tz {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--meet-t4);
+    margin-top: 4px;
+  }
+  .meet-mobile__hero-summary {
+    font-size: 13px;
+    color: var(--meet-t3);
+    margin-top: 8px;
+  }
+  .meet-mobile__hero-summary strong {
+    color: var(--meet-t1);
+    font-weight: 700;
+  }
+
+  /* ── Mobile City List (replaces timeline) ── */
+  .meet-mobile__cities {
+    padding: 0 0 4px;
+  }
+  .meet-mobile__cities-header {
+    padding: 14px 16px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--meet-t4);
+    border-top: 1px solid var(--meet-border-sep);
+  }
+  .meet-mobile__city-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--meet-border-sep);
+    transition: background 0.12s;
+  }
+  .meet-mobile__city-row:last-child { border-bottom: none; }
+  .meet-mobile__city-row--source {
+    background: rgba(52, 199, 89, 0.03);
+  }
+  .meet-mobile__city-flag { font-size: 15px; line-height: 1; flex-shrink: 0; }
+  .meet-mobile__city-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--meet-t2);
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .meet-mobile__city-dot {
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  }
+  .meet-mobile__city-dot--ok { background: var(--meet-dot-ok); box-shadow: 0 0 4px rgba(52,199,89,0.3); }
+  .meet-mobile__city-dot--edge { background: var(--meet-dot-edge); }
+  .meet-mobile__city-dot--out { background: var(--meet-dot-out); }
+  .meet-mobile__city-state {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--meet-t4);
+    min-width: 50px;
+    text-align: right;
+  }
+  .meet-mobile__city-state--source { color: var(--meet-accent); font-weight: 600; }
+  .meet-mobile__city-state--edge { color: var(--meet-muted-warn); }
+  .meet-mobile__city-state--out { color: var(--meet-muted-danger); }
+  .meet-mobile__city-time {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--meet-t1);
+    min-width: 58px;
+    text-align: right;
+    letter-spacing: -0.02em;
+  }
+
+  /* ── Alternatives (clean cards, no pills) ── */
+  .meet-modal__alts { padding: 4px 12px 16px !important; }
+  .meet-modal__alt { padding: 12px 14px !important; margin-bottom: 6px; }
+  .meet-modal__alt-row { flex-wrap: nowrap; }
+  .meet-modal__alt-time { font-size: 16px !important; }
+  .meet-modal__alt-pm { font-size: 11px !important; }
+  .meet-modal__alt-tz { font-size: 11px !important; }
+  .meet-modal__alt-summary { font-size: 11px !important; }
+  .meet-modal__alt-rank { font-size: 13px !important; }
+
+  /* ─── Task 9: Light theme mobile overrides ─── */
+  [data-theme="light"] .input-bar {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(0, 0, 0, 0.06);
+  }
+
+  [data-theme="light"] .input-bar__item--source .city-selector__trigger {
+    background: transparent;
+    border-color: transparent;
+  }
+
+  [data-theme="light"] .input-bar__item--source .city-selector__trigger:active {
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  [data-theme="light"] .input-bar__date-pill,
+  [data-theme="light"] .input-bar__time-pill {
+    background: transparent;
+    border-color: transparent;
+  }
+
+  [data-theme="light"] .input-bar__date-pill:active,
+  [data-theme="light"] .input-bar__time-pill:active {
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  [data-theme="light"] .input-bar__item--source::before {
+    background: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.04) 15%, rgba(0,0,0,0.04) 85%, transparent 100%);
+  }
+}
+
+/* ═══ Extra-Narrow Devices (320px-375px) ═══════════════════ */
+@media (max-width: 375px) {
+  /* Hero time: slightly smaller on narrowest screens */
+  .meet-mobile__hero-time { font-size: 32px; }
+  .meet-mobile__hero-period { font-size: 14px; }
+
+  /* City list: tighter for narrow screens */
+  .meet-mobile__city-row { padding: 8px 12px; gap: 8px; }
+  .meet-mobile__city-name { font-size: 12px; }
+  .meet-mobile__city-time { font-size: 12px; min-width: 52px; }
+  .meet-mobile__city-state { font-size: 10px; min-width: 44px; }
+
+  /* Source selector: slightly tighter */
+  .city-selector__dropdown .cs-row { padding: 8px 12px; }
+  .city-selector__dropdown .cs-name { font-size: 12px; }
+  .city-selector__dropdown .cs-toggle { width: 26px; height: 26px; }
+}
