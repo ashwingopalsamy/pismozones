@@ -10,6 +10,18 @@ export class ErrorBoundary extends Component {
     return { hasError: true };
   }
 
+  componentDidCatch() {
+    // Auto-reload once on first error (handles stale SW cache in dev mode)
+    const key = 'pismozones-error-reload';
+    if (!sessionStorage.getItem(key)) {
+      sessionStorage.setItem(key, '1');
+      window.location.reload();
+      return;
+    }
+    // Already tried once this session, show the error UI
+    sessionStorage.removeItem(key);
+  }
+
   render() {
     if (this.state.hasError) {
       return (

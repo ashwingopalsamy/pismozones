@@ -301,15 +301,6 @@ function ModalContent({
             <div className="meet-modal__title">{tx.title}</div>
             <div className="meet-modal__subtitle">{tx.subtitle}</div>
           </div>
-          <CitySelector
-            cities={allCities}
-            value={sourceId}
-            onChange={onSetSource}
-            activeCityIds={activeCityIds}
-            onAddCity={onAddCity}
-            onRemoveCity={onRemoveCity}
-            onResetDefaults={onResetDefaults}
-          />
           <button
             className="meet-modal__close"
             onClick={onClose}
@@ -644,6 +635,20 @@ function ModalContent({
             </div>
           </>
         )}
+
+        {/* Source selector at bottom */}
+        <div className="meet-modal__source-selector">
+          <CitySelector
+            cities={allCities}
+            value={sourceId}
+            onChange={onSetSource}
+            activeCityIds={activeCityIds}
+            onAddCity={onAddCity}
+            onRemoveCity={onRemoveCity}
+            onResetDefaults={onResetDefaults}
+            use24Hour={use24Hour}
+          />
+        </div>
 
         {/* Bottom padding */}
         <div style={{ height: 8 }} />

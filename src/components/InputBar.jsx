@@ -270,6 +270,7 @@ export function InputBar({
           onAddCity={onAddCity}
           onRemoveCity={onRemoveCity}
           onResetDefaults={onResetDefaults}
+          use24Hour={use24Hour}
         />
         <button className="input-bar__now-btn" onClick={onSetNow} type="button">
           <span className={`input-bar__now-indicator${isPulse ? ' input-bar__now-indicator--pulse' : ''}`} />

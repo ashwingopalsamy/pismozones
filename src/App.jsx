@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { AnchorCard, TimeCard } from './components/Cards';
 import { HolidayPanel } from './components/HolidayPanel';
 import { InputBar } from './components/InputBar';
@@ -9,6 +9,7 @@ import { MeshBackground } from './components/MeshBackground';
 import { InstallBanner } from './components/InstallBanner';
 import { useTimeConversion } from './hooks/useTimeConversion';
 import { useMeetingSuggestions } from './hooks/useMeetingSuggestions';
+import { decodeShareLink, buildShareUrl } from './hooks/useShareableLink';
 import './styles/styles.css';
 
 // ─── i18n ──────────────────────────────────────────────────
@@ -64,19 +65,17 @@ function WorkStateSection({ title, indicator, cities, sourceId, onSelect, use24H
         <div className="work-state-section__line work-state-section__line--right" />
       </header>
       <div className="work-state-section__cards" data-card-mode={cardMode}>
-        <AnimatePresence mode="popLayout">
-          {cities.map((city, index) => (
-            <TimeCard
-              key={city.id}
-              city={city}
-              index={index}
-              isSource={city.id === sourceId}
-              onSelect={onSelect}
-              use24Hour={use24Hour}
-              lang={lang}
-            />
-          ))}
-        </AnimatePresence>
+        {cities.map((city, index) => (
+          <TimeCard
+            key={city.id}
+            city={city}
+            index={index}
+            isSource={city.id === sourceId}
+            onSelect={onSelect}
+            use24Hour={use24Hour}
+            lang={lang}
+          />
+        ))}
       </div>
     </section>
   );
@@ -183,25 +182,19 @@ export default function App() {
 
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
-    const handleMessage = (event) => {
-      if (event.data?.type === 'SW_UPDATED') {
-        setSwUpdateAvailable(true);
-      }
-    };
-    navigator.serviceWorker.addEventListener('message', handleMessage);
     navigator.serviceWorker.ready.then((registration) => {
       if (registration.waiting) setSwUpdateAvailable(true);
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
         if (!newWorker) return;
         newWorker.addEventListener('statechange', () => {
+          // Only show toast when a NEW SW replaces an EXISTING one (not first install)
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
             setSwUpdateAvailable(true);
           }
         });
       });
     });
-    return () => navigator.serviceWorker.removeEventListener('message', handleMessage);
   }, []);
 
   const handleSwUpdate = () => {
@@ -238,6 +231,68 @@ export default function App() {
     sourceId,
   });
 
+  // ─── Shareable links ───
+  const [isSharedView, setIsSharedView] = useState(false);
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash || hash.length < 2) return;
+    const decoded = decodeShareLink(hash);
+    if (!decoded) return;
+
+    // Set source and time from shared link
+    setSource(decoded.sourceId);
+    updateTime({ hour: decoded.hour, minute: decoded.minute, date: decoded.date });
+
+    // New user: also set their city list from the link
+    const hasExistingCities = localStorage.getItem('pismo-active-cities');
+    if (!hasExistingCities) {
+      resetToDefaults();
+      decoded.cityIds.forEach(id => addCity(id));
+    }
+
+    setIsSharedView(true);
+    window.history.replaceState({}, '', window.location.pathname);
+
+    // Auto-dismiss toast after 3s, leave reset pill
+    setTimeout(() => {
+      const toast = document.getElementById('shared-toast');
+      if (toast) toast.style.display = 'none';
+    }, 3000);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleShare = useCallback(async () => {
+    const url = buildShareUrl(
+      sourceId,
+      sourceTimeComponents.hour,
+      sourceTimeComponents.minute,
+      sourceTimeComponents.date,
+      activeCityIds,
+    );
+    if (!url) return;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Pismo Zones', url });
+      } catch { /* user cancelled */ }
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch { /* clipboard failed */ }
+    }
+  }, [sourceId, sourceTimeComponents, activeCityIds]);
+
+  const handleResetShared = useCallback(() => {
+    setIsSharedView(false);
+    setToNow();
+  }, [setToNow]);
+
+  // Smart card mode: working/starting always full, outside goes mini when congested
+  const totalOtherCities = groupedCities.working.length + groupedCities.startingSoon.length + groupedCities.outside.length;
+  const isCongested = totalOtherCities > 5;
+  const getCardMode = () => 'full'; // working + starting always full
+  const outsideCardMode = isCongested ? 'mini' : 'full';
+
   return (
     <div className="app">
       <a href="#main-content" className="skip-link">Skip to content</a>
@@ -245,6 +300,11 @@ export default function App() {
         <div className="sw-update-toast">
           <span>New version available</span>
           <button onClick={handleSwUpdate} type="button">Update</button>
+        </div>
+      )}
+      {isSharedView && (
+        <div className="shared-toast" id="shared-toast">
+          <span>{lang === 'pt' ? 'Visualizando horario compartilhado' : 'Viewing shared time'}</span>
         </div>
       )}
       <MeshBackground />
@@ -276,6 +336,7 @@ export default function App() {
           onShowHoliday={() => openModal(setShowHolidayPanel)}
           meetMode={meetOpen}
           onToggleMeetMode={() => openModal(setMeetOpen)}
+          onShare={handleShare}
         />
       </motion.div>
 
@@ -304,7 +365,7 @@ export default function App() {
               onSelect={setSource}
               use24Hour={use24Hour}
               lang={lang}
-              cardMode={groupedCities.working.length <= 4 ? 'full' : 'compact'}
+              cardMode={getCardMode(groupedCities.working.length)}
             />
             <WorkStateSection
               title={tx.startingSoon}
@@ -314,7 +375,7 @@ export default function App() {
               onSelect={setSource}
               use24Hour={use24Hour}
               lang={lang}
-              cardMode={groupedCities.startingSoon.length <= 4 ? 'full' : 'compact'}
+              cardMode={getCardMode(groupedCities.startingSoon.length)}
             />
           </div>
         ) : (
@@ -327,7 +388,7 @@ export default function App() {
               onSelect={setSource}
               use24Hour={use24Hour}
               lang={lang}
-              cardMode={groupedCities.working.length <= 4 ? 'full' : 'compact'}
+              cardMode={getCardMode(groupedCities.working.length)}
             />
             <WorkStateSection
               title={tx.startingSoon}
@@ -337,7 +398,7 @@ export default function App() {
               onSelect={setSource}
               use24Hour={use24Hour}
               lang={lang}
-              cardMode={groupedCities.startingSoon.length <= 4 ? 'full' : 'compact'}
+              cardMode={getCardMode(groupedCities.startingSoon.length)}
             />
           </>
         )}
@@ -350,7 +411,7 @@ export default function App() {
           onSelect={setSource}
           use24Hour={use24Hour}
           lang={lang}
-          cardMode={groupedCities.outside.length > 1 ? 'compact' : 'full'}
+          cardMode={outsideCardMode}
         />
       </motion.main>
 
@@ -399,6 +460,9 @@ export default function App() {
         meetMode={meetOpen}
         onToggleMeetMode={() => meetOpen ? setMeetOpen(false) : openModal(setMeetOpen)}
         onUpdateTime={updateTime}
+        onShare={handleShare}
+        isSharedView={isSharedView}
+        onResetShared={handleResetShared}
       />
       <div aria-live="polite" className="sr-only" id="a11y-announcer" />
     </div>

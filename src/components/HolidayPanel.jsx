@@ -208,10 +208,14 @@ function HeroCard({ country }) {
         <span className="holiday-hero__date">{nextUp.dt.toFormat('EEE, MMM d')}</span>
       </div>
       <div className="holiday-hero__countdown">
-        <span className="holiday-hero__days">{daysUntil}</span>
-        <span className="holiday-hero__label">
-          {daysUntil === 0 ? 'today' : daysUntil === 1 ? 'day' : 'days'}
-        </span>
+        {daysUntil === 0 ? (
+          <span className="holiday-hero__today">Today</span>
+        ) : (
+          <>
+            <span className="holiday-hero__days">{daysUntil}</span>
+            <span className="holiday-hero__label">{daysUntil === 1 ? 'day' : 'days'}</span>
+          </>
+        )}
       </div>
     </div>
   );

@@ -10,7 +10,10 @@ export function getCitySnapshot(timezone, sourceTimezone) {
     const hm = new Intl.DateTimeFormat('en-US', { timeZone: timezone, hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(now);
     const hour   = parseInt(hm.find(p => p.type === 'hour')?.value ?? 0, 10);
     const minute = parseInt(hm.find(p => p.type === 'minute')?.value ?? 0, 10);
-    const time   = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    const time24 = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    const h12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const time12 = `${h12}:${String(minute).padStart(2, '0')} ${period}`;
 
     // YYYY-MM-DD for each zone (for day-offset calc)
     const cityDate   = new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format(now);
@@ -34,7 +37,7 @@ export function getCitySnapshot(timezone, sourceTimezone) {
     if (hour >= 9 && hour < 18) workState = 'working';
     else if (hour >= 7 && hour < 9) workState = 'soon';
 
-    return { time, dayOffset, utcOffset, workState };
+    return { time: time24, time12, dayOffset, utcOffset, workState };
   } catch { return { time: '--:--', dayOffset: 0, utcOffset: '', workState: 'outside' }; }
 }
 
@@ -42,7 +45,7 @@ function WorkDot({ state }) {
   return <span className={`cs-work-dot cs-work-dot--${state}`} aria-hidden="true" />;
 }
 
-export function CitySelector({ cities, value, onChange, activeCityIds, onAddCity, onRemoveCity, onResetDefaults }) {
+export function CitySelector({ cities, value, onChange, activeCityIds, onAddCity, onRemoveCity, onResetDefaults, use24Hour = true }) {
   const [isOpen, setIsOpen]         = useState(false);
   const [pos, setPos]               = useState({ top: 0, left: 0, width: 0 });
   const [query, setQuery]           = useState('');
@@ -162,8 +165,9 @@ export function CitySelector({ cities, value, onChange, activeCityIds, onAddCity
         tabIndex={hidden ? -1 : 0}
         role="option"
         aria-selected={isSrc}
-        onClick={() => { onChange(city.id); setIsOpen(false); }}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onChange(city.id); setIsOpen(false); } }}
+        onClick={() => { if (isActive || isAnchor) { onChange(city.id); setIsOpen(false); } }}
+        onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && (isActive || isAnchor)) { e.preventDefault(); onChange(city.id); setIsOpen(false); } }}
+        style={!isActive && !isAnchor ? { cursor: 'default' } : undefined}
       >
         {/* 1 -- work state dot */}
         <WorkDot state={snap.workState} />
@@ -188,7 +192,7 @@ export function CitySelector({ cities, value, onChange, activeCityIds, onAddCity
                 {snap.dayOffset > 0 ? `+${snap.dayOffset}d` : `${snap.dayOffset}d`}
               </span>
             )}
-            <span className="cs-time-val">{snap.time}</span>
+            <span className="cs-time-val">{use24Hour ? snap.time : snap.time12}</span>
           </div>
           {snap.utcOffset && <span className="cs-utc">{snap.utcOffset}</span>}
         </div>

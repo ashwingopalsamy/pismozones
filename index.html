@@ -39,7 +39,7 @@
     
     <!-- Theme Colors -->
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#eae8e4" media="(prefers-color-scheme: light)" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Pismo Zones" />
@@ -89,11 +89,26 @@
         </div>
       </div>
     </noscript>
+    <script>
+      // Dev mode: nuke stale service workers + caches, then reload once
+      if (window.location.port && 'serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+          if (regs.length > 0) {
+            Promise.all(regs.map(function(r) { return r.unregister(); })).then(function() {
+              if (window.caches) caches.keys().then(function(keys) {
+                Promise.all(keys.map(function(k) { return caches.delete(k); }));
+              });
+            });
+          }
+        });
+      }
+    </script>
     <script type="module" src="/src/main.jsx"></script>
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {});
+      // Production only: register SW
+      if ('serviceWorker' in navigator && !window.location.port) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').catch(function() {});
         });
       }
     </script>

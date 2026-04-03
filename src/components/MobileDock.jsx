@@ -77,7 +77,7 @@ function SunIcon() {
 
 function MoonIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   );
@@ -118,6 +118,9 @@ export function MobileDock({
   meetMode,
   onToggleMeetMode,
   onUpdateTime,
+  onShare,
+  isSharedView,
+  onResetShared,
 }) {
   const isMobile = useIsMobile();
   const nativeDateRef = useRef(null);
@@ -223,6 +226,7 @@ export function MobileDock({
           >
             {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
           </button>
+
           </div>
         </div>
       </div>
@@ -256,6 +260,31 @@ export function MobileDock({
             <span className={`mobile-action-bar__now-dot${isPulse ? ' mobile-action-bar__now-dot--pulse' : ''}`} />
             <span className="mobile-action-bar__now-text">{tx.now}</span>
           </button>
+
+          {onShare && (
+            <button
+              className="mobile-action-bar__share-btn"
+              onClick={onShare}
+              type="button"
+              aria-label="Share link"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
+                <polyline points="16 6 12 2 8 6" />
+                <line x1="12" y1="2" x2="12" y2="15" />
+              </svg>
+            </button>
+          )}
+
+          {isSharedView && (
+            <button
+              className="mobile-action-bar__reset-btn"
+              onClick={onResetShared}
+              type="button"
+            >
+              Reset
+            </button>
+          )}
         </div>
 
         {/* Row 2: Date|Time + Time|Meet + Holiday */}

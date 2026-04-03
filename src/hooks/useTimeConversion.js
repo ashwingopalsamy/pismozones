@@ -2,6 +2,8 @@ import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { DateTime } from 'luxon';
 import { isHoliday } from '../data/holidays';
 
+// IMPORTANT: Only APPEND new cities. Never reorder or remove.
+// Shareable links encode city positions as a bitfield -- changing order breaks existing links.
 export const CITIES = [
   {
     id: 'saopaulo',
@@ -92,6 +94,24 @@ export const CITIES = [
     timezone: 'Australia/Sydney',
     flag: '🇦🇺',
     address: 'Pismo Sydney Office',
+  },
+  {
+    id: 'hochiminh',
+    name: 'Ho Chi Minh',
+    country: 'Vietnam',
+    code: 'VN',
+    timezone: 'Asia/Ho_Chi_Minh',
+    flag: '🇻🇳',
+    address: 'Pismo Ho Chi Minh City Office',
+  },
+  {
+    id: 'jakarta',
+    name: 'Jakarta',
+    country: 'Indonesia',
+    code: 'ID',
+    timezone: 'Asia/Jakarta',
+    flag: '🇮🇩',
+    address: 'Pismo Jakarta Office',
   },
 ];
 
