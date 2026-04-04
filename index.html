@@ -21,9 +21,10 @@
     <meta property="og:url" content="https://pismozones.vercel.app/" />
     <meta property="og:title" content="Pismo Zones – Pismo's Global Workspace Clock" />
     <meta property="og:description" content="Track time across Pismo's offices in São Paulo, Bristol, Bangalore, Austin & Singapore. Privacy-first, zero-tracking, beautifully crafted." />
-    <meta property="og:image" content="https://pismozones.vercel.app/og-image.png" />
+    <meta property="og:image" content="https://pismozones.vercel.app/api/og" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:image:alt" content="Pismo Zones timezone converter showing São Paulo, Bristol, Bangalore, Austin and Singapore times" />
     <meta property="og:site_name" content="Pismo Zones" />
     <meta property="og:locale" content="en_US" />
@@ -33,9 +34,9 @@
     <meta name="twitter:url" content="https://pismozones.vercel.app/" />
     <meta name="twitter:title" content="Pismo Zones – Pismo's Global Workspace Clock" />
     <meta name="twitter:description" content="Track time across Pismo's offices in São Paulo, Bristol, Bangalore, Austin & Singapore. Privacy-first, zero-tracking, beautifully crafted." />
-    <meta name="twitter:image" content="https://pismozones.vercel.app/og-image.png" />
+    <meta name="twitter:image" content="https://pismozones.vercel.app/api/og" />
     <meta name="twitter:image:alt" content="Pismo Zones timezone converter interface" />
-    <meta name="twitter:creator" content="@paborja" />
+    <meta name="twitter:creator" content="@ashwin2125" />
     
     <!-- Theme Colors -->
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
@@ -46,15 +47,13 @@
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.json" />
     
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="//fonts.googleapis.com">
-    <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <!-- Fonts (self-hosted, no external CDN dependency) -->
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
@@ -89,28 +88,7 @@
         </div>
       </div>
     </noscript>
-    <script>
-      // Dev mode: nuke stale service workers + caches, then reload once
-      if (window.location.port && 'serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(regs) {
-          if (regs.length > 0) {
-            Promise.all(regs.map(function(r) { return r.unregister(); })).then(function() {
-              if (window.caches) caches.keys().then(function(keys) {
-                Promise.all(keys.map(function(k) { return caches.delete(k); }));
-              });
-            });
-          }
-        });
-      }
-    </script>
+    <script src="/sw-init.js"></script>
     <script type="module" src="/src/main.jsx"></script>
-    <script>
-      // Production only: register SW
-      if ('serviceWorker' in navigator && !window.location.port) {
-        window.addEventListener('load', function() {
-          navigator.serviceWorker.register('/sw.js').catch(function() {});
-        });
-      }
-    </script>
   </body>
 </html>

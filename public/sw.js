@@ -10,32 +10,26 @@ const STATIC_ASSETS = [
 ];
 
 // Install: pre-cache the app shell
+// skipWaiting is NOT called here; controlled by message-based SKIP_WAITING only
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
   );
-  self.skipWaiting();
 });
 
-// Activate: clean up old caches and notify clients
+// Activate: clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    ).then(() => {
-      return self.clients.matchAll().then((clients) => {
-        clients.forEach((client) => {
-          client.postMessage({ type: 'SW_UPDATED' });
-        });
-      });
-    })
+    )
   );
   self.clients.claim();
 });
 
-// Listen for skip-waiting message from the app
+// Listen for skip-waiting message from the app (only from controlled clients)
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
+  if (event.source && event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });
@@ -51,8 +45,10 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
           return response;
         })
         .catch(() => caches.match(request).then((cached) => cached || caches.match('/offline.html')))

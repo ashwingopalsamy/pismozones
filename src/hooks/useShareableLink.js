@@ -35,9 +35,11 @@ export function encodeShareLink(sourceId, hour, minute, dateStr, activeCityIds) 
  * Decode a hash string back into view state.
  * Returns { sourceId, hour, minute, date, cityIds } or null if invalid.
  */
+const HASH_RE = /^[0-9a-z]{7,16}$/;
+
 export function decodeShareLink(hash) {
   const h = hash.replace(/^#/, '');
-  if (h.length < 7) return null;
+  if (!HASH_RE.test(h)) return null;
 
   try {
     // Version check: if starts with 'v', it's a future version we don't support
@@ -76,10 +78,10 @@ export function decodeShareLink(hash) {
 
 /**
  * Build the full shareable URL from current state.
+ * Uses path-based URL (/s/hash) for dynamic OG support.
  */
 export function buildShareUrl(sourceId, hour, minute, dateStr, activeCityIds) {
   const hash = encodeShareLink(sourceId, hour, minute, dateStr, activeCityIds);
   if (!hash) return null;
-  const base = window.location.origin + window.location.pathname;
-  return `${base}#${hash}`;
+  return `${window.location.origin}/s/${hash}`;
 }

@@ -242,6 +242,12 @@ export function useTimeConversion() {
     setActiveCityIds([...DEFAULT_CITY_IDS]);
   }, []);
 
+  const setActiveCities = useCallback((ids) => {
+    const valid = ids.filter(id => CITIES.some(c => c.id === id));
+    const withAnchor = valid.includes('saopaulo') ? valid : ['saopaulo', ...valid];
+    setActiveCityIds(withAnchor);
+  }, []);
+
   // Refs to avoid stale closures in the tick interval
   const isLiveRef = useRef(true);
   const sourceIdRef = useRef(sourceId);
@@ -424,6 +430,7 @@ export function useTimeConversion() {
     addCity,
     removeCity,
     resetToDefaults,
+    setActiveCities,
     updateTime,
     setToNow,
     setSource,

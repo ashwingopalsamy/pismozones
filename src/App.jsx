@@ -219,6 +219,7 @@ export default function App() {
     addCity,
     removeCity,
     resetToDefaults,
+    setActiveCities,
     updateTime,
     setToNow,
     setSource,
@@ -235,24 +236,23 @@ export default function App() {
   const [isSharedView, setIsSharedView] = useState(false);
 
   useEffect(() => {
-    const hash = window.location.hash;
-    if (!hash || hash.length < 2) return;
-    const decoded = decodeShareLink(hash);
+    // Read share hash from ?share= param (path-based) or #hash (legacy)
+    const params = new URLSearchParams(window.location.search);
+    const shareParam = params.get('share');
+    const hashFrag = window.location.hash;
+    const raw = shareParam || (hashFrag && hashFrag.length >= 2 ? hashFrag : null);
+    if (!raw) return;
+
+    const decoded = decodeShareLink(raw);
     if (!decoded) return;
 
-    // Set source and time from shared link
+    // Apply shared state: source, time, and city list
     setSource(decoded.sourceId);
     updateTime({ hour: decoded.hour, minute: decoded.minute, date: decoded.date });
-
-    // New user: also set their city list from the link
-    const hasExistingCities = localStorage.getItem('pismo-active-cities');
-    if (!hasExistingCities) {
-      resetToDefaults();
-      decoded.cityIds.forEach(id => addCity(id));
-    }
+    setActiveCities(decoded.cityIds);
 
     setIsSharedView(true);
-    window.history.replaceState({}, '', window.location.pathname);
+    window.history.replaceState({}, '', '/');
 
     // Auto-dismiss toast after 3s, leave reset pill
     setTimeout(() => {
