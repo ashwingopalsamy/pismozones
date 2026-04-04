@@ -99,9 +99,7 @@ export default function handler(req) {
     ? `${data.dateDisplay} \u2013 ${cityNames}`
     : 'Track time across Pismo offices in Sao Paulo, Bristol, Bangalore, Austin & Singapore. Privacy-first, zero-tracking.';
 
-  const ogImageUrl = data
-    ? `${origin}/api/og?h=${encodeURIComponent(hash)}`
-    : `${origin}/api/og`;
+  const ogImageUrl = `${origin}/og-image.png`;
 
   // Redirect real users to the SPA with the share param
   const spaUrl = `${origin}/?share=${encodeURIComponent(hash)}`;
