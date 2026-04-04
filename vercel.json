@@ -1,4 +1,8 @@
 {
+  "functions": {
+    "api/og.js": { "runtime": "edge" },
+    "api/share.js": { "runtime": "edge" }
+  },
   "headers": [
     {
       "source": "/(.*)",
