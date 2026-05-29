@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { DateTime } from 'luxon';
 import { useFocusTrap } from '../hooks/useFocusTrap';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 // ─── Panel labels (only strings this component needs from i18n) ───
 const PANEL_LABELS = {
@@ -227,22 +228,35 @@ function PanelContent({ onClose, lang }) {
   useFocusTrap(panelRef, true);
   const tx = PANEL_LABELS[lang] ?? PANEL_LABELS.en;
   const country = COUNTRIES[activeTab];
+  const reducedMotion = useReducedMotion();
+  const isMobile = window.innerWidth <= 768;
+
+  const panelMotion = reducedMotion
+    ? {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        exit:    { opacity: 0 },
+        transition: { duration: 0.15 },
+      }
+    : {
+        initial:    isMobile ? { y: '100%' } : { x: '100%' },
+        animate:    { x: 0, y: 0 },
+        exit:       isMobile ? { y: '100%' } : { x: '100%' },
+        transition: { type: 'spring', damping: 32, stiffness: 360 },
+      };
 
   return (
     <>
       <motion.div
         className="holiday-panel__backdrop"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: 0.18 }}
         onClick={onClose}
       />
       <motion.div
         ref={panelRef}
         className="holiday-panel"
-        initial={{ x: window.innerWidth <= 768 ? 0 : '100%', y: window.innerWidth <= 768 ? '100%' : 0 }}
-        animate={{ x: 0, y: 0 }}
-        exit={{ x: window.innerWidth <= 768 ? 0 : '100%', y: window.innerWidth <= 768 ? '100%' : 0 }}
-        transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
+        {...panelMotion}
         role="dialog"
         aria-modal="true"
         aria-label="Pismo Holidays 2026"

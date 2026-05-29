@@ -8,6 +8,11 @@ Designed to answer "what time is it for the team?" instantly.
 - **Reference**: São Paulo (HQ)
 - **Locations**: Bristol, Bangalore, Austin, Singapore
 - **Zero-Config**: Auto-detects local user timezone or defaults to HQ.
+- **Natural Language Command Centre**: Type Pismo-only conversions such as `3:15 AM BRT to IST` or `tomorrow 8am bangalore to austin`.
+
+## Feature Docs
+
+- [Natural Language Command Centre](docs/natural-language-command-centre.md)
 
 ## Development
 
@@ -22,7 +27,7 @@ npm run dev
 
 - **Time Handling**: `luxon` is used for all timezone math to avoid native Date object quirks.
 - **State**: `src/hooks/useTimeConversion.js` drives the central clock. It uses a single reference time (Source) and projects other zones from it.
-- **Styling**: Pure CSS variables (`src/styles/tokens.css`). No utility frameworks used to keep the bundle minimal.
+- **Styling**: Pure CSS variables in `src/styles/styles.css`. No utility frameworks used to keep the bundle minimal.
 
 ## License
 

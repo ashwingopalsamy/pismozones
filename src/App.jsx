@@ -1,54 +1,18 @@
-import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AnchorCard, TimeCard } from './components/Cards';
 import { HolidayPanel } from './components/HolidayPanel';
-import { InputBar } from './components/InputBar';
-import { MeetPanel } from './components/MeetPanel';
-import { MobileDock } from './components/MobileDock';
+import { AppBar } from './components/AppBar';
+import { MobileTopBar } from './components/MobileTopBar';
+import { MobileBottomBar } from './components/MobileBottomBar';
 import { MeshBackground } from './components/MeshBackground';
 import { InstallBanner } from './components/InstallBanner';
 import { useTimeConversion } from './hooks/useTimeConversion';
-import { useMeetingSuggestions } from './hooks/useMeetingSuggestions';
+import { useNaturalLanguageConversion } from './hooks/useNaturalLanguageConversion';
+import { NLResultSection } from './components/NLResultSection';
 import { decodeShareLink, buildShareUrl } from './hooks/useShareableLink';
+import { useIsMobile } from './hooks/useIsMobile';
 import './styles/styles.css';
-
-// ─── i18n ──────────────────────────────────────────────────
-const T = {
-  en: {
-    subtitle: 'Track timezones across our globally distributed workplaces.',
-    source: 'Source',
-    on: 'On',
-    at: 'At',
-    now: 'Now',
-    working: 'WORKING HOURS',
-    startingSoon: 'STARTING SOON',
-    outside: 'OUTSIDE HOURS',
-    footerLocal: '100% Local · Everything happens within your browser',
-    footerOpenSrc: 'Open Source',
-    footerRole: 'Auth Tribe @ Pismo',
-    footerPrivacy: 'Zero data captured. Not your timezone, not your preferences, not your IP, not even a single pixel of telemetry. Everything literally happens inside your browser tab.',
-    holidayTitle: 'Pismo Holidays',
-    meetTitle: 'Sweet Spot',
-    meetSubtitle: 'Best meeting times across offices',
-  },
-  pt: {
-    subtitle: 'Acompanhe os fusos horários dos nossos escritórios ao redor do mundo.',
-    source: 'Origem',
-    on: 'Em',
-    at: 'Às',
-    now: 'Agora',
-    working: 'EM HORÁRIO',
-    startingSoon: 'INÍCIO EM BREVE',
-    outside: 'FORA DO HORÁRIO',
-    footerLocal: '100% Local · Tudo acontece no seu navegador',
-    footerOpenSrc: 'Codigo Aberto',
-    footerRole: 'Auth Tribe @ Pismo',
-    footerPrivacy: 'Nenhum dado captured. Nem fuso horário, preferências, IP ou qualquer telemetria. Tudo acontece dentro da aba do seu navegador.',
-    holidayTitle: 'Feriados Pismo',
-    meetTitle: 'Melhor Horario',
-    meetSubtitle: 'Melhores horarios de reuniao entre escritorios',
-  },
-};
 
 function WorkStateSection({ title, indicator, cities, sourceId, onSelect, use24Hour, lang, cardMode }) {
   if (cities.length === 0) return null;
@@ -108,6 +72,8 @@ const getSystemTheme = () => {
 };
 
 export default function App() {
+  const isMobile = useIsMobile();
+
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem('pismo-theme');
     if (stored) return stored;
@@ -119,17 +85,6 @@ export default function App() {
   });
 
   const [showHolidayPanel, setShowHolidayPanel] = useState(false);
-  const [meetOpen, setMeetOpen] = useState(false);
-  const [lang, setLang] = useState(() => {
-    try { return localStorage.getItem('pismozones-lang') || 'en'; }
-    catch { return 'en'; } // eslint-disable-line no-empty
-  });
-
-  const handleLangChange = (newLang) => {
-    setLang(newLang);
-    try { localStorage.setItem('pismozones-lang', newLang); } catch { /* ignore */ }
-  };
-  const tx = T[lang];
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -161,16 +116,14 @@ export default function App() {
   useEffect(() => {
     const handlePopState = () => {
       if (showHolidayPanel) setShowHolidayPanel(false);
-      if (meetOpen) setMeetOpen(false);
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [showHolidayPanel, meetOpen]);
+  }, [showHolidayPanel]);
 
   // ─── PWA shortcut URL params ───
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('mode') === 'meet') setMeetOpen(true);
     if (params.get('panel') === 'holidays') setShowHolidayPanel(true);
     if (params.toString()) {
       window.history.replaceState({}, '', '/');
@@ -209,6 +162,7 @@ export default function App() {
   const {
     sourceDateTime,
     sourceId,
+    sourceCity,
     use24Hour,
     brazilTime,
     groupedCities,
@@ -226,14 +180,45 @@ export default function App() {
     toggleFormat,
   } = useTimeConversion();
 
-  const meetData = useMeetingSuggestions({
-    activeCityIds,
-    sourceDateTime,
-    sourceId,
-  });
-
   // ─── Shareable links ───
   const [isSharedView, setIsSharedView] = useState(false);
+
+  // ─── NL query ───
+  const [query, setQuery] = useState('');
+  const applyTimerRef = useRef(null);
+
+  const conversion = useNaturalLanguageConversion({
+    query,
+    sourceDateTime,
+    sourceId,
+    use24Hour,
+    activeCityIds,
+    setSource,
+    updateTime,
+    setActiveCities,
+  });
+
+  // IDs shown in NL result cards — suppressed from WorkState sections below to avoid duplicates
+  // Using parsed.destinationIds (raw city ID strings) rather than results.map(r => r.id)
+  // to avoid any memo-lag between the hook's parsed output and its computed results array
+  const nlResultIds = new Set(
+    conversion.status === 'ready' ? (conversion.parsed?.destinationIds ?? []) : []
+  );
+
+  // Apply the conversion 400ms after the query resolves. Uses a ref-based timer so that
+  // clearing the input (signature → undefined) does NOT cancel a pending apply — only a
+  // NEW valid signature cancels the previous timer. This prevents the "reset to now" bug
+  // where clearing quickly before the 400ms window would abort the time update.
+  useEffect(() => {
+    if (conversion.status !== 'ready') return;
+    clearTimeout(applyTimerRef.current);
+    applyTimerRef.current = setTimeout(() => {
+      conversion.apply();
+      setIsSharedView(false);
+    }, 400);
+  }, [conversion.parsed?.signature]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => () => clearTimeout(applyTimerRef.current), []);
 
   useEffect(() => {
     // Read share hash from ?share= param (path-based) or #hash (legacy)
@@ -287,8 +272,18 @@ export default function App() {
     setToNow();
   }, [setToNow]);
 
+  const handleSetNow = useCallback(() => {
+    setToNow();
+    setQuery('');
+  }, [setToNow]);
+
   // Smart card mode: working/starting always full, outside goes mini when congested
-  const totalOtherCities = groupedCities.working.length + groupedCities.startingSoon.length + groupedCities.outside.length;
+  // Filter NL destination cities from WorkState sections — avoid showing the same city twice
+  const visWorking = groupedCities.working.filter(c => !nlResultIds.has(c.id));
+  const visStartingSoon = groupedCities.startingSoon.filter(c => !nlResultIds.has(c.id));
+  const visOutside = groupedCities.outside.filter(c => !nlResultIds.has(c.id));
+
+  const totalOtherCities = visWorking.length + visStartingSoon.length + visOutside.length;
   const isCongested = totalOtherCities > 5;
   const getCardMode = () => 'full'; // working + starting always full
   const outsideCardMode = isCongested ? 'mini' : 'full';
@@ -304,41 +299,65 @@ export default function App() {
       )}
       {isSharedView && (
         <div className="shared-toast" id="shared-toast">
-          <span>{lang === 'pt' ? 'Visualizando horario compartilhado' : 'Viewing shared time'}</span>
+          <span>Viewing shared time</span>
         </div>
       )}
       <MeshBackground />
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
-      >
-        <InputBar
-          sourceId={sourceId}
-          cities={sortedCities}
-          allCities={allCities}
-          activeCityIds={activeCityIds}
-          hour={sourceTimeComponents.hour}
-          minute={sourceTimeComponents.minute}
-          date={sourceTimeComponents.date}
-          use24Hour={use24Hour}
-          onSetSource={setSource}
-          onUpdateTime={updateTime}
-          onSetNow={setToNow}
-          onToggleFormat={toggleFormat}
-          onAddCity={addCity}
-          onRemoveCity={removeCity}
-          onResetDefaults={resetToDefaults}
-          lang={lang}
-          theme={theme}
-          onToggleLang={handleLangChange}
-          onToggleTheme={toggleTheme}
-          onShowHoliday={() => openModal(setShowHolidayPanel)}
-          meetMode={meetOpen}
-          onToggleMeetMode={() => openModal(setMeetOpen)}
-          onShare={handleShare}
-        />
-      </motion.div>
+      {isMobile ? (
+        <>
+          <MobileTopBar
+            sourceCity={sourceCity}
+            sourceTimeComponents={sourceTimeComponents}
+            use24Hour={use24Hour}
+          />
+          <MobileBottomBar
+            sourceId={sourceId}
+            use24Hour={use24Hour}
+            activeCityIds={activeCityIds}
+            allCities={allCities}
+            onSetSource={setSource}
+            onAddCity={addCity}
+            onRemoveCity={removeCity}
+            onResetDefaults={resetToDefaults}
+            theme={theme}
+            onToggleTheme={toggleTheme}
+            onShowHoliday={() => openModal(setShowHolidayPanel)}
+            onShare={handleShare}
+            onSetNow={handleSetNow}
+            query={query}
+            setQuery={setQuery}
+            sourceTimeComponents={sourceTimeComponents}
+            updateTime={updateTime}
+          />
+        </>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
+        >
+          <AppBar
+            sourceId={sourceId}
+            use24Hour={use24Hour}
+            activeCityIds={activeCityIds}
+            allCities={allCities}
+            onSetSource={setSource}
+            onSetActiveCities={setActiveCities}
+            onAddCity={addCity}
+            onRemoveCity={removeCity}
+            onResetDefaults={resetToDefaults}
+            onToggleFormat={toggleFormat}
+            theme={theme}
+            onToggleTheme={toggleTheme}
+            onShowHoliday={() => openModal(setShowHolidayPanel)}
+            onShare={handleShare}
+            onSetNow={handleSetNow}
+            query={query}
+            setQuery={setQuery}
+            conversionStatus={conversion.status}
+          />
+        </motion.div>
+      )}
 
       <motion.main
         className="main"
@@ -347,123 +366,98 @@ export default function App() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.12, duration: 0.3 }}
       >
-        <AnchorCard
-          city={brazilTime}
-          use24Hour={use24Hour}
-          onSelect={setSource}
-          isSource={sourceId === 'saopaulo'}
-          lang={lang}
-        />
+        {/* NL result section — replaces primary card position when query resolves */}
+        <AnimatePresence mode="wait">
+          {conversion.status === 'ready' && conversion.results?.length > 0 && (
+            <NLResultSection
+              key="nl-result"
+              conversion={conversion}
+              use24Hour={use24Hour}
+              onSelect={setSource}
+            />
+          )}
+        </AnimatePresence>
 
-        {groupedCities.working.length === 1 && groupedCities.startingSoon.length === 1 ? (
+        {/* São Paulo anchor — hidden when it's already shown as an NL destination */}
+        {!(conversion.status === 'ready' && conversion.results?.some(r => r.id === 'saopaulo')) && (
+          <AnchorCard
+            city={brazilTime}
+            use24Hour={use24Hour}
+            onSelect={setSource}
+            isSource={sourceId === 'saopaulo'}
+            lang="en"
+          />
+        )}
+
+        {visWorking.length === 1 && visStartingSoon.length === 1 ? (
           <div className="work-state-combined-row">
             <WorkStateSection
-              title={tx.working}
+              title="WORKING HOURS"
               indicator="working"
-              cities={groupedCities.working}
+              cities={visWorking}
               sourceId={sourceId}
               onSelect={setSource}
               use24Hour={use24Hour}
-              lang={lang}
-              cardMode={getCardMode(groupedCities.working.length)}
+              cardMode={getCardMode(visWorking.length)}
             />
             <WorkStateSection
-              title={tx.startingSoon}
+              title="STARTING SOON"
               indicator="starting"
-              cities={groupedCities.startingSoon}
+              cities={visStartingSoon}
               sourceId={sourceId}
               onSelect={setSource}
               use24Hour={use24Hour}
-              lang={lang}
-              cardMode={getCardMode(groupedCities.startingSoon.length)}
+              cardMode={getCardMode(visStartingSoon.length)}
             />
           </div>
         ) : (
           <>
             <WorkStateSection
-              title={tx.working}
+              title="WORKING HOURS"
               indicator="working"
-              cities={groupedCities.working}
+              cities={visWorking}
               sourceId={sourceId}
               onSelect={setSource}
               use24Hour={use24Hour}
-              lang={lang}
-              cardMode={getCardMode(groupedCities.working.length)}
+              cardMode={getCardMode(visWorking.length)}
             />
             <WorkStateSection
-              title={tx.startingSoon}
+              title="STARTING SOON"
               indicator="starting"
-              cities={groupedCities.startingSoon}
+              cities={visStartingSoon}
               sourceId={sourceId}
               onSelect={setSource}
               use24Hour={use24Hour}
-              lang={lang}
-              cardMode={getCardMode(groupedCities.startingSoon.length)}
+              cardMode={getCardMode(visStartingSoon.length)}
             />
           </>
         )}
 
         <WorkStateSection
-          title={tx.outside}
+          title="OUTSIDE HOURS"
           indicator="outside"
-          cities={groupedCities.outside}
+          cities={visOutside}
           sourceId={sourceId}
           onSelect={setSource}
           use24Hour={use24Hour}
-          lang={lang}
           cardMode={outsideCardMode}
         />
       </motion.main>
 
-      <Footer tx={tx} />
+      <Footer tx={{
+        footerLocal: '100% Local · Everything happens within your browser',
+        footerOpenSrc: 'Open Source',
+        footerRole: 'Auth Tribe @ Pismo',
+        footerPrivacy: 'Zero data captured. Not your timezone, not your preferences, not your IP, not even a single pixel of telemetry. Everything literally happens inside your browser tab.',
+      }} />
 
       <HolidayPanel
         isOpen={showHolidayPanel}
         onClose={() => setShowHolidayPanel(false)}
-        lang={lang}
+        lang="en"
       />
 
-      <MeetPanel
-        isOpen={meetOpen}
-        onClose={() => setMeetOpen(false)}
-        suggestions={meetData.suggestions}
-        allSlots={meetData.allSlots}
-        cities={meetData.cities}
-        sourceCity={meetData.sourceCity}
-        activeCityIds={activeCityIds}
-        allCities={allCities}
-        use24Hour={use24Hour}
-        onAddCity={addCity}
-        onRemoveCity={removeCity}
-        onResetDefaults={resetToDefaults}
-        onSetSource={setSource}
-        sourceId={sourceId}
-        lang={lang}
-      />
-
-      <InstallBanner lang={lang} />
-
-      <MobileDock
-        lang={lang}
-        onToggleLang={handleLangChange}
-        theme={theme}
-        onToggleTheme={toggleTheme}
-        use24Hour={use24Hour}
-        onToggleFormat={toggleFormat}
-        onShowHoliday={() => openModal(setShowHolidayPanel)}
-        sourceId={sourceId}
-        allCities={allCities}
-        onSetNow={setToNow}
-        date={sourceTimeComponents.date}
-        hour={sourceTimeComponents.hour}
-        minute={sourceTimeComponents.minute}
-        meetMode={meetOpen}
-        onToggleMeetMode={() => meetOpen ? setMeetOpen(false) : openModal(setMeetOpen)}
-        onUpdateTime={updateTime}
-        onShare={handleShare}
-        isSharedView={isSharedView}
-        onResetShared={handleResetShared}
-      />
+      <InstallBanner lang="en" />
       <div aria-live="polite" className="sr-only" id="a11y-announcer" />
     </div>
   );

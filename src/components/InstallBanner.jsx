@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useIsMobile } from './MobileDock';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 const DISMISS_KEY = 'pismozones-install-dismissed';
 const DISMISS_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days

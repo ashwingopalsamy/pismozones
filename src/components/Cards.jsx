@@ -2,23 +2,7 @@
 import { useTilt } from '../hooks/useTilt';
 import { useRipple } from './Ripple';
 import { DigitSlide } from './DigitSlide';
-
-// ─── Border Color Computation ─────────────────────────────
-function computeBorderColors(gradientColors) {
-  if (!gradientColors) return {};
-  const parse = (rgb) => {
-    const m = rgb.match(/\d+/g);
-    return m ? m.map(Number) : [128, 128, 128];
-  };
-  const lighten = ([r, g, b]) =>
-    `rgba(${Math.min(255, r + 64)},${Math.min(255, g + 64)},${Math.min(255, b + 64)},0.25)`;
-  const top = parse(gradientColors.top);
-  const bottom = parse(gradientColors.bottom);
-  return {
-    '--border-warm': lighten(top),
-    '--border-cool': lighten(bottom),
-  };
-}
+import { computeBorderColors } from '../lib/timeCardStyles';
 
 // ─── AnchorCard ───────────────────────────────────────────
 export function AnchorCard({ city, use24Hour, onSelect, isSource, lang = 'en' }) {
@@ -60,7 +44,7 @@ export function AnchorCard({ city, use24Hour, onSelect, isSource, lang = 'en' })
       aria-label="São Paulo — Click to set as source"
     >
       <div className="anchor-card__sheen" />
-      <div className="card-shimmer" style={{ animationDelay: '0.2s' }} />
+      <div className="card-shimmer" style={{ animationDelay: '0.5s' }} />
 
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: 1, gap: '8px', position: 'relative', zIndex: 2 }}>
         <header className="anchor-card__header">
@@ -146,7 +130,7 @@ export function TimeCard({ city, isSource = false, onSelect, use24Hour, index = 
       aria-label={`${name} - Click to set as source`}
     >
       <div className="time-card__sheen" />
-      <div className="card-shimmer" style={{ animationDelay: `${(index * 0.065) + 0.2}s` }} />
+      <div className="card-shimmer" style={{ animationDelay: `${(index * 0.065) + 0.5}s` }} />
       <RippleContainer />
       {dayLabel && <div className="card-day-sweep" />}
 

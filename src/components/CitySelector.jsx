@@ -51,6 +51,7 @@ export function CitySelector({ cities, value, onChange, activeCityIds, onAddCity
   const [query, setQuery]           = useState('');
   const [snapshots, setSnapshots]   = useState({});
   const [removingIds, setRemovingIds] = useState(new Set());
+  const [addingIds, setAddingIds]     = useState(new Set());
   const [pillPop, setPillPop]       = useState(false);
 
   const triggerRef   = useRef(null);
@@ -119,8 +120,12 @@ export function CitySelector({ cities, value, onChange, activeCityIds, onAddCity
   };
 
   const handleAdd = (id) => {
-    onAddCity?.(id);
-    triggerPill();
+    setAddingIds(prev => new Set(prev).add(id));
+    setTimeout(() => {
+      setAddingIds(prev => { const n = new Set(prev); n.delete(id); return n; });
+      onAddCity?.(id);
+      triggerPill();
+    }, 500);
   };
 
   const handleRemove = (id) => {
@@ -145,6 +150,7 @@ export function CitySelector({ cities, value, onChange, activeCityIds, onAddCity
 
   const renderRow = (city) => {
     const snap      = snapshots[city.id] ?? { time: '--:--', dayOffset: 0, utcOffset: '', workState: 'outside' };
+    const isAdding  = addingIds.has(city.id);
     const isActive  = activeSet.has(city.id);
     const isAnchor  = city.id === 'saopaulo';
     const isSrc     = city.id === value;
@@ -175,48 +181,44 @@ export function CitySelector({ cities, value, onChange, activeCityIds, onAddCity
         {/* 2 -- flag */}
         <span className="cs-flag" aria-hidden="true">{city.flag}</span>
 
-        {/* 3 -- name + country */}
+        {/* 3 -- name */}
         <div className="cs-info">
-          <span className="cs-name">
-            {city.name}
-            {isSrc && <span className="cs-source-badge">Source</span>}
-          </span>
-          <span className="cs-country">{city.country}</span>
+          <span className="cs-name">{city.name}</span>
         </div>
 
-        {/* 4 -- time + day-offset + UTC offset */}
+        {/* 4 -- time · day-offset (badge after time) */}
         <div className="cs-time">
-          <div className="cs-time-top">
-            {snap.dayOffset !== 0 && (
-              <span className={`cs-day-badge cs-day-badge--${snap.dayOffset > 0 ? 'ahead' : 'behind'}`}>
-                {snap.dayOffset > 0 ? `+${snap.dayOffset}d` : `${snap.dayOffset}d`}
-              </span>
-            )}
-            <span className="cs-time-val">{use24Hour ? snap.time : snap.time12}</span>
-          </div>
-          {snap.utcOffset && <span className="cs-utc">{snap.utcOffset}</span>}
+          <span className="cs-time-val">{use24Hour ? snap.time : snap.time12}</span>
+          {snap.dayOffset !== 0 && (
+            <span className={`cs-day-badge cs-day-badge--${snap.dayOffset > 0 ? 'ahead' : 'behind'}`}>
+              {snap.dayOffset > 0 ? `+${snap.dayOffset}d` : `${snap.dayOffset}d`}
+            </span>
+          )}
         </div>
 
         {/* 5 -- toggle button */}
         {isAnchor ? (
           <span className="cs-toggle cs-toggle--anchor" aria-label="Always active">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            ✦
           </span>
         ) : (
           <motion.button
-            className={`cs-toggle ${isActive ? 'cs-toggle--remove' : 'cs-toggle--add'}`}
+            className={`cs-toggle ${isActive ? 'cs-toggle--remove' : isAdding ? 'cs-toggle--adding' : 'cs-toggle--add'}`}
             type="button"
             aria-label={isActive ? `Remove ${city.name}` : `Add ${city.name}`}
             title={isActive ? `Remove ${city.name} from view` : `Add ${city.name} to view`}
-            whileHover={{ scale: 1.12 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={isAdding ? {} : { scale: 1.12 }}
+            whileTap={isAdding ? {} : { scale: 0.9 }}
             onClick={(e) => {
               e.stopPropagation();
+              if (isAdding) return;
               isActive ? handleRemove(city.id) : handleAdd(city.id);
             }}
           >
             {isActive ? (
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            ) : isAdding ? (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
             ) : (
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             )}
@@ -256,9 +258,15 @@ export function CitySelector({ cities, value, onChange, activeCityIds, onAddCity
             transition={{ duration: 0.16, ease: [0.25, 1, 0.5, 1] }}
             role="listbox"
           >
+            {/* Header */}
+            <div className="cs-panel-header">
+              <span className="cs-panel-title">Cities</span>
+              <span className="cs-panel-count">{activeCount} active</span>
+            </div>
+
             {/* Search */}
             <div className="cs-search">
-              <svg className="cs-search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <svg className="cs-search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><circle cx="11" cy="11" r="7.5"/><line x1="17" y1="17" x2="21.5" y2="21.5"/></svg>
               <input
                 ref={searchRef}
                 className="cs-search__input"
@@ -314,7 +322,7 @@ export function CitySelector({ cities, value, onChange, activeCityIds, onAddCity
               {/* No results */}
               {noResults && (
                 <div className="cs-empty">
-                  <span>No cities match "{query}"</span>
+                  <span>No cities match &quot;{query}&quot;</span>
                 </div>
               )}
             </div>

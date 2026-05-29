@@ -1,4 +1,4 @@
-import { CITIES } from './useTimeConversion';
+import { CITIES } from './useTimeConversion.js';
 
 // Date epoch for compact encoding
 const EPOCH = new Date('2025-01-01T00:00:00Z');
