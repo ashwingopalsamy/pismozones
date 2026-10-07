@@ -1,0 +1,20 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-07T14:55:00Z" },
+  "title": "Pismo Zones Redesign",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 390, "h": 844, "title": "Phone · Zones (live, scrub, command)", "is_interactive": true, "radius": 44 },
+    "Plan.dc.html": { "x": 470, "y": 0, "w": 390, "h": 844, "title": "Phone · Plan (meeting finder)", "is_interactive": true, "radius": 44 },
+    "Cities.dc.html": { "x": 940, "y": 0, "w": 390, "h": 844, "title": "Phone · Cities", "is_interactive": true, "radius": 44 },
+    "Settings.dc.html": { "x": 1410, "y": 0, "w": 390, "h": 844, "title": "Phone · Settings", "is_interactive": true, "radius": 44 },
+    "Desktop.dc.html": { "x": 0, "y": 1264, "w": 1440, "h": 1040, "title": "Desktop · Zones + Plan", "is_interactive": true, "expand": "fill" }
+  },
+  "order": ["Main.dc.html", "Plan.dc.html", "Cities.dc.html", "Settings.dc.html", "Desktop.dc.html"],
+  "notes": {
+    "phone": { "x": 0, "y": -300, "text": "Phone", "kind": "title1", "maxW": 1800 },
+    "desktop": { "x": 0, "y": 964, "text": "Desktop", "kind": "title1", "maxW": 1440 }
+  },
+  "designSystems": []
+}

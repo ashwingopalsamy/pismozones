@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pismo Zones · Phone · Cities</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#000}
+.pz,.pz *{box-sizing:border-box}
+.pz{font-family:'Geist',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;color:#f4f6fb;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;letter-spacing:-.005em}
+.pz .mono{font-family:'Geist Mono',ui-monospace,'SF Mono',Menlo,monospace;letter-spacing:0}
+.pz button{font:inherit;color:inherit}
+.pz svg.i{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.iconbtn{width:44px;height:44px;flex:none;border-radius:22px;display:grid;place-items:center;color:#eef2f8;text-decoration:none;cursor:pointer;background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.10);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 6px 18px rgba(0,0,0,.45)}
+.iconbtn svg{width:20px;height:20px}
+.hdr{position:absolute;top:52px;left:16px;right:16px;height:48px;display:flex;align-items:center;justify-content:space-between;z-index:10}
+.hdr .t{display:flex;flex-direction:column;align-items:center;line-height:1.2}
+.hdr strong{font-size:17px;font-weight:600}
+.hdr span{font-size:12.5px;color:rgba(244,246,251,.56)}
+.scroll{position:absolute;top:108px;left:0;right:0;bottom:0;overflow-y:auto;padding:0 16px 120px;scrollbar-width:none}
+.map{position:relative;margin:14px 0 6px}
+.map svg{display:block;width:100%;height:auto}
+.pin{position:absolute;width:0;height:0}
+.pin i{position:absolute;left:-3.5px;top:-3.5px;width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.18),0 0 12px rgba(255,255,255,.7)}
+.pin span{position:absolute;left:7px;top:-7px;font-size:10.5px;font-weight:500;white-space:nowrap;color:rgba(255,255,255,.92);text-shadow:0 1px 4px #000}
+.pin.l span{left:auto;right:7px}
+.maplegend{display:flex;justify-content:space-between;font-size:12px;color:rgba(244,246,251,.55);margin:0 2px 18px}
+.sec{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(244,246,251,.5);margin:0 4px 8px}
+.group{border-radius:22px;background:#141518;border:1px solid rgba(255,255,255,.06);overflow:hidden}
+.crow{width:100%;min-height:62px;display:flex;align-items:center;gap:14px;padding:10px 16px;background:transparent;border:0;text-align:left;cursor:pointer;position:relative}
+.crow + .crow::before{content:'';position:absolute;left:58px;right:0;top:0;height:1px;background:rgba(255,255,255,.07)}
+.check{width:26px;height:26px;flex:none;border-radius:50%;border:1.8px solid rgba(255,255,255,.35);display:grid;place-items:center}
+.crow.on .check{background:#3b82f6;border-color:#3b82f6}
+.check svg{width:15px;height:15px;opacity:0}
+.crow.on .check svg{opacity:1}
+.nm{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.nm b{font-size:16px;font-weight:500;display:flex;align-items:center;gap:6px}
+.nm > span{font-size:13px;color:rgba(244,246,251,.55)}
+.tag{font-size:9.5px;font-weight:600;letter-spacing:.07em;padding:2px 5px;border-radius:5px;background:rgba(255,255,255,.14)}
+.tm{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.tm b{font-size:16px;font-weight:400}
+.tm span{font-size:12px;color:rgba(244,246,251,.55)}
+.search{position:absolute;left:16px;right:16px;bottom:24px;z-index:10;height:52px;display:flex;align-items:center;gap:10px;padding:0 16px;border-radius:26px;background:rgba(40,42,48,.78);border:1px solid rgba(255,255,255,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 12px 34px rgba(0,0,0,.6);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%)}
+.search svg{width:18px;height:18px;opacity:.7;flex:none}
+.search input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#fff;font:inherit;font-size:16px}
+.search input::placeholder{color:rgba(244,246,251,.5)}
+.fade{position:absolute;left:0;right:0;bottom:0;height:110px;background:linear-gradient(180deg,rgba(0,0,0,0),#000 70%);pointer-events:none;z-index:5}
+</style>
+</helmet>
+<div class="pz" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #000;">
+  <header class="hdr">
+    <a class="iconbtn" href="Main.dc.html" aria-label="Close"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"></path></svg></a>
+    <div class="t"><strong>Cities</strong><span>{{countLabel}}</span></div>
+    <span style="width: 44px; height: 44px;"></span>
+  </header>
+
+  <div class="scroll">
+    <figure class="map" style="margin: 14px 0 6px;" aria-label="{{mapAria}}">
+      <svg viewBox="0 0 358 134" aria-hidden="true">
+        <path d="{{dotsNight}}" style="fill: rgba(255,255,255,.2);"></path>
+        <path d="{{dotsDusk}}" style="fill: rgba(255,255,255,.48);"></path>
+        <path d="{{dotsDay}}" style="fill: rgba(255,255,255,.86);"></path>
+        <path d="{{terminator}}" style="fill: none; stroke: rgba(255,255,255,.42); stroke-width: 1.1;"></path>
+      </svg>
+      <sc-for list="{{pins}}" as="p" hint-placeholder-count="5">
+        <div class="{{p.cls}}" style="left: {{p.x}}%; top: {{p.y}}%;"><i></i><span>{{p.name}}</span></div>
+      </sc-for>
+    </figure>
+    <div class="maplegend"><span>Day and night, right now</span><span class="mono">{{utcNow}}</span></div>
+
+    <div class="sec">Pismo offices</div>
+    <div class="group">
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="10">
+        <button class="{{r.cls}}" type="button" aria-pressed="{{r.on}}" onClick="{{r.toggle}}">
+          <span class="check"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="stroke: #fff; stroke-width: 2.6;"><path d="M6 12.5l4 4 8-9"></path></svg></span>
+          <span class="nm"><b>{{r.name}}<sc-if value="{{r.hq}}" hint-placeholder-val="{{ false }}"><span class="tag">HQ</span></sc-if></b><span>{{r.country}}</span></span>
+          <span class="tm"><b>{{r.time}}</b><span class="mono">{{r.utc}}</span></span>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div class="fade"></div>
+  <label class="search">
+    <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M20 20l-4.2-4.2"></path></svg>
+    <input type="text" value="{{q}}" onChange="{{onQ}}" placeholder="Search cities, countries, codes" aria-label="Search cities" autocomplete="off" spellcheck="false">
+  </label>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"use24h":{"editor":"boolean","default":true,"section":"Format"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.fmts = {};
+    this.state = { now: Date.now(), q: '', on: { 'sao-paulo': true, austin: true, bristol: true, bangalore: true, singapore: true } };
+    this.h = { onQ: (e) => this.setState({ q: e.target.value }) };
+    this.MAP = ['00014500ffe00000c07c0000', '0001f4d07f80000223ffc600', 'f0002e33c07ff03e00000000', '4fffffdc38301d9fffffffff', '0ffffe1818007bffffffffcc', '000ffe0f000213fffffff830', '0003ffdf80053ffffffffc20', '0003fffc0001fffffffff800', '0001fffe0000ff3bfffff800', '0001fff80003b61bffffe400', '0001fff0000301fbfffe4400', '0000ffe00003e03fffff1800', '00003fc00007ffffffff0000', '00001c20000fffbbffff0000', '00000c00000fffbf3ffe0000', '02000c80000fffde1e740000', '000001c0000ffffc08380000', '00000040000fffe408380000', '0000003f0007fff804204000', '0000001fc0003ff800130000', '0000001fe0003ff000268000', '0000001ffc001fe00012bc80', '0000001ffe001fe0000c0600', '0000001ffc000fe000000000', '0000000ffc001fe000005200', '00000007f8001fc800007e00', '00000007f8000f880001ff08', '00000007e0000f800003ff80', '00000007e00007000001ff80', '00000007c000060000018f00', '0000000f8000000000000700', '0000000e0000000000000100', '0000000e0000000000000004', '0000000c0000000000000000', '000000080000000000000000', '000000000000000000000000'];
+  }
+
+  componentDidMount() { this.t = setInterval(() => this.setState({ now: Date.now() }), 20000); }
+  componentWillUnmount() { clearInterval(this.t); }
+
+  cities() {
+    return [
+      { id: 'sao-paulo', name: 'São Paulo', country: 'Brazil', tz: 'America/Sao_Paulo', lat: -23.55, lon: -46.63, hq: true, codes: 'sp brt br' },
+      { id: 'austin', name: 'Austin', country: 'United States', tz: 'America/Chicago', lat: 30.27, lon: -97.74, codes: 'atx us texas' },
+      { id: 'bristol', name: 'Bristol', country: 'United Kingdom', tz: 'Europe/London', lat: 51.45, lon: -2.59, codes: 'uk gb england' },
+      { id: 'bangalore', name: 'Bangalore', country: 'India', tz: 'Asia/Kolkata', lat: 12.97, lon: 77.59, codes: 'blr ist bengaluru' },
+      { id: 'singapore', name: 'Singapore', country: 'Singapore', tz: 'Asia/Singapore', lat: 1.35, lon: 103.82, codes: 'sg sgt' },
+      { id: 'warsaw', name: 'Warsaw', country: 'Poland', tz: 'Europe/Warsaw', lat: 52.23, lon: 21.01, codes: 'pl waw' },
+      { id: 'mexico-city', name: 'Mexico City', country: 'Mexico', tz: 'America/Mexico_City', lat: 19.43, lon: -99.13, codes: 'mx cdmx' },
+      { id: 'buenos-aires', name: 'Buenos Aires', country: 'Argentina', tz: 'America/Argentina/Buenos_Aires', lat: -34.6, lon: -58.38, codes: 'ar ba' },
+      { id: 'bogota', name: 'Bogotá', country: 'Colombia', tz: 'America/Bogota', lat: 4.71, lon: -74.07, codes: 'co bog' },
+      { id: 'sydney', name: 'Sydney', country: 'Australia', tz: 'Australia/Sydney', lat: -33.87, lon: 151.21, codes: 'au syd' },
+    ];
+  }
+
+  pad(n) { return String(n).padStart(2, '0'); }
+
+  parts(ms, tz) {
+    if (!this.fmts[tz]) this.fmts[tz] = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' });
+    const o = {};
+    for (const p of this.fmts[tz].formatToParts(new Date(ms))) o[p.type] = p.value;
+    return { y: +o.year, mo: +o.month, d: +o.day, h: (+o.hour) % 24, mi: +o.minute, s: +o.second };
+  }
+
+  offset(ms, tz) {
+    const p = this.parts(ms, tz);
+    return Math.round((Date.UTC(p.y, p.mo - 1, p.d, p.h, p.mi, p.s) - Math.floor(ms / 1000) * 1000) / 60000);
+  }
+
+  utcLabel(min) {
+    const a = Math.abs(min); const m = a % 60;
+    return 'UTC' + (min < 0 ? '−' : '+') + Math.floor(a / 60) + (m ? ':' + this.pad(m) : '');
+  }
+
+  sun(ms) {
+    const rad = Math.PI / 180;
+    const d = ms / 86400000 - 10957.5;
+    const g = (357.529 + 0.98560028 * d) * rad;
+    const q = 280.459 + 0.98564736 * d;
+    const L = (q + 1.915 * Math.sin(g) + 0.02 * Math.sin(2 * g)) * rad;
+    const e = (23.439 - 0.00000036 * d) * rad;
+    const ra = Math.atan2(Math.cos(e) * Math.sin(L), Math.cos(L));
+    const dec = Math.asin(Math.sin(e) * Math.sin(L));
+    const gmst = (((18.697374558 + 24.06570982441908 * d) % 24) + 24) % 24;
+    return { ra, dec, gmst };
+  }
+
+  el(S, lat, lon) {
+    const rad = Math.PI / 180;
+    const ha = (S.gmst * 15 + lon) * rad - S.ra;
+    return Math.asin(Math.sin(lat * rad) * Math.sin(S.dec) + Math.cos(lat * rad) * Math.cos(S.dec) * Math.cos(ha)) / rad;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const use24 = this.props.use24h ?? true;
+    const W = 358; const H = 134; const COLS = 96; const ROWS = 36; const LAT0 = 78; const LAT1 = -58;
+    const dx = W / COLS; const dy = H / ROWS; const r = 1.22;
+    const S = this.sun(s.now);
+    let day = ''; let dusk = ''; let night = '';
+    for (let row = 0; row < ROWS; row++) {
+      const hex = this.MAP[row];
+      const lat = LAT0 - (row + 0.5) * ((LAT0 - LAT1) / ROWS);
+      for (let col = 0; col < COLS; col++) {
+        const nib = parseInt(hex[col >> 2], 16);
+        if (!((nib >> (3 - (col & 3))) & 1)) continue;
+        const lon = -180 + (col + 0.5) * (360 / COLS);
+        const e = this.el(S, lat, lon);
+        const x = (col + 0.5) * dx; const y = (row + 0.5) * dy;
+        const dot = 'M' + (x - r).toFixed(2) + ' ' + y.toFixed(2) + 'a' + r + ' ' + r + ' 0 1 0 ' + (2 * r) + ' 0a' + r + ' ' + r + ' 0 1 0 ' + (-2 * r) + ' 0';
+        if (e > 0) day += dot; else if (e > -8) dusk += dot; else night += dot;
+      }
+    }
+    let term = '';
+    const tanDec = Math.tan(S.dec);
+    for (let i = 0; i <= 120; i++) {
+      const lon = -180 + i * 3;
+      const ha = (S.gmst * 15 + lon) * Math.PI / 180 - S.ra;
+      const lat = Math.atan(-Math.cos(ha) / tanDec) * 180 / Math.PI;
+      const x = ((lon + 180) / 360) * W;
+      const y = Math.max(0, Math.min(H, ((LAT0 - lat) / (LAT0 - LAT1)) * H));
+      term += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+    }
+    const all = this.cities();
+    const ql = s.q.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const shown = all.filter((c) => !ql || (c.name + ' ' + c.country + ' ' + c.codes).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').indexOf(ql) >= 0);
+    const rows = shown.map((c) => {
+      const p = this.parts(s.now, c.tz);
+      const on = !!s.on[c.id];
+      return {
+        cls: 'crow' + (on ? ' on' : ''), on: on ? 'true' : 'false',
+        name: c.name, country: c.country, hq: !!c.hq,
+        time: use24 ? this.pad(p.h) + ':' + this.pad(p.mi) : (((p.h + 11) % 12) + 1) + ':' + this.pad(p.mi) + (p.h < 12 ? ' AM' : ' PM'),
+        utc: this.utcLabel(this.offset(s.now, c.tz)),
+        toggle: () => { const next = Object.assign({}, this.state.on); next[c.id] = !next[c.id]; this.setState({ on: next }); },
+      };
+    });
+    const pins = all.filter((c) => s.on[c.id]).map((c) => ({
+      cls: 'pin' + (c.lon > 60 || c.id === 'austin' ? ' l' : ''),
+      name: c.name,
+      x: (((c.lon + 180) / 360) * 100).toFixed(2),
+      y: (((LAT0 - c.lat) / (LAT0 - LAT1)) * 100).toFixed(2),
+    }));
+    const count = Object.keys(s.on).filter((k) => s.on[k]).length;
+    const u = this.parts(s.now, 'UTC');
+    return Object.assign({}, this.h, {
+      dotsDay: day, dotsDusk: dusk, dotsNight: night, terminator: term,
+      pins, rows, q: s.q,
+      countLabel: count + ' added',
+      utcNow: 'UTC ' + this.pad(u.h) + ':' + this.pad(u.mi),
+      mapAria: 'World map showing day and night with ' + count + ' selected cities',
+    });
+  }
+}
+</script>
+</body>
+</html>
