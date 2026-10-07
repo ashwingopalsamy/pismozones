@@ -36,3 +36,19 @@ it('ignores plain keys while typing, but ⌘K still focuses the command bar', ()
   expect(ui.focusCommand).toHaveBeenCalledTimes(1);
   input.remove();
 });
+
+it('leaves keys a focused control already handled alone', () => {
+  const app = createAppState(makeEnv());
+  const e = new KeyboardEvent('keydown', { key: 'ArrowRight', cancelable: true });
+  e.preventDefault();
+  expect(handleShortcut(e, app, { focusCommand: vi.fn(), openShortcuts: vi.fn() })).toBe(false);
+  expect(app.mode.value).toBe('live');
+});
+
+it('[ and ] step civil days in the reference zone', () => {
+  const app = createAppState(makeEnv());
+  const ui = { focusCommand: vi.fn(), openShortcuts: vi.fn() };
+  app.pin(Date.UTC(2026, 9, 24, 14), 'card_edit', { refId: 'bristol' }); // Sat 15:00 BST
+  handleShortcut(new KeyboardEvent('keydown', { key: ']' }), app, ui);
+  expect(app.pinned.value).toBe(Date.UTC(2026, 9, 25, 15)); // Sun 15:00 GMT
+});

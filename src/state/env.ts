@@ -14,7 +14,7 @@ export interface AppEnv {
   viewerZone: string;
   languages: readonly string[];
   prefersDark(): boolean;
-  location: { pathname: string; search: string; origin: string };
+  location: { pathname: string; search: string; hash?: string; origin: string };
   replaceUrl(path: string): void;
   scheduler: Scheduler;
   send(body: string): void;
@@ -46,7 +46,12 @@ export function browserEnv(): AppEnv {
     viewerZone: viewerZone(),
     languages: navigator.languages?.length ? navigator.languages : [navigator.language || 'en-GB'],
     prefersDark: () => window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? true,
-    location: { pathname: location.pathname, search: location.search, origin: location.origin },
+    location: {
+      pathname: location.pathname,
+      search: location.search,
+      hash: location.hash,
+      origin: location.origin,
+    },
     replaceUrl: (path) => history.replaceState(history.state, '', path),
     scheduler: {
       now: () => Date.now(),

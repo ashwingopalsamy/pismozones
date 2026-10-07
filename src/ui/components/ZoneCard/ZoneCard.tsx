@@ -129,6 +129,7 @@ export function ZoneCard({
               <button
                 type="button"
                 class={styles.timeBtn}
+                data-edit={m.id}
                 onClick={onEdit}
                 aria-label={t('card.edit', { city: m.name })}
               >

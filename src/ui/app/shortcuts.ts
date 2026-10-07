@@ -18,6 +18,8 @@ export function handleShortcut(
   app: AppState,
   ui: { focusCommand(): void; openShortcuts(): void },
 ): boolean {
+  // A focused control (the ruler slider, an editor) already acted on this key.
+  if (e.defaultPrevented) return false;
   if (e.key.toLowerCase() === 'k' && (e.metaKey || e.ctrlKey)) {
     ui.focusCommand();
     return true;
@@ -39,10 +41,10 @@ export function handleShortcut(
       app.nudge(-step, 'keyboard');
       return true;
     case ']':
-      app.nudge(24 * HOUR, 'day_nav');
+      app.shiftDay(1, app.reference.value.zone, 'day_nav');
       return true;
     case '[':
-      app.nudge(-24 * HOUR, 'day_nav');
+      app.shiftDay(-1, app.reference.value.zone, 'day_nav');
       return true;
     case '?':
       ui.openShortcuts();

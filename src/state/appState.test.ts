@@ -1,3 +1,4 @@
+import { parse } from '@core/parse/index';
 import { encodeShare } from '@core/share/codec';
 import { describe, expect, it } from 'vitest';
 import { createAppState } from './index';
@@ -46,7 +47,10 @@ describe('createAppState', () => {
     expect(s.displayed.value.filter((d) => d.temp).map((d) => d.office.id)).toEqual(
       expect.arrayContaining(['sydney', 'jakarta']),
     );
-    expect(env.storage?.getItem('pz:v1')).toBeNull();
+    expect(JSON.parse(env.storage?.getItem('pz:v1') ?? '{}')).toMatchObject({
+      activeIds: ['austin', 'saopaulo', 'bristol', 'bangalore'],
+      refId: null,
+    });
     s.exitOverlay();
     expect(JSON.parse(env.storage?.getItem('pz:v1') ?? '{}').activeIds).toEqual([
       'austin',
@@ -67,5 +71,50 @@ describe('createAppState', () => {
     const s = createAppState(makeEnv());
     s.pin(Date.UTC(2026, 9, 8, 14), 'command', { extras: ['warsaw'] });
     expect(s.displayed.value.at(-1)).toMatchObject({ office: { id: 'warsaw' }, temp: true });
+  });
+
+  it('keeps what the user does inside a shared view, never the shared view itself', () => {
+    const token = encodeShare({
+      instant: Date.UTC(2026, 9, 8, 14),
+      refId: 'bristol',
+      officeIds: ['saopaulo', 'sydney'],
+    });
+    const env = makeEnv({ location: { pathname: `/s/${token}`, search: '', origin: 'https://x' } });
+    const s = createAppState(env);
+    const stop = s.start();
+    s.cities.add('warsaw');
+    s.prefs.set('theme', 'light');
+    expect(JSON.parse(env.storage?.getItem('pz:v1') ?? '{}')).toMatchObject({
+      activeIds: ['austin', 'saopaulo', 'bristol', 'bangalore', 'warsaw'],
+      refId: null,
+      prefs: { theme: 'light' },
+    });
+    stop();
+  });
+  it('flags a mangled share token as invalid instead of crashing', () => {
+    for (const pathname of ['/s/%E0%A4%A', '/s/%']) {
+      const s = createAppState(
+        makeEnv({ location: { pathname, search: '', origin: 'https://x' } }),
+      );
+      expect([s.boot.shareInvalid, s.overlay.value]).toEqual([true, null]);
+    }
+  });
+  it('opens the old app’s ?share= and #hash links', () => {
+    for (const location of [
+      { pathname: '/', search: '?share=10p00hwf', hash: '', origin: 'https://x' },
+      { pathname: '/', search: '', hash: '#10p00hwf', origin: 'https://x' },
+    ]) {
+      const s = createAppState(makeEnv({ location }));
+      expect(s.overlay.value).toMatchObject({ refId: 'austin', instant: Date.UTC(2026, 9, 7, 20) });
+    }
+  });
+  it('clears the command text along with its preview when leaving a shared view', () => {
+    const s = createAppState(
+      makeEnv({ location: { pathname: '/s/10p00hwf', search: '', origin: 'https://x' } }),
+    );
+    s.query.value = '3pm';
+    s.preview.value = parse('3pm', { now: s.clock.now.value, referenceId: 'austin', locale: 'en' });
+    s.exitOverlay();
+    expect([s.preview.value, s.query.value]).toEqual([null, '']);
   });
 });

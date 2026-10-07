@@ -58,4 +58,12 @@ describe('storage', () => {
     savePersisted(env.storage, p);
     expect(loadPersisted(env.storage, 'UTC')).toEqual(p);
   });
+  it('drops a saved reference that is not one of the saved cities', () => {
+    const env = makeEnv();
+    env.storage?.setItem(
+      'pz:v1',
+      JSON.stringify({ schema: 1, activeIds: ['austin', 'bristol'], refId: 'sydney' }),
+    );
+    expect(loadPersisted(env.storage, 'UTC').refId).toBeNull();
+  });
 });

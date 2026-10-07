@@ -1,7 +1,7 @@
 import type { OfficeId } from '@core/cities/registry';
 import { formatClock, formatOffset } from '@core/time/format';
 import { zonedFields } from '@core/time/zoned';
-import { useRef, useState } from 'preact/hooks';
+import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { useApp, useT } from '../../app/context';
 import { Icon } from '../Icon';
 import { Sheet } from '../Sheet/Sheet';
@@ -15,6 +15,13 @@ export function CitiesSheet({ open, onClose }: { open: boolean; onClose(): void 
   const [q, setQ] = useState('');
   const rows = useRef(new Map<OfficeId, HTMLLIElement>());
   const dragging = useRef<OfficeId | null>(null);
+  // Toggling or reordering moves a row, which drops focus; put it back on the same city.
+  const refocus = useRef<OfficeId | null>(null);
+  useLayoutEffect(() => {
+    if (!refocus.current) return;
+    rows.current.get(refocus.current)?.querySelector('button')?.focus();
+    refocus.current = null;
+  });
   const active = app.cities.activeIds.value;
   const now = app.clock.minuteNow.value;
   const hc = app.prefs.hourCycle.value;
@@ -29,8 +36,8 @@ export function CitiesSheet({ open, onClose }: { open: boolean; onClose(): void 
   const onRowKey = (id: OfficeId) => (e: KeyboardEvent) => {
     if (!e.altKey || !active.includes(id) || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
     e.preventDefault();
+    refocus.current = id;
     app.cities.move(id, active.indexOf(id) + (e.key === 'ArrowUp' ? -1 : 1));
-    requestAnimationFrame(() => rows.current.get(id)?.querySelector('button')?.focus());
   };
   const onGripMove = (e: PointerEvent) => {
     const id = dragging.current;
@@ -66,7 +73,10 @@ export function CitiesSheet({ open, onClose }: { open: boolean; onClose(): void 
                 class={styles.row}
                 aria-pressed={on}
                 disabled={on && active.length === 1}
-                onClick={() => app.cities.toggle(o.id)}
+                onClick={() => {
+                  refocus.current = o.id;
+                  app.cities.toggle(o.id);
+                }}
                 onKeyDown={onRowKey(o.id)}
               >
                 <span class={styles.check}>

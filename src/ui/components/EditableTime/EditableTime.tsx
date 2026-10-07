@@ -12,7 +12,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
 export interface EditableTimeProps {
   office: Office;
   phone: boolean;
-  onDone(): void;
+  /** `refocus`: the editor closed from the keyboard, so focus returns to the card. */
+  onDone(refocus: boolean): void;
 }
 
 /** Inline editor for a card's time: type "1530", "3:30p", "noon"; arrows nudge; Enter commits. */
@@ -47,6 +48,11 @@ export function EditableTime({ office, phone, onDone }: EditableTimeProps) {
     app.nudge(delta, 'card_edit');
     setText(local());
   };
+  const shiftDay = (days: number) => {
+    app.cities.refId.value = office.id;
+    app.shiftDay(days, office.zone, 'card_edit');
+    setText(local());
+  };
   const commit = () => {
     if (!parsed) return;
     const date = zonedFields(app.moment.value, office.zone);
@@ -55,17 +61,17 @@ export function EditableTime({ office, phone, onDone }: EditableTimeProps) {
       office.zone,
     );
     app.pin(instant, 'card_edit', { refId: office.id });
-    onDone();
+    onDone(true);
   };
   const onKeyDown = (e: KeyboardEvent) => {
     const step = e.shiftKey ? HOUR : QUARTER;
     const actions: Record<string, () => void> = {
       Enter: commit,
-      Escape: onDone,
+      Escape: () => onDone(true),
       ArrowUp: () => nudge(step),
       ArrowDown: () => nudge(-step),
-      PageUp: () => nudge(24 * HOUR),
-      PageDown: () => nudge(-24 * HOUR),
+      PageUp: () => shiftDay(1),
+      PageDown: () => shiftDay(-1),
     };
     const action = actions[e.key];
     if (!action) return;
@@ -74,8 +80,11 @@ export function EditableTime({ office, phone, onDone }: EditableTimeProps) {
   };
   const onBlur = (e: FocusEvent) => {
     if (box.current?.contains(e.relatedTarget as Node | null)) return;
-    onDone();
+    onDone(false);
   };
+  // Chips never take focus: WebKit doesn't focus tapped buttons, so the input's blur would close
+  // the editor before the click lands. (Preventing pointerdown instead would cancel the tap.)
+  const keepFocus = (e: MouseEvent) => e.preventDefault();
 
   return (
     <div class={styles.edit} ref={box} onFocusOut={onBlur}>
@@ -98,21 +107,25 @@ export function EditableTime({ office, phone, onDone }: EditableTimeProps) {
       </span>
       {phone && (
         <div class={styles.chips}>
-          <button type="button" class={styles.chip} onClick={() => nudge(-HOUR)}>
-            {t('edit.earlier1h')}
-          </button>
-          <button type="button" class={styles.chip} onClick={() => nudge(-QUARTER)}>
-            {t('edit.earlier15')}
-          </button>
-          <button type="button" class={styles.chip} onClick={() => nudge(QUARTER)}>
-            {t('edit.later15')}
-          </button>
-          <button type="button" class={styles.chip} onClick={() => nudge(HOUR)}>
-            {t('edit.later1h')}
-          </button>
-          <button type="button" class={styles.chip} onClick={() => nudge(24 * HOUR)}>
-            {t('edit.nextDay')}
-          </button>
+          {(
+            [
+              ['edit.earlier1h', () => nudge(-HOUR)],
+              ['edit.earlier15', () => nudge(-QUARTER)],
+              ['edit.later15', () => nudge(QUARTER)],
+              ['edit.later1h', () => nudge(HOUR)],
+              ['edit.nextDay', () => shiftDay(1)],
+            ] as const
+          ).map(([key, act]) => (
+            <button
+              key={key}
+              type="button"
+              class={styles.chip}
+              onMouseDown={keepFocus}
+              onClick={act}
+            >
+              {t(key)}
+            </button>
+          ))}
         </div>
       )}
     </div>

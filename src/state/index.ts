@@ -26,8 +26,6 @@ export interface AppState extends MomentState {
   reference: ReadonlySignal<Office>;
   displayed: ReadonlySignal<Array<{ office: Office; temp: boolean }>>;
   view: Signal<'zones' | 'plan'>;
-  /** Command-bar text, shared by the bar and its sentence/suggestions. */
-  query: Signal<string>;
   track: Track;
   exitOverlay(): void;
   shareUrl(): string;
@@ -51,6 +49,8 @@ export function createAppState(env: AppEnv, track: Track = () => {}): AppState {
 
   // The shared view borrows the reference and pins its instant; both are restored on exit.
   const stashedRef = cities.refId.value;
+  const homeRef = () =>
+    stashedRef && cities.activeIds.value.includes(stashedRef) ? stashedRef : null;
   if (shared) {
     cities.refId.value = shared.refId;
     m.scrub(shared.instant);
@@ -90,9 +90,10 @@ export function createAppState(env: AppEnv, track: Track = () => {}): AppState {
     if (!o) return;
     batch(() => {
       overlay.value = null;
-      cities.refId.value = stashedRef;
+      cities.refId.value = homeRef();
       m.pinned.value = null;
       m.preview.value = null;
+      m.query.value = '';
       m.extras.value = [];
     });
     track('share_exit', { secondsViewed: Math.round((env.scheduler.now() - o.openedAt) / 1000) });
@@ -110,7 +111,6 @@ export function createAppState(env: AppEnv, track: Track = () => {}): AppState {
     reference,
     displayed,
     view,
-    query: signal(''),
     track,
     exitOverlay,
     shareUrl() {
@@ -124,15 +124,15 @@ export function createAppState(env: AppEnv, track: Track = () => {}): AppState {
     },
     start() {
       const stopClock = clock.start();
+      // The user's own edits persist even inside a shared view; the view's borrowed reference doesn't.
       const stopPersist = effect(() => {
-        const doc = {
-          schema: 1 as const,
+        savePersisted(env.storage, {
+          schema: 1,
           activeIds: cities.activeIds.value,
-          refId: cities.refId.value,
+          refId: overlay.value ? homeRef() : cities.refId.value,
           prefs: prefs.prefs.value,
           history: history.items.value,
-        };
-        if (!overlay.value) savePersisted(env.storage, doc);
+        });
       });
       return () => {
         stopClock();

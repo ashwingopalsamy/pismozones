@@ -1,5 +1,5 @@
 import type { OfficeId } from '@core/cities/registry';
-import { useState } from 'preact/hooks';
+import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { useApp } from '../../app/context';
 import { EditableTime } from '../EditableTime/EditableTime';
 import { type CardBox, cardModel, DESKTOP_BOX } from '../ZoneCard/model';
@@ -15,6 +15,14 @@ export interface CardListProps {
 export function CardList({ box, editable, onHoliday }: CardListProps) {
   const app = useApp();
   const [editing, setEditing] = useState<OfficeId | null>(null);
+  const list = useRef<HTMLElement>(null);
+  const refocus = useRef<OfficeId | null>(null);
+  // The editor's input unmounts on close; keyboard users land back on the card they edited.
+  useLayoutEffect(() => {
+    if (editing !== null || !refocus.current) return;
+    list.current?.querySelector<HTMLElement>(`[data-edit="${refocus.current}"]`)?.focus();
+    refocus.current = null;
+  }, [editing]);
   const moment = app.moment.value;
   const live = app.mode.value === 'live';
   const ctx = {
@@ -27,7 +35,7 @@ export function CardList({ box, editable, onHoliday }: CardListProps) {
     starCount: box === DESKTOP_BOX ? 34 : 26,
   };
   return (
-    <section class={`${styles.list} ${box === DESKTOP_BOX ? styles.wrap : ''}`}>
+    <section ref={list} class={`${styles.list} ${box === DESKTOP_BOX ? styles.wrap : ''}`}>
       {app.displayed.value.map(({ office, temp }) => (
         <ZoneCard
           key={office.id}
@@ -41,7 +49,10 @@ export function CardList({ box, editable, onHoliday }: CardListProps) {
               <EditableTime
                 office={office}
                 phone={box !== DESKTOP_BOX}
-                onDone={() => setEditing(null)}
+                onDone={(back) => {
+                  refocus.current = back ? office.id : null;
+                  setEditing(null);
+                }}
               />
             ) : undefined
           }

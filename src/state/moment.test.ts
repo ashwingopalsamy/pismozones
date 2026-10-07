@@ -1,4 +1,5 @@
 import { DEFAULT_ACTIVE } from '@core/cities/registry';
+import { parse } from '@core/parse/index';
 import { effect } from '@preact/signals';
 import { describe, expect, it } from 'vitest';
 import { createCities } from './cities';
@@ -98,5 +99,35 @@ describe('cities and history', () => {
     );
     c.move('austin', 0);
     expect(c.activeIds.value).toEqual(['austin', 'saopaulo', 'warsaw']);
+  });
+});
+
+describe('review fixes', () => {
+  it('steps whole civil days across a DST change, keeping the wall time', () => {
+    const m = compose();
+    m.pin(Date.UTC(2026, 9, 24, 14), 'card_edit'); // Sat 24 Oct, 15:00 BST
+    m.shiftDay(1, 'Europe/London', 'day_nav');
+    expect(m.pinned.value).toBe(Date.UTC(2026, 9, 25, 15)); // Sun 25 Oct, 15:00 GMT
+    m.shiftDay(-1, 'Europe/London', 'day_nav');
+    expect(m.pinned.value).toBe(Date.UTC(2026, 9, 24, 14));
+  });
+  it('direct manipulation or going live discards a pending command and its text', () => {
+    const m = compose();
+    const pending = () => {
+      m.query.value = '3pm bristol';
+      m.preview.value = parse('3pm bristol', { now: NOW, referenceId: 'saopaulo', locale: 'en' });
+    };
+    pending();
+    m.nudge(900_000, 'keyboard');
+    expect([m.preview.value, m.query.value, m.mode.value]).toEqual([null, '', 'pinned']);
+    pending();
+    m.backToLive('button');
+    expect([m.preview.value, m.query.value]).toEqual([null, '']);
+  });
+  it('forgets the reference when its city is removed', () => {
+    const m = compose();
+    m.cities.refId.value = 'bristol';
+    m.cities.toggle('bristol');
+    expect(m.cities.refId.value).toBeNull();
   });
 });

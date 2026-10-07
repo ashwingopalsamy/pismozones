@@ -20,7 +20,7 @@ export interface Boot {
 
 /** Reads the URL exactly once, before anything can rewrite it, then normalises it to "/". */
 export function bootFromLocation(env: AppEnv): { boot: Boot; shared: SharedView | null } {
-  const { pathname, search } = env.location;
+  const { pathname, search, hash = '' } = env.location;
   const params = new URLSearchParams(search);
   const boot: Boot = {
     view: 'zones',
@@ -30,15 +30,17 @@ export function bootFromLocation(env: AppEnv): { boot: Boot; shared: SharedView 
   };
   let shared: SharedView | null = null;
 
-  const match = /^\/s\/([^/]+)\/?$/.exec(pathname);
-  if (match) {
-    const decoded = decodeShare(decodeURIComponent(match[1] as string));
-    if (decoded) {
-      shared = { ...decoded, openedAt: env.scheduler.now() };
-      boot.entry = 'share';
-    } else {
-      boot.shareInvalid = true;
-    }
+  // Tokens are [0-9a-z.] only, so they are never percent-decoded: a mangled escape is just invalid.
+  // The old app also opened `/?share=<v1>` (where its /s/ page redirected) and `#<v1>`.
+  const hashToken = hash.length > 1 ? hash.slice(1) : null;
+  const token = /^\/s\/([^/]+)\/?$/.exec(pathname)?.[1] ?? params.get('share');
+  const decoded = decodeShare(token ?? hashToken ?? '');
+  if (decoded) {
+    shared = { ...decoded, openedAt: env.scheduler.now() };
+    boot.entry = 'share';
+  } else if (token !== null) {
+    // An unrelated #fragment is not a broken share link.
+    boot.shareInvalid = true;
   }
   if (params.get('view') === 'plan') {
     boot.view = 'plan';
@@ -48,6 +50,6 @@ export function bootFromLocation(env: AppEnv): { boot: Boot; shared: SharedView 
     boot.panel = 'holidays';
     boot.entry = 'shortcut';
   }
-  if (pathname !== '/' || search) env.replaceUrl('/');
+  if (pathname !== '/' || search || hash) env.replaceUrl('/');
   return { boot, shared };
 }

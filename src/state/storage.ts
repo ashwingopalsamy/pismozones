@@ -56,12 +56,14 @@ function sanitize(raw: unknown, viewerZone: string): Persisted {
   const r = raw as Partial<Record<keyof Persisted, unknown>> & {
     prefs?: Partial<Record<keyof Prefs, unknown>>;
   };
-  const activeIds = uniqueOffices(r.activeIds);
+  const uniq = uniqueOffices(r.activeIds);
+  const activeIds = uniq.length ? uniq : base.activeIds;
   const p = r.prefs ?? {};
   return {
     schema: 1,
-    activeIds: activeIds.length ? activeIds : base.activeIds,
-    refId: isOffice(r.refId) ? r.refId : null,
+    activeIds,
+    // The reference is always a visible card; a temporary one doesn't survive a reload.
+    refId: isOffice(r.refId) && activeIds.includes(r.refId) ? r.refId : null,
     prefs: {
       hourCycle: p.hourCycle === 'h12' || p.hourCycle === 'h23' ? p.hourCycle : 'auto',
       theme: p.theme === 'dark' || p.theme === 'light' ? p.theme : 'system',

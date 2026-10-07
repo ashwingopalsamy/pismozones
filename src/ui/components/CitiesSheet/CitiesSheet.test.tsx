@@ -25,4 +25,13 @@ describe('cities', () => {
     expect(app.cities.activeIds.value).toEqual(['austin', 'saopaulo', 'warsaw']);
     expect(await a11yViolations(container)).toEqual([]);
   });
+  it('keeps focus on a city as it moves between the saved and other sections', async () => {
+    const { user, getByRole } = renderWithApp(<CitiesSheet open onClose={() => {}} />, {
+      activeIds: ['saopaulo', 'austin'],
+    });
+    await user.click(getByRole('button', { name: /Warsaw/ }));
+    expect(document.activeElement).toBe(getByRole('button', { name: /Warsaw/ }));
+    await user.click(getByRole('button', { name: /Austin/ }));
+    expect(document.activeElement).toBe(getByRole('button', { name: /Austin/ }));
+  });
 });

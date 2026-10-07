@@ -1,7 +1,8 @@
 import type { OfficeId } from '@core/cities/registry';
 import type { ParseResult } from '@core/parse/types';
 import type { Instant } from '@core/time/types';
-import { computed, type ReadonlySignal, type Signal, signal } from '@preact/signals';
+import { addDays, toInstant, zonedFields } from '@core/time/zoned';
+import { batch, computed, type ReadonlySignal, type Signal, signal } from '@preact/signals';
 import type { CitiesState } from './cities';
 import type { ClockState } from './clock';
 import type { Track } from './track';
@@ -19,6 +20,8 @@ export type CommitMethod =
 export type LiveMethod = 'button' | 'esc' | 'key' | 'plan';
 
 export interface MomentState {
+  /** Command-bar text; its parse is `preview`, and the two are always cleared together. */
+  query: Signal<string>;
   pinned: Signal<Instant | null>;
   preview: Signal<ParseResult | null>;
   extras: Signal<OfficeId[]>;
@@ -32,6 +35,8 @@ export interface MomentState {
   scrub(instant: Instant): void;
   endScrub(method: CommitMethod): void;
   nudge(deltaMs: number, method: CommitMethod): void;
+  /** Moves by whole civil days in `zone`, keeping the wall time (23/25 h across DST). */
+  shiftDay(days: number, zone: string, method: CommitMethod): void;
   backToLive(method: LiveMethod): void;
 }
 
@@ -39,6 +44,7 @@ const QUARTER = 900_000;
 export const snapQuarter = (t: Instant) => Math.round(t / QUARTER) * QUARTER;
 
 export function createMoment(clock: ClockState, cities: CitiesState, track: Track): MomentState {
+  const query = signal('');
   const pinned = signal<Instant | null>(null);
   const preview = signal<ParseResult | null>(null);
   const extras = signal<OfficeId[]>([]);
@@ -61,12 +67,22 @@ export function createMoment(clock: ClockState, cities: CitiesState, track: Trac
       method,
       hoursFromNow: Math.round(((instant - clock.now.value) / 3_600_000) * 4) / 4,
     });
+  const dropCommand = () =>
+    batch(() => {
+      preview.value = null;
+      query.value = '';
+    });
+  // Direct manipulation supersedes a pending command, so nothing changes behind a preview.
   const setPinned = (instant: Instant) => {
     if (pinned.value === null) pinnedAt = clock.now.value;
-    pinned.value = instant;
+    batch(() => {
+      dropCommand();
+      pinned.value = instant;
+    });
   };
 
   return {
+    query,
     pinned,
     preview,
     extras,
@@ -87,15 +103,22 @@ export function createMoment(clock: ClockState, cities: CitiesState, track: Trac
       commit(pinned.value, method);
     },
     nudge(deltaMs, method) {
-      const base = pinned.value ?? clock.minuteNow.value;
-      setPinned(snapQuarter(base + deltaMs));
+      setPinned(snapQuarter(moment.value + deltaMs));
+      commit(pinned.value as Instant, method);
+    },
+    shiftDay(days, zone, method) {
+      const f = zonedFields(moment.value, zone);
+      const date = addDays({ year: f.year, month: f.month, day: f.day }, days);
+      setPinned(toInstant({ ...date, hour: f.hour, minute: f.minute, second: 0 }, zone).instant);
       commit(pinned.value as Instant, method);
     },
     backToLive(method) {
       const seconds = pinnedAt === null ? 0 : Math.round((clock.now.value - pinnedAt) / 1000);
-      pinned.value = null;
-      preview.value = null;
-      extras.value = [];
+      batch(() => {
+        pinned.value = null;
+        dropCommand();
+        extras.value = [];
+      });
       pinnedAt = null;
       track('back_to_live', { method, pinnedSeconds: seconds });
     },

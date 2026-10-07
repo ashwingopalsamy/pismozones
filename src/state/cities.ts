@@ -43,6 +43,7 @@ export function createCities(
       if (!activeIds.value.includes(id)) return add(id);
       if (activeIds.value.length === 1) return;
       activeIds.value = activeIds.value.filter((x) => x !== id);
+      if (refId.value === id) refId.value = null;
       changed('remove', id);
     },
     move(id, toIndex) {

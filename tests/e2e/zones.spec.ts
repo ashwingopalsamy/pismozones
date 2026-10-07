@@ -31,6 +31,14 @@ test('inline edit sets a card time', async ({ page }) => {
   await expect(page.getByRole('article', { name: /^São Paulo, 15:30,/ })).toBeVisible();
 });
 
+test('time chips land on touch', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'chips are the phone editor');
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Set time in São Paulo' }).tap();
+  await page.getByRole('button', { name: '+1h' }).tap();
+  await expect(page.getByRole('article', { name: /^São Paulo, 12:15,/ })).toBeVisible();
+});
+
 test('settings switch to 12-hour time', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Settings' }).first().click();
