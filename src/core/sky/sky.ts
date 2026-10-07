@@ -28,11 +28,7 @@ function mix(a: string, b: string, t: number): string {
 
 export function skyFor(elevation: number): SkyStops {
   let i = 0;
-  while (
-    i < SKY_KEYFRAMES.length - 2 &&
-    elevation > (SKY_KEYFRAMES[i + 1] as readonly number[])[0]!
-  )
-    i++;
+  while (i < SKY_KEYFRAMES.length - 2 && elevation > (SKY_KEYFRAMES[i + 1]?.[0] ?? 90)) i++;
   const a = SKY_KEYFRAMES[i] as (typeof SKY_KEYFRAMES)[number];
   const b = SKY_KEYFRAMES[i + 1] as (typeof SKY_KEYFRAMES)[number];
   const t = Math.max(0, Math.min(1, (elevation - a[0]) / (b[0] - a[0])));
