@@ -17,7 +17,8 @@
     "check": "npm run lint && npm run typecheck && npm run test",
     "cf-typegen": "wrangler types",
     "e2e": "playwright test",
-    "analytics": "sh scripts/analytics.sh"
+    "analytics": "sh scripts/analytics.sh",
+    "size": "node scripts/size.mjs"
   },
   "dependencies": {
     "@preact/signals": "^2.11.3",

@@ -1,8 +1,5 @@
 import type { OfficeId } from '@core/cities/registry';
 import { useEffect, useErrorBoundary, useRef, useState } from 'preact/hooks';
-import { CitiesSheet } from '../components/CitiesSheet/CitiesSheet';
-import { HolidaysSheet } from '../components/HolidaysSheet/HolidaysSheet';
-import { SettingsSheet } from '../components/SettingsSheet/SettingsSheet';
 import { toast } from '../components/Toast/store';
 import { Toast } from '../components/Toast/Toast';
 import { translate } from '../i18n';
@@ -10,12 +7,26 @@ import { announcement } from './announce';
 import { useApp } from './context';
 import { ErrorFallback } from './ErrorFallback';
 import type { Install } from './install';
+import { lazyComponent } from './lazy';
 import { type LayoutActions, PhoneLayout } from './PhoneLayout';
-import { ShortcutsSheet } from './ShortcutsSheet';
 import { shareCurrent } from './share';
 import { handleShortcut } from './shortcuts';
 import { UpdatePrompt } from './UpdatePrompt';
 import { WideLayout } from './WideLayout';
+
+// Sheets load right after the entry (they render closed at mount), keeping the first paint lean.
+const SettingsSheet = lazyComponent(() =>
+  import('../components/SettingsSheet/SettingsSheet').then((m) => m.SettingsSheet),
+);
+const CitiesSheet = lazyComponent(() =>
+  import('../components/CitiesSheet/CitiesSheet').then((m) => m.CitiesSheet),
+);
+const HolidaysSheet = lazyComponent(() =>
+  import('../components/HolidaysSheet/HolidaysSheet').then((m) => m.HolidaysSheet),
+);
+const ShortcutsSheet = lazyComponent(() =>
+  import('./ShortcutsSheet').then((m) => m.ShortcutsSheet),
+);
 
 const WIDE = '(min-width: 768px)';
 const THEME_COLORS = { dark: '#000000', light: '#f2f2f5' } as const;

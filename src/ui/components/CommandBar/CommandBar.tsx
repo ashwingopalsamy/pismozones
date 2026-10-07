@@ -1,4 +1,4 @@
-import { forwardRef } from 'preact/compat';
+import type { Ref } from 'preact';
 import { useRef, useState } from 'preact/hooks';
 import { useApp, useT } from '../../app/context';
 import { Icon } from '../Icon';
@@ -12,12 +12,11 @@ export interface CommandBarProps {
   placement: 'top' | 'dock';
   /** Render the preview sentence under the bar (default: only for 'top'). */
   sentence?: boolean;
+  /** Preact 11 passes `ref` to function components as a prop. */
+  ref?: Ref<HTMLInputElement>;
 }
 
-export const CommandBar = forwardRef<HTMLInputElement, CommandBarProps>(function CommandBar(
-  { placement, sentence = placement === 'top' },
-  ref,
-) {
+export function CommandBar({ placement, sentence = placement === 'top', ref }: CommandBarProps) {
   const app = useApp();
   const t = useT();
   const mirror = useRef<HTMLDivElement>(null);
@@ -60,7 +59,7 @@ export const CommandBar = forwardRef<HTMLInputElement, CommandBarProps>(function
             <Highlight text={text} spans={r?.spans ?? []} ghost={ghost} />
           </div>
           <input
-            ref={ref}
+            ref={ref ?? null}
             class={styles.input}
             type="text"
             aria-label={t('command.label')}
@@ -94,4 +93,4 @@ export const CommandBar = forwardRef<HTMLInputElement, CommandBarProps>(function
       {sentence && <Sentence />}
     </div>
   );
-});
+}
