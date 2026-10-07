@@ -32,6 +32,11 @@ export default defineConfig({
           setupFiles: ['src/test-setup.ts'],
         },
       },
+      {
+        extends: true,
+        // Pure handlers run in Node; anything needing workerd goes through worker/testing.ts.
+        test: { name: 'worker', environment: 'node', include: ['worker/**/*.test.ts'] },
+      },
     ],
   },
 });

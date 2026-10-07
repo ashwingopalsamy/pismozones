@@ -7,7 +7,17 @@
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "@core/*": ["./src/core/*"]
+    }
   },
-  "include": ["vite.config.ts", "vitest.config.ts", "playwright.config.ts", "tests"]
+  "include": [
+    "vite.config.ts",
+    "vitest.config.ts",
+    "playwright.config.ts",
+    "tests",
+    "worker/**/*.test.ts",
+    "worker/testing.ts"
+  ]
 }
