@@ -14,14 +14,29 @@ export default defineConfig({
   projects: [
     {
       name: 'desktop',
+      testIgnore: 'network.spec.ts',
       use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
     },
-    { name: 'phone', use: { ...devices['iPhone 15'] } },
+    { name: 'phone', testIgnore: 'network.spec.ts', use: { ...devices['iPhone 15'] } },
+    // The production build, so `public/_headers` (CSP and friends) applies.
+    {
+      name: 'prod',
+      testMatch: 'network.spec.ts',
+      use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:4173' },
+    },
   ],
-  webServer: {
-    command: 'npm run dev -- --port 5199 --strictPort',
-    url: 'http://localhost:5199',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
+  webServer: [
+    {
+      command: 'npm run dev -- --port 5199 --strictPort',
+      url: 'http://localhost:5199',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+    {
+      command: 'npm run preview -- --port 4173 --strictPort',
+      url: 'http://localhost:4173',
+      reuseExistingServer: !process.env.CI,
+      timeout: 240_000,
+    },
+  ],
 });
