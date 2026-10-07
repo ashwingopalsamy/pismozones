@@ -273,7 +273,7 @@ Before deletion, the current working tree, including the uncommitted `gpu-time` 
 
 ### 5.4 Work policy (`work/policy.ts`)
 
-`workState(instant, office) → {kind, reason, nextChange}` where `kind ∈ {working, early, late, off, weekend, holiday}`.
+`workState(instant, office) → {kind, holiday?, halfDay?}` where `kind ∈ {working, early, late, off, weekend, holiday}`.
 
 | Kind | When (local, Mon–Fri) |
 |---|---|
@@ -288,12 +288,15 @@ There is a single implementation. The card chip, plan cells, ruler highlights an
 
 ### 5.5 Holidays (`work/holidays`)
 
-- **Granularity:** one data file per office calendar, not per country. Bangalore follows Karnataka, not Maharashtra.
-- **Entries:** `{date, name: {en, pt}, kind: 'full'|'half', source: url}`.
-- **Coverage:** 2026 and 2027 for every office.
-- **Offices without verified data:** a calendar marked `unverified: true` makes the UI say "No holiday calendar" in Plan and the Holidays sheet, instead of implying "no holidays".
+- **Granularity:** one calendar per office, not per country. Bangalore follows Karnataka, not Maharashtra.
+- **Calendars:** the six existing countries get calendars: São Paulo, Austin, Bristol, Bangalore, Warsaw and Singapore (Singapore was empty before).
+- **Rule-based calendars never expire:** BR, US, GB and PL use fixed dates, nth-weekday dates, Easter offsets and weekend-substitution rules.
+- **List-based calendars:** IN (Karnataka) and SG cover 2026 and 2027, entered from official notifications, with each source URL in the file.
+- **Entries:** `{date, name: {en, pt}, kind: 'full'|'half'}`.
+- **Calendar status:** `'public'` means public holidays from official sources; `'office'` means confirmed by Pismo HR.
+- **Offices without a calendar** (Mexico City, Buenos Aires, Bogotá, Sydney, Ho Chi Minh, Jakarta) show "No holiday calendar" in Plan and the Holidays sheet, instead of implying "no holidays".
 - **Half days:** `half` (e.g. Ash Wednesday) renders as "early close". It does not count as a holiday.
-- **Coverage test:** fails CI when any office has less than 180 days of future data.
+- **Coverage test:** fails CI when any list-based calendar has less than 180 days of future data.
 - **Verification:** the data is entered by hand from official sources. Pismo HR calendars must confirm office-specific days. This is an owner task (§11).
 
 ### 5.6 Sun and sky (`sky/`)
@@ -314,7 +317,7 @@ There is a single implementation. The card chip, plan cells, ruler highlights an
 
 ```ts
 type ParseResult =
-  | { status: 'ok'; intent: Intent; spans: Span[]; notices: Notice[]; flips: Flip[] }
+  | { status: 'ok'; intent: Intent; spans: Span[]; notices: Notice[] }   // the bare-hour flip is a notice with an alternative
   | { status: 'ambiguous'; spans: Span[]; question: Diagnostic; options: Suggestion[] }
   | { status: 'error'; spans: Span[]; diagnostic: Diagnostic; suggestions: Suggestion[] };
 type Intent = { instant: number; isNow: boolean; source: ZoneRef; destinations: ZoneRef[]; implicitSource: boolean };
@@ -688,7 +691,7 @@ Resolved with the owner on 2026-10-07:
 
 | Item | Default proposed | Needs |
 |---|---|---|
-| Holiday accuracy | Hand-entered with sources; Vietnam and Indonesia `unverified` until confirmed. | HR calendar confirmation per office. |
+| Holiday accuracy | Public holidays from official sources (status `public`); offices without a calendar say so. | HR confirmation per office to promote calendars to `office`. |
 | DNS move | Owner moves `ashwingopalsamy.in` to Cloudflare DNS. | Owner action; check email records. |
 | Browser support | Safari 16.4+, Chrome/Edge 111+, Firefox 115+. | — |
 | Ad-blockers | They block the Web Analytics beacon; first-party `/e` is unaffected. | Accepted. |
