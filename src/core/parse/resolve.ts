@@ -1,5 +1,6 @@
 import { getOffice } from '../cities/registry';
 import { formatOffset } from '../time/format';
+import { isSupportedYear } from '../time/range';
 import { dayDelta } from '../time/relative';
 import type { CivilDate } from '../time/types';
 import { addDays, offsetMinutes, toInstant, zonedFields } from '../time/zoned';
@@ -19,7 +20,11 @@ export function zoneOf(ref: PlaceRef): string {
 
 const daysIn = (y: number, m: number) => new Date(Date.UTC(y, m, 0)).getUTCDate();
 const validDate = (d: CivilDate) =>
-  d.month >= 1 && d.month <= 12 && d.day >= 1 && d.day <= daysIn(d.year, d.month);
+  isSupportedYear(d.year) &&
+  d.month >= 1 &&
+  d.month <= 12 &&
+  d.day >= 1 &&
+  d.day <= daysIn(d.year, d.month);
 
 /** Nearest occurrence of a month/day to the base date (within ±182 days). */
 function nearest(month: number, day: number, base: CivilDate): CivilDate {
@@ -53,7 +58,9 @@ export function resolveDate(
     }
     case 'monthday': {
       if (d.month < 1 || d.month > 12 || d.day < 1 || d.day > daysIn(2024, d.month)) return null;
-      const c = nearest(d.month, d.day, base);
+      const c = d.year
+        ? { year: d.year, month: d.month, day: d.day }
+        : nearest(d.month, d.day, base);
       return validDate(c) ? c : null;
     }
     case 'numeric': {
@@ -145,7 +152,7 @@ export function resolve(a: Analysis, ctx: ParseContext, input: string): ParseRes
       const query = source
         ? replaceSpan(input, source.start, source.end, label.toLowerCase()) +
           (destinations.length ? '' : ` to ${input.slice(source.start, source.end)}`)
-        : `${input.trimEnd()} ${label.toLowerCase()}`;
+        : `${label.toLowerCase()} ${input.trim()}`;
       notices.push({
         code: 'dst_overlap',
         params: { time: hhmm(hour, time.minute) },

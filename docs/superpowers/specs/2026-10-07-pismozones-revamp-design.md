@@ -295,7 +295,7 @@ There is a single implementation. The card chip, plan cells, ruler highlights an
 - **Entries:** `{date, name: {en, pt}, kind: 'full'|'half'}`.
 - **Calendar status:** `'public'` means public holidays from official sources; `'office'` means confirmed by Pismo HR.
 - **Offices without a calendar** (Mexico City, Buenos Aires, Bogotá, Sydney, Ho Chi Minh, Jakarta) show "No holiday calendar" in Plan and the Holidays sheet, instead of implying "no holidays".
-- **Half days:** `half` (e.g. Ash Wednesday) renders as "early close". It does not count as a holiday.
+- **Half days:** `half` entries carry their own working hours and do not count as holidays. Ash Wednesday in São Paulo is *ponto facultativo* until 14:00, so work starts at 14:00 ("Starts 14:00"). A `half` entry without hours closes at 13:00 ("Closes 13:00").
 - **Coverage test:** fails CI when any list-based calendar has less than 180 days of future data.
 - **Verification:** the data is entered by hand from official sources. Pismo HR calendars must confirm office-specific days. This is an owner task (§11).
 

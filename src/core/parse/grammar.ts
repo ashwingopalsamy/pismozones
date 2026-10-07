@@ -9,9 +9,12 @@ import {
   DURATION_LEADS,
   FILLERS,
   FIXED_ABBR,
+  FRACTION_WORDS,
+  MAX_ALIAS_WORDS,
   MONTHS,
   NEXT_WORDS,
   NOON_WORDS,
+  NOW_WORDS,
   PLACE_ALIASES,
   RANGE_WORDS,
   RECURRENCE,
@@ -35,7 +38,7 @@ export interface TimeTok {
 export type DateTok = { start: number; end: number; invalid?: boolean } & (
   | { kind: 'offset'; days: number }
   | { kind: 'weekday'; weekday: number; next: boolean }
-  | { kind: 'monthday'; month: number; day: number }
+  | { kind: 'monthday'; month: number; day: number; year?: number }
   | { kind: 'numeric'; parts: number[] }
   | { kind: 'iso'; year: number; month: number; day: number }
 );
@@ -56,6 +59,8 @@ export interface Analysis {
   places: PlaceTok[];
   connector: 'to' | 'in' | null;
   tonight: boolean;
+  /** "now" / "agora" was typed explicitly. */
+  now: boolean;
   unknown: Token[];
   recurrence: Token | null;
   /** Two times joined by a range word or dash ("9-5", "3 to 5pm"). */
@@ -98,6 +103,7 @@ export function analyse(tokens: Token[]): Analysis {
     places: [],
     connector: null,
     tonight: false,
+    now: false,
     unknown: [],
     recurrence: null,
     range: false,
@@ -136,7 +142,14 @@ export function analyse(tokens: Token[]): Analysis {
       const mer = next?.kind === 'meridiem' ? next.text : null;
       const end = mer ? (next as Token).end : t.end;
       a.times.push(
-        makeTime(h, m, mer, { padded: t.text.startsWith('0'), hasMinutes: true }, t.start, end),
+        makeTime(
+          h,
+          m,
+          mer,
+          { padded: t.text.startsWith('0'), hasMinutes: true, hmark: t.text.includes('h') },
+          t.start,
+          end,
+        ),
       );
       span(t.start, end, 'time');
       i += mer ? 2 : 1;
@@ -150,7 +163,7 @@ export function analyse(tokens: Token[]): Analysis {
         a.times.push(makeTime(n, 0, null, { hmark: true }, t.start, next.end));
         span(t.start, next.end, 'time');
         i += 2;
-      } else if (t.text.length >= 3) {
+      } else if (/^\d{3,4}$/.test(t.text)) {
         const invalid = t.text.length > 4;
         const time = makeTime(Math.floor(n / 100), n % 100, null, { hhmm: true }, t.start, t.end);
         a.times.push(invalid ? { ...time, invalid } : time);
@@ -158,14 +171,28 @@ export function analyse(tokens: Token[]): Analysis {
         i++;
       } else if (next?.kind === 'word' && MONTHS[next.text] !== undefined) {
         const month = MONTHS[next.text] as number;
-        a.dates.push({ kind: 'monthday', month, day: n, start: t.start, end: next.end });
-        span(t.start, next.end, 'date');
-        i += 2;
+        const year = yearAt(i + 2);
+        const end = year ? (tokens[i + 2] as Token).end : next.end;
+        a.dates.push({
+          kind: 'monthday',
+          month,
+          day: n,
+          ...(year ? { year } : {}),
+          start: t.start,
+          end,
+        });
+        span(t.start, end, 'date');
+        i += year ? 3 : 2;
       } else {
-        a.times.push(makeTime(n, 0, null, {}, t.start, t.end));
+        const time = makeTime(n, 0, null, { padded: /^0\d$/.test(t.text) }, t.start, t.end);
+        a.times.push(Number.isInteger(n) ? time : { ...time, invalid: true, biasable: false });
         span(t.start, t.end, 'time');
         i++;
       }
+    } else if (t.kind === 'offset' && Number.isNaN(t.value)) {
+      a.unknown.push(t);
+      span(t.start, t.end, 'unknown');
+      i++;
     } else if (t.kind === 'offset') {
       const label = formatOffset(t.value as number);
       place({ kind: 'zone', zone: label, label }, t.start, t.end);
@@ -194,6 +221,12 @@ export function analyse(tokens: Token[]): Analysis {
   }
   return a;
 
+  /** A 4-digit year token at index k ("12 oct 2026"), if any. */
+  function yearAt(k: number): number | undefined {
+    const y = tokens[k];
+    return y?.kind === 'number' && /^\d{4}$/.test(y.text) ? (y.value as number) : undefined;
+  }
+
   /** Handles a word token (possibly with lookahead); returns the next index. */
   function word(i: number): number {
     const t = tokens[i] as Token;
@@ -211,6 +244,12 @@ export function analyse(tokens: Token[]): Analysis {
     const lead = w === 'daqui' && next?.text === 'a' ? 2 : DURATION_LEADS.has(w) ? 1 : 0;
     const num = tokens[i + lead];
     const unit = tokens[i + lead + 1];
+    if (lead && num?.kind === 'clock' && num.text.includes('h')) {
+      const [h, m] = num.value as [number, number];
+      a.duration = { minutes: h * 60 + m, start: t.start, end: num.end };
+      span(t.start, num.end, 'duration');
+      return i + lead + 1;
+    }
     if (
       lead &&
       num?.kind === 'number' &&
@@ -218,12 +257,48 @@ export function analyse(tokens: Token[]): Analysis {
       (unit.kind === 'hmark' || UNITS[unit.text] !== undefined)
     ) {
       const per = unit.kind === 'hmark' ? 60 : (UNITS[unit.text] as number);
-      a.duration = { minutes: (num.value as number) * per, start: t.start, end: unit.end };
+      a.duration = {
+        minutes: Math.round((num.value as number) * per),
+        start: t.start,
+        end: unit.end,
+      };
       span(t.start, unit.end, 'duration');
       return i + lead + 2;
     }
 
-    for (let k = 3; k >= 1; k--) {
+    if (NOW_WORDS.has(w)) {
+      a.now = true;
+      span(t.start, t.end, 'time');
+      return i + 1;
+    }
+
+    // "half past 3", "quarter past 3", "quarter to 3"
+    const fraction = FRACTION_WORDS[w];
+    const hourTok = tokens[i + 2];
+    if (
+      fraction !== undefined &&
+      (next?.text === 'past' || next?.text === 'to') &&
+      hourTok?.kind === 'number' &&
+      Number.isInteger(hourTok.value) &&
+      (hourTok.value as number) >= 1 &&
+      (hourTok.value as number) <= 12
+    ) {
+      const h = hourTok.value as number;
+      const past = next.text === 'past';
+      const time = makeTime(
+        past ? h : h === 1 ? 12 : h - 1,
+        past ? fraction : 60 - fraction,
+        null,
+        {},
+        t.start,
+        hourTok.end,
+      );
+      a.times.push({ ...time, biasable: true });
+      span(t.start, hourTok.end, 'time');
+      return i + 3;
+    }
+
+    for (let k = MAX_ALIAS_WORDS; k >= 1; k--) {
       const group = tokens.slice(i, i + k);
       if (group.length < k || group.some((g) => g.kind !== 'word')) continue;
       const ref = PLACE_ALIASES.get(group.map((g) => g.text).join(' '));
@@ -280,15 +355,18 @@ export function analyse(tokens: Token[]): Analysis {
     }
 
     if (MONTHS[w] !== undefined && next?.kind === 'number' && next.text.length <= 2) {
+      const year = yearAt(i + 2);
+      const end = year ? (tokens[i + 2] as Token).end : next.end;
       a.dates.push({
         kind: 'monthday',
         month: MONTHS[w] as number,
         day: next.value as number,
+        ...(year ? { year } : {}),
         start: t.start,
-        end: next.end,
+        end,
       });
-      span(t.start, next.end, 'date');
-      return i + 2;
+      span(t.start, end, 'date');
+      return year ? i + 3 : i + 2;
     }
 
     if (NOON_WORDS[w] !== undefined) {

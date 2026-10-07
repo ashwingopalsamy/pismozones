@@ -1,5 +1,6 @@
 import { getOffice, type OfficeId } from '../cities/registry';
 import { SHARE_INDEX } from '../cities/shareIndex';
+import { isSupportedInstant } from '../time/range';
 import type { Instant } from '../time/types';
 import { toInstant } from '../time/zoned';
 
@@ -48,11 +49,12 @@ export function decodeShare(token: string): DecodedShare | null {
     const [m, r, c] = token.split('.') as [string, string, string];
     const refId = SHARE_INDEX[Number.parseInt(r, 36)];
     const officeIds = idsFromBits(bigFromBase36(c));
-    if (!refId || !officeIds) return null;
+    const instant = Number.parseInt(m, 36) * 60_000;
+    if (!refId || !officeIds || !isSupportedInstant(instant)) return null;
     return {
       version: 2,
       resolution: 'exact',
-      instant: Number.parseInt(m, 36) * 60_000,
+      instant,
       refId,
       officeIds,
     };

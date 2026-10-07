@@ -28,14 +28,18 @@ describe('workState', () => {
     expect(workState(t, o('austin')).kind).toBe('late'); // Fri 18:00 CDT
     expect(workState(t, o('singapore')).kind).toBe('weekend'); // Sat 07:00 SGT
   });
-  it('half day ends at 13:00', () => {
+  it('Ash Wednesday starts at 14:00 in São Paulo', () => {
     expect(workState(U(2026, 1, 18, 14), o('saopaulo'))).toMatchObject({
+      kind: 'off',
+      halfDay: { kind: 'half' },
+    }); // 11:00
+    expect(workState(U(2026, 1, 18, 16), o('saopaulo'))).toMatchObject({
+      kind: 'early',
+      halfDay: { kind: 'half' },
+    }); // 13:00
+    expect(workState(U(2026, 1, 18, 17, 30), o('saopaulo'))).toMatchObject({
       kind: 'working',
       halfDay: { kind: 'half' },
-    });
-    expect(workState(U(2026, 1, 18, 16, 30), o('saopaulo'))).toMatchObject({
-      kind: 'late',
-      halfDay: { kind: 'half' },
-    });
+    }); // 14:30
   });
 });

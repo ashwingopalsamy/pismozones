@@ -26,12 +26,12 @@ export interface Token {
 const ISODATE = /^(\d{4})-(\d{2})-(\d{2})(?!\d)/;
 const NUMDATE = /^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?(?!\d)/;
 const CLOCK = /^(\d{1,2})[:.h](\d{2})(?!\d)/i;
-const NUMBER = /^\d+/;
+const NUMBER = /^\d+(?:\.\d+)?/;
 const ATTACHED_MERIDIEM = /^(a\.m\.|p\.m\.|am|pm|a|p)(?![\p{L}])/iu;
-const HMARK = /^h(?![p{L}\d])/i;
+const HMARK = /^h(?![\p{L}\d])/iu;
 const OFFSET = /^(?:utc|gmt)([+−-])(\d{1,2})(?::?(\d{2}))?(?!\d)/i;
 const ARROW = /^(→|->|=>)/;
-const WORD = /^[\p{L}][\p{L}'_/]*(?:[.-][\p{L}][\p{L}'_/]*)*/u;
+const WORD = /^[\p{L}][\p{L}'\u2018\u2019_/]*(?:[.-][\p{L}][\p{L}'\u2018\u2019_/]*)*/u;
 const PUNCT = /^[.?!;:()"'@]/;
 const STANDALONE_MERIDIEM = new Set(['am', 'pm', 'a.m', 'p.m', 'a.m.', 'p.m.']);
 
@@ -80,7 +80,9 @@ export function lex(input: string): Token[] {
     }
     const off = OFFSET.exec(rest);
     if (off) {
-      const minutes = Number(off[2]) * 60 + Number(off[3] ?? 0);
+      const h = Number(off[2]);
+      const mm = Number(off[3] ?? 0);
+      const minutes = h > 14 || mm > 59 ? Number.NaN : h * 60 + mm;
       push('offset', off[0].length, off[1] === '+' ? minutes : -minutes);
       continue;
     }

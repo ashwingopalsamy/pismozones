@@ -21,8 +21,9 @@ export function workState(instant: Instant, office: Office): WorkState {
   if (holiday?.kind === 'full') return { kind: 'holiday', holiday };
   if (f.weekday === 0 || f.weekday === 6) return { kind: 'weekend' };
 
-  const { start } = office.workHours;
-  const end = holiday?.kind === 'half' ? HALF_DAY_END : office.workHours.end;
+  const half = holiday?.kind === 'half' ? holiday : undefined;
+  const start = half?.hours?.start ?? office.workHours.start;
+  const end = half ? (half.hours?.end ?? HALF_DAY_END) : office.workHours.end;
   const m = f.hour * 60 + f.minute;
   const kind: WorkKind =
     m >= start && m < end

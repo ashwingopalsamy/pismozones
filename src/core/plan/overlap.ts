@@ -58,14 +58,22 @@ export function planDay(
 
   const max = Math.max(0, ...slots.map((s) => s.working));
   let best: { start: number; end: number; sum: number } | null = null;
+  const who = (s: PlanSlot) => s.states.map((k) => (k === 'working' ? '1' : '0')).join('');
   for (let i = 0; i < slots.length && max > 0; ) {
-    if ((slots[i] as PlanSlot).working !== max) {
+    const first = slots[i] as PlanSlot;
+    if (first.working !== max) {
       i++;
       continue;
     }
+    // A window keeps the same people working throughout, not merely the same head-count.
+    const key = who(first);
     let j = i;
     let sum = 0;
-    while (j < slots.length && (slots[j] as PlanSlot).working === max)
+    while (
+      j < slots.length &&
+      (slots[j] as PlanSlot).working === max &&
+      who(slots[j] as PlanSlot) === key
+    )
       sum += (slots[j++] as PlanSlot).score;
     if (!best || sum > best.sum) best = { start: i, end: j, sum };
     i = j;

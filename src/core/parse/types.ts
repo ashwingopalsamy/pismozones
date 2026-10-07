@@ -31,6 +31,7 @@ export type DiagnosticCode =
   | 'range_unsupported'
   | 'recurrence_unsupported'
   | 'too_many_destinations'
+  | 'conflicting_terms'
   | 'missing_time'
   | 'nothing_to_convert';
 

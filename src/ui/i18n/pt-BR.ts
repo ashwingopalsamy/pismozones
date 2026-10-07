@@ -44,6 +44,7 @@ export const ptBR: Record<keyof typeof en, string> = {
   'diag.invalid_date': 'Essa data não é válida',
   'diag.range_unsupported': 'Intervalos não são suportados — tente um horário',
   'diag.recurrence_unsupported': 'Horários recorrentes não são suportados',
+  'diag.conflicting_terms': 'Isso mistura dois horários diferentes — mantenha um',
   'diag.too_many_destinations': 'Até 6 lugares por vez',
   'diag.missing_time': 'Adicione um horário — ex.: “amanhã 10h”',
   'diag.nothing_to_convert': 'Tente “15h bristol para austin” ou “amanhã 10h sp”',

@@ -5,6 +5,8 @@ export interface Holiday {
   date: string;
   name: { en: string; pt: string };
   kind: 'full' | 'half';
+  /** Working hours on a half day, in local minutes (default: until 13:00). */
+  hours?: { start: number; end: number };
 }
 
 export interface CalendarInfo {
@@ -27,7 +29,13 @@ export type Rule =
       observe?: 'us' | 'substitute';
     }
   | { type: 'nth'; month: number; weekday: number; n: number; name: Name; kind?: Kind }
-  | { type: 'easter'; offset: number; name: Name; kind?: Kind }
+  | {
+      type: 'easter';
+      offset: number;
+      name: Name;
+      kind?: Kind;
+      hours?: { start: number; end: number };
+    }
   | { type: 'list'; entries: readonly Holiday[] };
 
 export interface CalendarDef {

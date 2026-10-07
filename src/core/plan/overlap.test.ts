@@ -49,4 +49,17 @@ describe('planDay', () => {
     );
     expect(p.best?.outside).toContainEqual({ officeId: 'saopaulo', kind: 'holiday' });
   });
+  it('splits the best window when who is working changes (I-8)', () => {
+    const p = planDay(
+      { year: 2026, month: 7, day: 15 },
+      'Europe/London',
+      offs('sydney', 'bristol', 'singapore'),
+    );
+    expect(p.best).toEqual({
+      startIndex: 4,
+      endIndex: 18,
+      working: 2,
+      outside: [{ officeId: 'bristol', kind: 'off' }],
+    });
+  });
 });

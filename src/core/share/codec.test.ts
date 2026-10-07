@@ -1,6 +1,7 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { SHARE_INDEX } from '../cities/shareIndex';
+import { MAX_INSTANT } from '../time/range';
 import { decodeShare, encodeShare } from './codec';
 
 const U = Date.UTC;
@@ -49,7 +50,7 @@ describe('share codec', () => {
   it('round-trips v2', () => {
     fc.assert(
       fc.property(
-        fc.integer({ min: 0, max: 2 ** 31 }),
+        fc.integer({ min: 0, max: MAX_INSTANT / 60_000 - 1 }),
         fc.constantFrom(...SHARE_INDEX),
         fc.subarray([...SHARE_INDEX], { minLength: 1 }),
         (min, refId, ids) => {
@@ -74,6 +75,7 @@ describe('share codec', () => {
     'hryfc.2.1000',
     '../etc',
     'hryfc.2.',
+    'zzzzzzzz.0.1',
   ])('rejects %j', (t) => {
     expect(decodeShare(t)).toBeNull();
   });

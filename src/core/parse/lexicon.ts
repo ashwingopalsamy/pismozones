@@ -18,6 +18,9 @@ const ZONE_ALIASES: Array<[string, PlaceRef]> = [
   ['tokyo', zone('Asia/Tokyo', 'Tokyo')],
   ['dubai', zone('Asia/Dubai', 'Dubai')],
   ['berlin', zone('Europe/Berlin', 'Berlin')],
+  ['et', zone('America/New_York', 'Eastern')],
+  ['pt', zone('America/Los_Angeles', 'Pacific')],
+  ['ct', office('austin')],
 ];
 
 /** Normalised alias → place. Keys may contain spaces; match longest first. */
@@ -25,6 +28,11 @@ export const PLACE_ALIASES: ReadonlyMap<string, PlaceRef> = new Map([
   ...OFFICES.flatMap((o) => o.aliases.map((a): [string, PlaceRef] => [a, office(o.id)])),
   ...ZONE_ALIASES,
 ]);
+
+/** Longest alias in words ("ho chi minh city" = 4). */
+export const MAX_ALIAS_WORDS = Math.max(
+  ...[...PLACE_ALIASES.keys()].map((k) => k.split(' ').length),
+);
 
 /** Fixed-offset abbreviations that unambiguously name a Pismo office zone. */
 export const FIXED_ABBR: Readonly<Record<string, { place: PlaceRef; offset: number }>> = {
@@ -235,6 +243,7 @@ export const UNITS: Readonly<Record<string, number>> = {
   minutes: 1,
   min: 1,
   mins: 1,
+  m: 1,
   minuto: 1,
   minutos: 1,
 };
@@ -248,3 +257,8 @@ export const NOON_WORDS: Readonly<Record<string, number>> = {
 };
 
 export const DURATION_LEADS: ReadonlySet<string> = new Set(['in', 'daqui', 'em']);
+
+export const NOW_WORDS: ReadonlySet<string> = new Set(['now', 'agora']);
+
+/** "half past 3" → 3:30, "quarter past 3" → 3:15, "quarter to 3" → 2:45. */
+export const FRACTION_WORDS: Readonly<Record<string, number>> = { half: 30, quarter: 15 };

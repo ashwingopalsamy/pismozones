@@ -61,4 +61,13 @@ describe('cardModel', () => {
     });
     expect(cardModel(o('bristol'), Date.UTC(2026, 9, 7, 23), ctx).stars.length).toBeGreaterThan(0);
   });
+  it('describes the Ash Wednesday late start', () => {
+    expect(cardModel(o('saopaulo'), Date.UTC(2026, 1, 18, 16), ctx).stateLabel).toEqual({
+      key: 'state.early',
+      params: { time: '14:00' },
+    });
+    expect(cardModel(o('saopaulo'), Date.UTC(2026, 1, 18, 17, 30), ctx).stateLabel).toEqual({
+      key: 'state.working',
+    });
+  });
 });

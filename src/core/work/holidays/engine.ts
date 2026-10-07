@@ -45,6 +45,7 @@ function raw(
       kind: r.kind ?? 'full',
     };
     if (r.type === 'fixed' && r.observe) h.observe = r.observe;
+    if (r.type === 'easter' && r.hours) h.hours = r.hours;
     out.push(h);
   }
   return out;
@@ -57,7 +58,8 @@ export function compute(def: CalendarDef, year: number): Holiday[] {
   const taken = new Set(base.map((h) => h.date));
   const out: Holiday[] = [];
   for (const h of base) {
-    out.push({ date: h.date, name: h.name, kind: h.kind });
+    const { observe: _observe, ...holiday } = h;
+    out.push(holiday);
     if (!h.observe) continue;
     const [y, m, d] = h.date.split('-').map(Number) as [number, number, number];
     const date = { year: y, month: m, day: d };

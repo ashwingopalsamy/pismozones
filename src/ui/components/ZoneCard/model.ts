@@ -125,13 +125,15 @@ function labelFor(
     const c = formatClock({ hour: Math.floor(minutes / 60), minute: minutes % 60 }, hc);
     return c.period ? `${c.hm} ${c.period}` : c.hm;
   };
+  const start = state.halfDay?.hours?.start ?? office.workHours.start;
+  const end = state.halfDay ? (state.halfDay.hours?.end ?? 780) : office.workHours.end;
   switch (state.kind) {
     case 'working':
-      return state.halfDay
-        ? { key: 'state.closes', params: { time: at(780) } }
+      return end < office.workHours.end
+        ? { key: 'state.closes', params: { time: at(end) } }
         : { key: 'state.working' };
     case 'early':
-      return { key: 'state.early', params: { time: at(office.workHours.start) } };
+      return { key: 'state.early', params: { time: at(start) } };
     case 'late':
       return { key: 'state.late' };
     case 'off':

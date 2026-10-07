@@ -40,6 +40,7 @@ export const en = {
   'diag.invalid_date': 'That isn’t a valid date',
   'diag.range_unsupported': 'Ranges aren’t supported — try one time',
   'diag.recurrence_unsupported': 'Repeating times aren’t supported',
+  'diag.conflicting_terms': 'That mixes two different times — keep one',
   'diag.too_many_destinations': 'Up to 6 places at once',
   'diag.missing_time': 'Add a time — e.g. “tomorrow 10:00”',
   'diag.nothing_to_convert': 'Try “3pm bristol to austin” or “tomorrow 10:00 sp”',

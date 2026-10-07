@@ -29,6 +29,8 @@ export const brSp: CalendarDef = {
       type: 'easter',
       offset: -46,
       kind: 'half',
+      // Ponto facultativo until 14:00: the morning is off and work resumes in the afternoon.
+      hours: { start: 840, end: 1080 },
       name: { en: 'Ash Wednesday', pt: 'Quarta-feira de Cinzas' },
     },
     { type: 'easter', offset: -2, name: { en: 'Good Friday', pt: 'Sexta-feira Santa' } },

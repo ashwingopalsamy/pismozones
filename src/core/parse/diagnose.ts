@@ -1,5 +1,6 @@
 import { getOffice } from '../cities/registry';
 import { formatOffset } from '../time/format';
+import { isSupportedInstant } from '../time/range';
 import { offsetMinutes, zonedFields } from '../time/zoned';
 import type { Analysis } from './grammar';
 import { SEASONAL_ABBR } from './lexicon';
@@ -24,7 +25,15 @@ const error = (
 export function diagnose(a: Analysis, ctx: ParseContext, input: string): ParseResult | null {
   if (a.recurrence) return error(a, { code: 'recurrence_unsupported', token: a.recurrence.text });
   if (a.range || a.times.length > 1) return error(a, { code: 'range_unsupported' });
+  if (
+    a.dates.length > 1 ||
+    (a.duration && (a.times.length || a.dates.length)) ||
+    (a.now && (a.times.length || a.dates.length || a.duration))
+  )
+    return error(a, { code: 'conflicting_terms' });
   if (a.times.some((t) => t.invalid)) return error(a, { code: 'invalid_time' });
+  if (a.duration && !isSupportedInstant(ctx.now + a.duration.minutes * 60_000))
+    return error(a, { code: 'invalid_time' });
 
   const { sourceRef, destinations } = pickSource(a, ctx);
   const base = zonedFields(ctx.now, zoneOf(sourceRef));

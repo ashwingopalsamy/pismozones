@@ -38,7 +38,10 @@ export function parseFixedOffset(zone: string): number | null {
   const m = FIXED.exec(zone);
   if (!m) return null;
   if (!m[1]) return 0;
-  const minutes = Number(m[2]) * 60 + Number(m[3] ?? 0);
+  const hours = Number(m[2]);
+  const mins = Number(m[3] ?? 0);
+  if (hours > 14 || mins > 59) return null;
+  const minutes = hours * 60 + mins;
   return m[1] === '+' ? minutes : -minutes;
 }
 

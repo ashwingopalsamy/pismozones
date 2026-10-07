@@ -167,6 +167,8 @@ describe('zone parsing', () => {
     expect(parseFixedOffset('UTC-3')).toBe(-180);
     expect(parseFixedOffset('UTC+05:30')).toBe(330);
     expect(parseFixedOffset('Europe/London')).toBeNull();
+    expect(parseFixedOffset('UTC+99')).toBeNull();
+    expect(parseFixedOffset('UTC+5:75')).toBeNull();
     expect(isValidZone('Europe/London')).toBe(true);
     expect(isValidZone('UTC+05:30')).toBe(true);
     expect(isValidZone('Mars/Olympus')).toBe(false);
