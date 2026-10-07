@@ -10,10 +10,12 @@ import { Sentence } from './Sentence';
 
 export interface CommandBarProps {
   placement: 'top' | 'dock';
+  /** Render the preview sentence under the bar (default: only for 'top'). */
+  sentence?: boolean;
 }
 
 export const CommandBar = forwardRef<HTMLInputElement, CommandBarProps>(function CommandBar(
-  { placement },
+  { placement, sentence = placement === 'top' },
   ref,
 ) {
   const app = useApp();
@@ -89,7 +91,7 @@ export const CommandBar = forwardRef<HTMLInputElement, CommandBarProps>(function
           </button>
         )}
       </label>
-      {placement === 'top' && <Sentence />}
+      {sentence && <Sentence />}
     </div>
   );
 });

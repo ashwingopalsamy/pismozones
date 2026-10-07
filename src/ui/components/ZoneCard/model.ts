@@ -1,4 +1,4 @@
-import type { Office, OfficeId } from '@core/cities/registry';
+import { type Office, type OfficeId, sameZone } from '@core/cities/registry';
 import type { Lang } from '@core/i18n';
 import { type SkyStops, skyFor, starAlpha } from '@core/sky/sky';
 import { solarElevation, sunSamples } from '@core/sky/sun';
@@ -160,7 +160,7 @@ export function cardModel(office: Office, moment: Instant, ctx: CardContext): Ca
   const alpha = starAlpha(elevation);
   const tags: CardModel['tags'] = [];
   if (office.hq) tags.push('hq');
-  if (office.zone === ctx.viewerZone) tags.push('you');
+  if (sameZone(office.zone, ctx.viewerZone)) tags.push('you');
   if (ctx.temp) tags.push('temp');
   const minutes = f.hour * 60 + f.minute;
 

@@ -1,5 +1,5 @@
 import { expect, it, vi } from 'vitest';
-import { toast } from './toast';
+import { toast } from './store';
 
 it('toast auto-dismisses', () => {
   vi.useFakeTimers();

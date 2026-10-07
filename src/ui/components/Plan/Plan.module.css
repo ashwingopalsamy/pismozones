@@ -162,6 +162,12 @@
   display: none;
 }
 .rowLabel span {
+  position: relative;
+  z-index: 1;
+  margin-right: -4px;
+  padding: 0 4px;
+  border-radius: 6px;
+  background: var(--ground);
   color: var(--text-3);
 }
 .bar {

@@ -187,9 +187,32 @@ export function getOffice(id: string): Office | undefined {
   return byId.get(id);
 }
 
-/** Exact IANA match only — offset-based guessing is wrong across DST. */
+/** Legacy IANA names some platforms still report (e.g. ICU returns Asia/Calcutta). */
+const ZONE_ALIASES: Readonly<Record<string, string>> = {
+  'Asia/Calcutta': 'Asia/Kolkata',
+  'Asia/Saigon': 'Asia/Ho_Chi_Minh',
+  'America/Buenos_Aires': 'America/Argentina/Buenos_Aires',
+  'Europe/Belfast': 'Europe/London',
+  GB: 'Europe/London',
+  Singapore: 'Asia/Singapore',
+  'Brazil/East': 'America/Sao_Paulo',
+  'US/Central': 'America/Chicago',
+  'Australia/ACT': 'Australia/Sydney',
+  'Australia/NSW': 'Australia/Sydney',
+  Poland: 'Europe/Warsaw',
+  'Mexico/General': 'America/Mexico_City',
+};
+
+const canonical = (zone: string) => ZONE_ALIASES[zone] ?? zone;
+
+/** True when two IANA names denote the same zone, including legacy aliases. */
+export function sameZone(a: string, b: string): boolean {
+  return canonical(a) === canonical(b);
+}
+
+/** Exact IANA match (aliases resolved) — offset-based guessing is wrong across DST. */
 export function officeForZone(zone: string): Office | undefined {
-  return OFFICES.find((o) => o.zone === zone);
+  return OFFICES.find((o) => sameZone(o.zone, zone));
 }
 
 export const DEFAULT_ACTIVE: readonly OfficeId[] = ['austin', 'saopaulo', 'bristol', 'bangalore'];

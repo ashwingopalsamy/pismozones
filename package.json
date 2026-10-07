@@ -15,15 +15,18 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check": "npm run lint && npm run typecheck && npm run test",
-    "cf-typegen": "wrangler types"
+    "cf-typegen": "wrangler types",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@preact/signals": "^2.11.3",
     "preact": "^11.0.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@biomejs/biome": "^2.5.15",
     "@cloudflare/vite-plugin": "^1.63.0",
+    "@playwright/test": "^1.63.0",
     "@preact/preset-vite": "^2.10.6",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/preact": "^3.2.4",
