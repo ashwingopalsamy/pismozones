@@ -26,6 +26,8 @@ export interface AppState extends MomentState {
   reference: ReadonlySignal<Office>;
   displayed: ReadonlySignal<Array<{ office: Office; temp: boolean }>>;
   view: Signal<'zones' | 'plan'>;
+  /** Command-bar text, shared by the bar and its sentence/suggestions. */
+  query: Signal<string>;
   track: Track;
   exitOverlay(): void;
   shareUrl(): string;
@@ -108,6 +110,7 @@ export function createAppState(env: AppEnv, track: Track = () => {}): AppState {
     reference,
     displayed,
     view,
+    query: signal(''),
     track,
     exitOverlay,
     shareUrl() {

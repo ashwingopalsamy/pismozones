@@ -1,0 +1,136 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-10);
+  min-width: 0;
+}
+.top {
+  flex: 1 1 420px;
+  max-width: 680px;
+}
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-10);
+  height: 50px;
+  padding: 0 6px 0 var(--sp-16);
+  border-radius: var(--r-chip);
+  background: var(--glass);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-inset);
+  color: var(--text-3);
+}
+.bar:focus-within {
+  border-color: var(--focus);
+  box-shadow: 0 0 0 4px var(--focus-soft);
+}
+.dock .bar {
+  height: 52px;
+  box-shadow: var(--shadow-inset), var(--shadow-float);
+}
+.field {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+.mirror,
+.input {
+  position: absolute;
+  inset: 0;
+  font-family: var(--font-ui);
+  font-size: var(--fs-16);
+  letter-spacing: -0.005em;
+  line-height: 50px;
+  white-space: pre;
+  padding: 0;
+}
+.mirror {
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--text-1);
+}
+.input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--text-1);
+}
+.input::placeholder {
+  color: var(--text-4);
+}
+.highlight {
+  white-space: pre;
+}
+.time,
+.duration {
+  color: var(--accent);
+}
+.date {
+  color: var(--accent);
+  opacity: 0.85;
+}
+.place {
+  font-weight: 600;
+}
+.connector,
+.filler {
+  color: var(--text-3);
+}
+.unknown {
+  text-decoration: underline wavy var(--warn);
+  text-underline-offset: 4px;
+}
+.ghost {
+  color: var(--text-4);
+}
+.clear {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 50%;
+  border: 0;
+  background: var(--glass-strong);
+  display: grid;
+  place-items: center;
+  color: var(--text-2);
+}
+.sentence {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px var(--sp-10);
+  padding: var(--sp-10) var(--sp-14);
+  border-radius: 16px;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  font-size: var(--fs-14);
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+.err {
+  background: var(--warn-soft);
+  border-color: var(--warn-line);
+  color: var(--warn-text);
+}
+.enter,
+.note {
+  font-size: var(--fs-12);
+  color: var(--text-3);
+}
+.chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  min-height: 32px;
+  padding: 0 var(--sp-12);
+  border-radius: var(--r-chip);
+  border: 1px solid var(--line);
+  background: var(--glass-strong);
+  font-size: var(--fs-13);
+  font-weight: 500;
+}
