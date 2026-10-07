@@ -1,0 +1,195 @@
+export type OfficeId =
+  | 'saopaulo'
+  | 'austin'
+  | 'bristol'
+  | 'bangalore'
+  | 'singapore'
+  | 'warsaw'
+  | 'mexicocity'
+  | 'buenosaires'
+  | 'bogota'
+  | 'sydney'
+  | 'hochiminh'
+  | 'jakarta';
+
+export type CalendarId = 'br-sp' | 'us-tx' | 'gb-eng' | 'in-ka' | 'sg' | 'pl';
+
+export interface Office {
+  id: OfficeId;
+  name: string;
+  /** ISO 3166-1 alpha-2 */
+  country: string;
+  countryName: { en: string; pt: string };
+  zone: string;
+  lat: number;
+  lon: number;
+  /** Normalised (see text/normalize) and unique across offices. */
+  aliases: readonly string[];
+  /** Minutes after local midnight. */
+  workHours: { start: number; end: number };
+  holidayCalendar: CalendarId | null;
+  hq?: true;
+}
+
+const HOURS = { start: 540, end: 1080 } as const;
+
+export const OFFICES: readonly Office[] = [
+  {
+    id: 'saopaulo',
+    name: 'São Paulo',
+    country: 'BR',
+    countryName: { en: 'Brazil', pt: 'Brasil' },
+    zone: 'America/Sao_Paulo',
+    lat: -23.55,
+    lon: -46.63,
+    aliases: ['sao paulo', 'saopaulo', 'sampa', 'sp', 'gru', 'hq', 'brazil', 'brasil'],
+    workHours: HOURS,
+    holidayCalendar: 'br-sp',
+    hq: true,
+  },
+  {
+    id: 'austin',
+    name: 'Austin',
+    country: 'US',
+    countryName: { en: 'United States', pt: 'Estados Unidos' },
+    zone: 'America/Chicago',
+    lat: 30.27,
+    lon: -97.74,
+    aliases: ['austin', 'atx', 'aus', 'texas', 'usa'],
+    workHours: HOURS,
+    holidayCalendar: 'us-tx',
+  },
+  {
+    id: 'bristol',
+    name: 'Bristol',
+    country: 'GB',
+    countryName: { en: 'United Kingdom', pt: 'Reino Unido' },
+    zone: 'Europe/London',
+    lat: 51.45,
+    lon: -2.59,
+    aliases: ['bristol', 'brs', 'london', 'uk', 'england', 'britain'],
+    workHours: HOURS,
+    holidayCalendar: 'gb-eng',
+  },
+  {
+    id: 'bangalore',
+    name: 'Bangalore',
+    country: 'IN',
+    countryName: { en: 'India', pt: 'Índia' },
+    zone: 'Asia/Kolkata',
+    lat: 12.97,
+    lon: 77.59,
+    aliases: ['bangalore', 'bengaluru', 'blr', 'india'],
+    workHours: HOURS,
+    holidayCalendar: 'in-ka',
+  },
+  {
+    id: 'singapore',
+    name: 'Singapore',
+    country: 'SG',
+    countryName: { en: 'Singapore', pt: 'Singapura' },
+    zone: 'Asia/Singapore',
+    lat: 1.35,
+    lon: 103.82,
+    aliases: ['singapore', 'singapura', 'sin', 'sg'],
+    workHours: HOURS,
+    holidayCalendar: 'sg',
+  },
+  {
+    id: 'warsaw',
+    name: 'Warsaw',
+    country: 'PL',
+    countryName: { en: 'Poland', pt: 'Polônia' },
+    zone: 'Europe/Warsaw',
+    lat: 52.23,
+    lon: 21.01,
+    aliases: ['warsaw', 'warszawa', 'waw', 'poland', 'polska'],
+    workHours: HOURS,
+    holidayCalendar: 'pl',
+  },
+  {
+    id: 'mexicocity',
+    name: 'Mexico City',
+    country: 'MX',
+    countryName: { en: 'Mexico', pt: 'México' },
+    zone: 'America/Mexico_City',
+    lat: 19.43,
+    lon: -99.13,
+    aliases: ['mexico city', 'ciudad de mexico', 'cdmx', 'mex', 'mexico'],
+    workHours: HOURS,
+    holidayCalendar: null,
+  },
+  {
+    id: 'buenosaires',
+    name: 'Buenos Aires',
+    country: 'AR',
+    countryName: { en: 'Argentina', pt: 'Argentina' },
+    zone: 'America/Argentina/Buenos_Aires',
+    lat: -34.6,
+    lon: -58.38,
+    aliases: ['buenos aires', 'bue', 'argentina'],
+    workHours: HOURS,
+    holidayCalendar: null,
+  },
+  {
+    id: 'bogota',
+    name: 'Bogotá',
+    country: 'CO',
+    countryName: { en: 'Colombia', pt: 'Colômbia' },
+    zone: 'America/Bogota',
+    lat: 4.71,
+    lon: -74.07,
+    aliases: ['bogota', 'bog', 'colombia'],
+    workHours: HOURS,
+    holidayCalendar: null,
+  },
+  {
+    id: 'sydney',
+    name: 'Sydney',
+    country: 'AU',
+    countryName: { en: 'Australia', pt: 'Austrália' },
+    zone: 'Australia/Sydney',
+    lat: -33.87,
+    lon: 151.21,
+    aliases: ['sydney', 'syd', 'australia'],
+    workHours: HOURS,
+    holidayCalendar: null,
+  },
+  {
+    id: 'hochiminh',
+    name: 'Ho Chi Minh',
+    country: 'VN',
+    countryName: { en: 'Vietnam', pt: 'Vietnã' },
+    zone: 'Asia/Ho_Chi_Minh',
+    lat: 10.82,
+    lon: 106.63,
+    aliases: ['ho chi minh', 'ho chi minh city', 'hcmc', 'saigon', 'sgn', 'vietnam'],
+    workHours: HOURS,
+    holidayCalendar: null,
+  },
+  {
+    id: 'jakarta',
+    name: 'Jakarta',
+    country: 'ID',
+    countryName: { en: 'Indonesia', pt: 'Indonésia' },
+    zone: 'Asia/Jakarta',
+    lat: -6.21,
+    lon: 106.85,
+    aliases: ['jakarta', 'cgk', 'indonesia'],
+    workHours: HOURS,
+    holidayCalendar: null,
+  },
+];
+
+const byId = new Map(OFFICES.map((o) => [o.id as string, o]));
+
+export function getOffice(id: string): Office | undefined {
+  return byId.get(id);
+}
+
+/** Exact IANA match only — offset-based guessing is wrong across DST. */
+export function officeForZone(zone: string): Office | undefined {
+  return OFFICES.find((o) => o.zone === zone);
+}
+
+export const DEFAULT_ACTIVE: readonly OfficeId[] = ['austin', 'saopaulo', 'bristol', 'bangalore'];
