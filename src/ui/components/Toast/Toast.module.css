@@ -1,0 +1,21 @@
+.toast {
+  position: fixed;
+  left: 50%;
+  top: calc(env(safe-area-inset-top, 0px) + 72px);
+  transform: translateX(-50%);
+  z-index: var(--z-toast);
+  padding: var(--sp-10) var(--sp-16);
+  border-radius: var(--r-chip);
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  font-size: var(--fs-14);
+  box-shadow: var(--shadow-float);
+  white-space: nowrap;
+  animation: pop var(--dur-confirm) var(--ease-spring);
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -8px) scale(0.96);
+  }
+}
