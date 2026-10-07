@@ -1,5 +1,6 @@
 import type { Prefs } from '@state/storage';
 import { useApp, useT } from '../../app/context';
+import type { Install } from '../../app/install';
 import type { Key } from '../../i18n';
 import { Icon, type IconName } from '../Icon';
 import { Sheet } from '../Sheet/Sheet';
@@ -19,9 +20,16 @@ export interface SettingsSheetProps {
   onClose(): void;
   onOpenCities(): void;
   onOpenHolidays(): void;
+  install?: Install;
 }
 
-export function SettingsSheet({ open, onClose, onOpenCities, onOpenHolidays }: SettingsSheetProps) {
+export function SettingsSheet({
+  open,
+  onClose,
+  onOpenCities,
+  onOpenHolidays,
+  install,
+}: SettingsSheetProps) {
   const app = useApp();
   const t = useT();
   const prefs = app.prefs.prefs.value;
@@ -128,7 +136,16 @@ export function SettingsSheet({ open, onClose, onOpenCities, onOpenHolidays }: S
             <Icon name="chevronRight" size={16} />
           </span>
         </button>
+        {install?.available.value === 'prompt' && (
+          <button type="button" class={styles.row} onClick={() => void install.prompt()}>
+            <span class={styles.icon}>
+              <Icon name="download" />
+            </span>
+            <span class={styles.label}>{t('settings.install')}</span>
+          </button>
+        )}
       </div>
+      {install?.available.value === 'ios' && <p class={styles.hint}>{t('settings.installIos')}</p>}
 
       <div class={styles.section}>{t('settings.privacy')}</div>
       <div class={styles.group}>

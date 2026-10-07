@@ -114,5 +114,7 @@ export const en = {
   'error.title': 'Something went wrong',
   'error.reload': 'Reload',
   'update.available': 'Update available',
+  'settings.install': 'Install app',
+  'settings.installIos': 'On iPhone: Share → Add to Home Screen',
   'update.reload': 'Reload',
 } as const;

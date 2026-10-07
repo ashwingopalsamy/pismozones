@@ -9,10 +9,12 @@ import { translate } from '../i18n';
 import { announcement } from './announce';
 import { useApp } from './context';
 import { ErrorFallback } from './ErrorFallback';
+import type { Install } from './install';
 import { type LayoutActions, PhoneLayout } from './PhoneLayout';
 import { ShortcutsSheet } from './ShortcutsSheet';
 import { shareCurrent } from './share';
 import { handleShortcut } from './shortcuts';
+import { UpdatePrompt } from './UpdatePrompt';
 import { WideLayout } from './WideLayout';
 
 const WIDE = '(min-width: 768px)';
@@ -32,7 +34,7 @@ function useMedia(query: string): boolean {
 
 type SheetName = 'settings' | 'cities' | 'holidays' | 'shortcuts' | null;
 
-export function App() {
+export function App({ install }: { install?: Install }) {
   const app = useApp();
   const [error] = useErrorBoundary((err: unknown) => {
     app.track('error', { code: err instanceof Error ? err.name : 'unknown', component: 'App' });
@@ -118,6 +120,7 @@ export function App() {
         onClose={close}
         onOpenCities={() => setSheet('cities')}
         onOpenHolidays={() => actions.openHolidays()}
+        {...(install ? { install } : {})}
       />
       <CitiesSheet open={sheet === 'cities'} onClose={close} />
       <HolidaysSheet
@@ -128,6 +131,7 @@ export function App() {
       />
       <ShortcutsSheet open={sheet === 'shortcuts'} onClose={close} />
       <Toast />
+      <UpdatePrompt />
       <div class="sr-only" role="status" aria-live="polite">
         {announcement.value}
       </div>

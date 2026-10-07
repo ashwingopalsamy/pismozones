@@ -86,6 +86,11 @@
   color: var(--text-3);
   margin: 0;
 }
+.hint {
+  margin: calc(var(--sp-8) * -1) var(--sp-16) 0;
+  font-size: var(--fs-13);
+  color: var(--text-3);
+}
 .credit {
   text-align: center;
   font-size: var(--fs-13);

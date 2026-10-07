@@ -19,3 +19,17 @@
     transform: translate(-50%, -8px) scale(0.96);
   }
 }
+.prompt {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-12);
+  padding-right: var(--sp-4);
+}
+.action {
+  height: 30px;
+  padding: 0 var(--sp-12);
+  border-radius: var(--r-chip);
+  background: var(--text-1);
+  color: var(--ground);
+  font-weight: 600;
+}

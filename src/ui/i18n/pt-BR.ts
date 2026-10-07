@@ -118,5 +118,7 @@ export const ptBR: Record<keyof typeof en, string> = {
   'error.title': 'Algo deu errado',
   'error.reload': 'Recarregar',
   'update.available': 'Nova versão disponível',
+  'settings.install': 'Instalar app',
+  'settings.installIos': 'No iPhone: Compartilhar → Adicionar à Tela de Início',
   'update.reload': 'Recarregar',
 };

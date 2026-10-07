@@ -4,6 +4,7 @@ import { createAppState } from '@state/index';
 import { render } from 'preact';
 import { App } from './ui/app/App';
 import { AppContext } from './ui/app/context';
+import { createInstall } from './ui/app/install';
 import './ui/styles/fonts.css';
 import './ui/styles/tokens.css';
 import './ui/styles/base.css';
@@ -12,6 +13,7 @@ const env = browserEnv();
 const tracker = createTracker(env);
 const app = createAppState(env, tracker.track);
 app.start();
+const install = createInstall(window, tracker.track);
 
 const width = window.innerWidth;
 tracker.track('session_start', {
@@ -32,7 +34,7 @@ const root = document.getElementById('root');
 if (root)
   render(
     <AppContext.Provider value={app}>
-      <App />
+      <App install={install} />
     </AppContext.Provider>,
     root,
   );
