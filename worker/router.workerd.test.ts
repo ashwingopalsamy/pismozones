@@ -24,3 +24,18 @@ it('serves Portuguese previews when the first language tag is pt', async () => {
   });
   expect(await res.text()).toContain('<title>15:00 em Austin · qua 7 out</title>');
 });
+
+it('routes /e to event ingest', async () => {
+  const res = await mf.dispatchFetch('https://x/e', {
+    method: 'POST',
+    headers: { origin: 'https://pismozones.ashwingopalsamy.in' },
+    body: JSON.stringify({
+      v: 1,
+      s: 'abcd1234abcd1234',
+      a: '2.0.0',
+      e: [{ n: 'view', b: ['plan'], d: [], t: 1 }],
+    }),
+  });
+  expect(res.status).toBe(204);
+  expect((await mf.dispatchFetch('https://x/e')).status).toBe(405);
+});

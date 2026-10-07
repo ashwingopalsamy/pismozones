@@ -34,7 +34,7 @@ export default defineConfig({
       },
       {
         extends: true,
-        // Pure handlers run in Node; anything needing workerd goes through worker/testing.ts.
+        // Pure handlers run in Node; *.workerd.test.ts run the bundled Worker in workerd (worker/testing.ts).
         test: { name: 'worker', environment: 'node', include: ['worker/**/*.test.ts'] },
       },
     ],

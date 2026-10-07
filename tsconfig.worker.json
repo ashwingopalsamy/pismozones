@@ -17,5 +17,5 @@
     }
   },
   "include": ["worker", "src/core", "worker-configuration.d.ts"],
-  "exclude": ["src/**/*.test.ts", "worker/**/*.test.ts", "worker/testing.ts"]
+  "exclude": ["src/**/*.test.ts", "worker/**/*.workerd.test.ts", "worker/testing.ts"]
 }

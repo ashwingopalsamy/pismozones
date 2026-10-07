@@ -24,6 +24,7 @@ export async function startWorker(assets: (path: string) => string) {
             modules: { 'index.js': { type: 'esm', contents: out.outputFiles[0]?.text ?? '' } },
           },
           env: {
+            EVENTS: { type: 'analytics-engine-dataset', name: 'pismozones_events' },
             ASSETS: {
               type: 'fetcher',
               handler: (request: MfRequest) =>
