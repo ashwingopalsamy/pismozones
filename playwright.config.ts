@@ -14,14 +14,18 @@ export default defineConfig({
   projects: [
     {
       name: 'desktop',
-      testIgnore: /(network|pwa)\.spec\.ts/,
+      testIgnore: /(network|pwa|share)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
     },
-    { name: 'phone', testIgnore: /(network|pwa)\.spec\.ts/, use: { ...devices['iPhone 15'] } },
+    {
+      name: 'phone',
+      testIgnore: /(network|pwa|share)\.spec\.ts/,
+      use: { ...devices['iPhone 15'] },
+    },
     // The production build, so `public/_headers` (CSP and friends) applies.
     {
       name: 'prod',
-      testMatch: /(network|pwa)\.spec\.ts/,
+      testMatch: /(network|pwa|share)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:4173' },
     },
   ],
