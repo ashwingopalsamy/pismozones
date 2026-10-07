@@ -12,12 +12,14 @@ export function UpdatePrompt() {
   const app = useApp();
   const t = useT();
   const shown = useRef(false);
+  const registration = useRef<ServiceWorkerRegistration | undefined>(undefined);
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
   } = useRegisterSW({
-    onRegisteredSW(_url, registration) {
-      if (registration) setInterval(() => void registration.update(), HOUR);
+    onRegisteredSW(_url, r) {
+      registration.current = r;
+      if (r) setInterval(() => r.update().catch(() => {}), HOUR);
     },
   });
 
@@ -42,7 +44,11 @@ export function UpdatePrompt() {
         class={styles.action}
         onClick={() => {
           app.track('pwa', { outcome: 'update_applied' });
-          void updateServiceWorker(true);
+          // An uncontrolled tab (first visit, hard reload) has no waiting worker to skip: the new one
+          // is already active, so a plain reload picks it up.
+          if (navigator.serviceWorker?.controller && registration.current?.waiting)
+            void updateServiceWorker(true);
+          else location.reload();
         }}
       >
         {t('update.reload')}

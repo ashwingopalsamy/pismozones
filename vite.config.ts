@@ -50,13 +50,14 @@ export default defineConfig({
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.pathname.startsWith('/s/'),
+            // Never cached: a stored share page would reference hashed assets a later deploy deletes.
             handler: 'NetworkFirst',
             options: {
               cacheName: 'share-pages',
               networkTimeoutSeconds: 3,
-              expiration: { maxEntries: 20 },
-              // Offline and never seen: the precached shell (keyed with a revision query).
+              // Offline or slow: the precached shell (keyed with a revision query).
               plugins: [
+                { cacheWillUpdate: async () => null },
                 {
                   handlerDidError: async () =>
                     (await caches.match('/index.html', { ignoreSearch: true })) ?? undefined,
