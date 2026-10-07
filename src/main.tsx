@@ -3,6 +3,7 @@ import { browserEnv } from '@state/env';
 import { createAppState } from '@state/index';
 import { render } from 'preact';
 import { App } from './ui/app/App';
+import { injectBeacon } from './ui/app/beacon';
 import { AppContext } from './ui/app/context';
 import { createInstall } from './ui/app/install';
 import './ui/styles/fonts.css';
@@ -14,6 +15,7 @@ const tracker = createTracker(env);
 const app = createAppState(env, tracker.track);
 app.start();
 const install = createInstall(window, tracker.track);
+injectBeacon(import.meta.env.VITE_CF_BEACON_TOKEN, document);
 
 const width = window.innerWidth;
 tracker.track('session_start', {
