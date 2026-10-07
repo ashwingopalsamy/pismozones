@@ -1,4 +1,5 @@
-import type { NoticeCode, ParseContext, PlaceRef } from './types';
+import { parse } from './index';
+import type { NoticeCode, ParseContext, ParseResult, PlaceRef } from './types';
 
 /** Shared fixture: Wed 7 Oct 2026, 11:22 in São Paulo, 19:52 in Bangalore. */
 export const CTX: ParseContext = {
@@ -196,3 +197,14 @@ export const OK_ROWS: OkRow[] = [
     expect: { source: o('austin'), dest: [], instant: U(2026, 9, 7, 20, 30) },
   },
 ];
+
+/** Test helper: parses with CTX and returns the ok result, or throws. */
+export function parseOk(
+  input: string,
+  ctx: ParseContext = CTX,
+): Extract<ParseResult, { status: 'ok' }> {
+  const r = parse(input, ctx);
+  if (r?.status !== 'ok')
+    throw new Error(`Expected ok parse for "${input}", got ${r?.status ?? 'null'}`);
+  return r;
+}
