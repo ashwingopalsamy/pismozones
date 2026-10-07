@@ -18,7 +18,8 @@
     "cf-typegen": "wrangler types",
     "e2e": "playwright test",
     "analytics": "sh scripts/analytics.sh",
-    "size": "node scripts/size.mjs"
+    "size": "node scripts/size.mjs",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "@preact/signals": "^2.11.3",
