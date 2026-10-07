@@ -84,9 +84,8 @@ export function biasHour(t: TimeTok, tonight: boolean): { hour: number; extraDay
 const replaceSpan = (input: string, start: number, end: number, text: string) =>
   input.slice(0, start) + text + input.slice(end);
 
-/** Builds the ok result for an analysis that diagnose() has already accepted. */
-export function resolve(a: Analysis, ctx: ParseContext, input: string): ParseResult {
-  const notices: Notice[] = [];
+/** Source/destination rule: first place before a "to" connector, or the place after a leading "in". */
+export function pickSource(a: Analysis, ctx: ParseContext) {
   const before = a.places.filter((p) => p.beforeConnector);
   const after = a.places.filter((p) => !p.beforeConnector);
   let source = before[0];
@@ -95,8 +94,14 @@ export function resolve(a: Analysis, ctx: ParseContext, input: string): ParseRes
     source = after[0];
     destinations = after.slice(1);
   }
-  const implicitSource = !source;
   const sourceRef: PlaceRef = source?.ref ?? { kind: 'office', id: ctx.referenceId };
+  return { source, destinations, sourceRef, implicitSource: !source };
+}
+
+/** Builds the ok result for an analysis that diagnose() has already accepted. */
+export function resolve(a: Analysis, ctx: ParseContext, input: string): ParseResult {
+  const notices: Notice[] = [];
+  const { source, destinations, sourceRef, implicitSource } = pickSource(a, ctx);
   const zone = zoneOf(sourceRef);
   const isNow = a.times.length === 0 && a.dates.length === 0 && !a.duration;
 
