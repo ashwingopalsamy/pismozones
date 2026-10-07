@@ -1,0 +1,44 @@
+.edit {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.input {
+  width: 200px;
+  max-width: 60vw;
+  height: 54px;
+  padding: 0 var(--sp-12);
+  border-radius: 14px;
+  border: 1.5px solid var(--on-sky-ring);
+  background: var(--on-sky-chip);
+  color: var(--on-sky);
+  font-family: var(--font-ui);
+  font-size: 38px;
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  outline: none;
+}
+.input:focus-visible {
+  box-shadow: 0 0 0 4px var(--focus-soft);
+}
+.hint {
+  font-size: var(--fs-12);
+  color: var(--on-sky);
+  opacity: 0.9;
+}
+.chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.chip {
+  min-width: 44px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: var(--r-chip);
+  border: 1px solid var(--on-sky-line);
+  background: var(--on-sky-chip);
+  color: var(--on-sky);
+  font-size: var(--fs-12);
+  font-weight: 600;
+}

@@ -1,6 +1,7 @@
 import type { OfficeId } from '@core/cities/registry';
-import type { ComponentChildren } from 'preact';
+import { useState } from 'preact/hooks';
 import { useApp } from '../../app/context';
+import { EditableTime } from '../EditableTime/EditableTime';
 import { type CardBox, cardModel, DESKTOP_BOX } from '../ZoneCard/model';
 import { ZoneCard } from '../ZoneCard/ZoneCard';
 import styles from './CardList.module.css';
@@ -8,14 +9,12 @@ import styles from './CardList.module.css';
 export interface CardListProps {
   box: CardBox;
   editable: boolean;
-  onEdit?: (id: OfficeId) => void;
   onHoliday?: (id: OfficeId) => void;
-  /** Inline editor for the card being edited. */
-  editor?: { id: OfficeId; node: ComponentChildren } | null;
 }
 
-export function CardList({ box, editable, onEdit, onHoliday, editor }: CardListProps) {
+export function CardList({ box, editable, onHoliday }: CardListProps) {
   const app = useApp();
+  const [editing, setEditing] = useState<OfficeId | null>(null);
   const moment = app.moment.value;
   const live = app.mode.value === 'live';
   const ctx = {
@@ -36,8 +35,16 @@ export function CardList({ box, editable, onEdit, onHoliday, editor }: CardListP
           live={live}
           editable={editable}
           box={box}
-          editor={editor?.id === office.id ? editor.node : undefined}
-          {...(onEdit ? { onEdit: () => onEdit(office.id) } : {})}
+          onEdit={() => setEditing(office.id)}
+          editor={
+            editing === office.id ? (
+              <EditableTime
+                office={office}
+                phone={box !== DESKTOP_BOX}
+                onDone={() => setEditing(null)}
+              />
+            ) : undefined
+          }
           {...(onHoliday ? { onHoliday: () => onHoliday(office.id) } : {})}
           {...(temp ? { onAdd: () => app.cities.add(office.id) } : {})}
         />
