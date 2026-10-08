@@ -12,7 +12,7 @@ it('lists active offices in order and adds a temp office', async () => {
     'Austin',
     'São Paulo',
     'Bristol',
-    'Bangalore',
+    'Bengaluru',
   ]);
   app.pin(NOW, 'command', { extras: ['warsaw'] });
   await user.click(await findByRole('button', { name: 'Add' }));

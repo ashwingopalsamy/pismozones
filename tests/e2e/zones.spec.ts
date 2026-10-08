@@ -5,7 +5,7 @@ test('live view lists the default offices with the viewer tagged', async ({ page
   const cards = page.getByRole('article');
   await expect(cards).toHaveCount(4);
   await expect(cards.nth(0)).toHaveAttribute('aria-label', /^Austin, /);
-  await expect(page.getByRole('article', { name: /^Bangalore, 19:52, Today/ })).toContainText(
+  await expect(page.getByRole('article', { name: /^Bengaluru, 19:52, Today/ })).toContainText(
     'You',
   );
   await expect(page.getByText('Live', { exact: true })).toBeVisible();

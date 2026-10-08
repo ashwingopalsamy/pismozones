@@ -1,4 +1,4 @@
-import { DEFAULT_ACTIVE, getOffice, type OfficeId, officeForZone } from '@core/cities/registry';
+import { ANCHOR, DEFAULT_ACTIVE, getOffice, type OfficeId, officeForZone } from '@core/cities/registry';
 import type { Lang } from '@core/i18n';
 import type { HourCycle } from '@core/time/format';
 
@@ -57,7 +57,9 @@ function sanitize(raw: unknown, viewerZone: string): Persisted {
     prefs?: Partial<Record<keyof Prefs, unknown>>;
   };
   const uniq = uniqueOffices(r.activeIds);
-  const activeIds = uniq.length ? uniq : base.activeIds;
+  const saved = uniq.length ? uniq : base.activeIds;
+  // São Paulo can never be removed, whatever storage says.
+  const activeIds = saved.includes(ANCHOR) ? saved : [ANCHOR, ...saved];
   const p = r.prefs ?? {};
   return {
     schema: 1,

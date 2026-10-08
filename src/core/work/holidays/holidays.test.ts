@@ -49,7 +49,7 @@ describe('holidays', () => {
     expect(on('pl', '2026-04-06')?.name.en).toBe('Easter Monday');
     expect(on('pl', '2026-12-24')?.name.en).toBe('Christmas Eve');
   });
-  it('Bangalore and Singapore (lists)', () => {
+  it('Bengaluru and Singapore (lists)', () => {
     expect(on('in-ka', '2026-01-26')?.name.en).toBe('Republic Day');
     expect(on('in-ka', '2026-10-02')?.name.en).toBe('Gandhi Jayanti');
     expect(on('in-ka', '2026-11-01')?.name.en).toBe('Kannada Rajyotsava');

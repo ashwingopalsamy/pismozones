@@ -1,6 +1,6 @@
 import type { AppEnv, Scheduler } from './env';
 
-/** Wed 7 Oct 2026 14:22 UTC — 11:22 São Paulo, 19:52 Bangalore. */
+/** Wed 7 Oct 2026 14:22 UTC — 11:22 São Paulo, 19:52 Bengaluru. */
 export const NOW = Date.UTC(2026, 9, 7, 14, 22);
 
 class MemoryStorage implements Storage {

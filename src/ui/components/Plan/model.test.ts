@@ -21,7 +21,7 @@ it('labels the best overlap for five offices', () => {
   );
   expect(m.best).toEqual({
     label: 'Best overlap 11:00–14:00 · 3 of 5 working',
-    outside: 'Bangalore, Singapore outside',
+    outside: 'Bengaluru, Singapore outside',
     start: Date.UTC(2026, 9, 8, 14),
     working: 3,
   });

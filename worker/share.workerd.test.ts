@@ -20,7 +20,7 @@ it('rewrites meta for a valid token', async () => {
   expect(html).toContain('<title>15:00 in Austin · Wed 7 Oct</title>');
   expect(html).toContain('property="og:title" content="15:00 in Austin · Wed 7 Oct"');
   expect(html).toContain(
-    'name="twitter:description" content="17:00 São Paulo · 21:00 Bristol · 01:30 Bangalore (+1d)"',
+    'name="twitter:description" content="17:00 São Paulo · 21:00 Bristol · 01:30 Bengaluru (+1d)"',
   );
   expect(html).toContain(
     'property="og:url" content="https://pismozones.ashwingopalsamy.in/s/10p00hwf"',

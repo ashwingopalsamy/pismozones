@@ -1,7 +1,7 @@
 import { parse } from './index';
 import type { NoticeCode, ParseContext, ParseResult, PlaceRef } from './types';
 
-/** Shared fixture: Wed 7 Oct 2026, 11:22 in São Paulo, 19:52 in Bangalore. */
+/** Shared fixture: Wed 7 Oct 2026, 11:22 in São Paulo, 19:52 in Bengaluru. */
 export const CTX: ParseContext = {
   now: Date.UTC(2026, 9, 7, 14, 22),
   referenceId: 'bangalore',

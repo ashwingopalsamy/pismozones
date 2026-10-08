@@ -42,6 +42,6 @@ describe('registry', () => {
     expect(officeForZone('America/Buenos_Aires')?.id).toBe('buenosaires');
     expect(sameZone('Asia/Calcutta', 'Asia/Kolkata')).toBe(true);
     expect(sameZone('Europe/London', 'Asia/Kolkata')).toBe(false);
-    expect(DEFAULT_ACTIVE).toEqual(['austin', 'saopaulo', 'bristol', 'bangalore']);
+    expect(DEFAULT_ACTIVE).toEqual(['saopaulo', 'austin', 'bangalore', 'bristol']);
   });
 });

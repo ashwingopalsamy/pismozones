@@ -1,4 +1,4 @@
-import { getOffice, type Office, type OfficeId } from '@core/cities/registry';
+import { ANCHOR, getOffice, type Office, type OfficeId } from '@core/cities/registry';
 import { encodeShare } from '@core/share/codec';
 import type { Instant } from '@core/time/types';
 import { batch, computed, effect, type ReadonlySignal, type Signal, signal } from '@preact/signals';
@@ -78,7 +78,8 @@ export function createAppState(env: AppEnv, track: Track = () => {}): AppState {
       p?.status === 'ok'
         ? p.intent.destinations.flatMap((d) => (d.kind === 'office' ? [d.id] : []))
         : [];
-    const ids = [...new Set<OfficeId>([...base, ...m.extras.value, ...previewDests])];
+    // São Paulo is always shown, first — also inside a shared view that left it out.
+    const ids = [...new Set<OfficeId>([ANCHOR, ...base, ...m.extras.value, ...previewDests])];
     return ids.flatMap((id) => {
       const office = getOffice(id);
       return office ? [{ office, temp: !active.includes(id) }] : [];

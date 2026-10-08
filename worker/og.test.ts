@@ -11,7 +11,7 @@ const decoded = (token: string) => {
 it('describes a v1 link exactly as the app shows it', () => {
   expect(ogText(decoded('10p00hwf'), 'en')).toEqual({
     title: '15:00 in Austin · Wed 7 Oct',
-    description: '17:00 São Paulo · 21:00 Bristol · 01:30 Bangalore (+1d)',
+    description: '17:00 São Paulo · 21:00 Bristol · 01:30 Bengaluru (+1d)',
   });
   expect(ogText(decoded('10p00hwf'), 'pt-BR').title).toBe('15:00 em Austin · qua 7 out');
 });
