@@ -25,7 +25,14 @@ export interface PlanViewModel {
   dayTitle: string;
   /** One per hour of the reference city's day: 23, 24 or 25. */
   columns: Array<{ start: Instant }>;
-  rows: Array<{ id: OfficeId; name: string; hours: string; at: string; kind: WorkKind; cells: PlanCell[] }>;
+  rows: Array<{
+    id: OfficeId;
+    name: string;
+    hours: string;
+    at: string;
+    kind: WorkKind;
+    cells: PlanCell[];
+  }>;
   selected: { column: number; label: string } | null;
   best: {
     start: Instant;
@@ -102,9 +109,17 @@ export function planViewModel(
   const selected = inDay
     ? {
         column: Math.floor((moment - start) / HOUR),
-        label: translate(lang, mode === 'live' ? 'plan.sel.now' : mode === 'preview' ? 'plan.sel.preview' : 'plan.sel.pinned', {
-          time: clock(moment, ref.zone, hc),
-        }),
+        label: translate(
+          lang,
+          mode === 'live'
+            ? 'plan.sel.now'
+            : mode === 'preview'
+              ? 'plan.sel.preview'
+              : 'plan.sel.pinned',
+          {
+            time: clock(moment, ref.zone, hc),
+          },
+        ),
       }
     : null;
 

@@ -13,7 +13,13 @@ export function ShortcutsSheet({
 }) {
   const t = useT();
   return (
-    <Sheet open={open} onClose={onClose} title={t('shortcuts.title')} variant={variant} size="narrow">
+    <Sheet
+      open={open}
+      onClose={onClose}
+      title={t('shortcuts.title')}
+      variant={variant}
+      size="narrow"
+    >
       <dl class={styles.shortcuts}>
         <dt>/ · ⌘K</dt>
         <dd>{t('shortcuts.focus')}</dd>

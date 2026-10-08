@@ -1,4 +1,10 @@
-import { ANCHOR, DEFAULT_ACTIVE, getOffice, type OfficeId, officeForZone } from '@core/cities/registry';
+import {
+  ANCHOR,
+  DEFAULT_ACTIVE,
+  getOffice,
+  type OfficeId,
+  officeForZone,
+} from '@core/cities/registry';
 import type { Lang } from '@core/i18n';
 import type { HourCycle } from '@core/time/format';
 

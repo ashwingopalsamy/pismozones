@@ -125,7 +125,7 @@ The globe button and the "You · 10:22" chip are gone from the header. The globe
 ### 5.2 Desktop: wide dropdown
 
 - Opening the pill shows a panel directly under the header, spanning the full column width. It is a `<dialog>` opened with `show()`, so it is non-modal and positioned under the header rather than centred. While it is open, focus is trapped inside it; Esc and an outside click close it and return focus to the pill.
-- Layout: the world map (existing `WorldMap`) on the left (about 40%). On the right: search, then **Active** and **Available** in a two-column grid of rows.
+- Layout: search, then **Active** and **Available** in a two-column grid of rows. The world map was removed at the owner's request (2026-10-08).
 - Each row shows the work-state dot, name, country, local time, ±day and offset, then the actions:
   - **Clicking the row** makes it the reference city (and adds it if inactive).
   - **The ＋/− button** adds or removes it.
@@ -309,7 +309,7 @@ coverage(id, date): 'published' | 'unpublished'
 ## 11. Footer
 
 - Inside the column, at the window bottom (§2). Left: the privacy line. Right: a 24px round avatar, then "Ashwin Gopalsamy · Auth Tribe, Pismo · GitHub".
-- **Avatar:** `public/ashwin.webp`, a 64 × 64 image generated once from `https://github.com/ashwingopalsamy.png` (the owner approved this download). It is self-hosted (CSP `img-src 'self'`), loaded with `loading="lazy"` and `decoding="async"` at a fixed 24 × 24 size (no layout shift), and has `alt="Ashwin Gopalsamy"`.
+- **Avatar:** `public/ashwin.jpg`, a 64 × 64 JPEG generated once from `https://github.com/ashwingopalsamy.png` (the owner approved this download). It is self-hosted (CSP `img-src 'self'`), loaded with `loading="lazy"` and `decoding="async"` at a fixed 24 × 24 size (no layout shift), and has `alt="Ashwin Gopalsamy"`.
 - **Phone:** the footer sits at the end of the Settings sheet, as today, and gains the avatar.
 
 ## 12. Testing and acceptance

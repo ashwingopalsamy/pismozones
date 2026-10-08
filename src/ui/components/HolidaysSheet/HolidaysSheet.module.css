@@ -71,7 +71,7 @@
   font-size: var(--fs-14);
   color: var(--text-2);
 }
-.tab[aria-selected='true'] {
+.tab[aria-selected="true"] {
   background: var(--glass-strong);
   color: var(--text-1);
   font-weight: 600;

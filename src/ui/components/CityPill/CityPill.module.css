@@ -14,7 +14,7 @@
   font-size: var(--fs-14);
   font-weight: 600;
 }
-.pill[aria-expanded='true'] {
+.pill[aria-expanded="true"] {
   background: var(--glass-strong);
 }
 .dot {

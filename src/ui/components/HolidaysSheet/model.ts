@@ -64,15 +64,19 @@ export function holidaysModel(
     return {
       date: h.date,
       dateLabel: formatShortDate(
-        { year: y, month: m, day: d, weekday: new Date(Date.UTC(y, m - 1, d)).getUTCDay() as Weekday },
+        {
+          year: y,
+          month: m,
+          day: d,
+          weekday: new Date(Date.UTC(y, m - 1, d)).getUTCDay() as Weekday,
+        },
         lang,
       ),
       name: holidayName(h, lang),
       note: h.note ?? null,
       offices: owners.map((o) => o.name).join(', '),
       half: h.kind === 'half',
-      focused:
-        !!focus && focus.date === h.date && owners.some((o) => o.id === focus.officeId),
+      focused: !!focus && focus.date === h.date && owners.some((o) => o.id === focus.officeId),
       state:
         h.date < todayKey ? 'past' : h.date === todayKey ? 'today' : next ? 'next' : 'upcoming',
     };

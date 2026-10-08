@@ -1,4 +1,10 @@
-import { ANCHOR, getOffice, type Office, type OfficeId, officeForZone } from '@core/cities/registry';
+import {
+  ANCHOR,
+  getOffice,
+  type Office,
+  type OfficeId,
+  officeForZone,
+} from '@core/cities/registry';
 import { computed, type ReadonlySignal, type Signal, signal } from '@preact/signals';
 import type { Track } from './track';
 

@@ -8,7 +8,7 @@ export const tierFor = (width: number): Tier =>
   width >= 1120 ? 'A' : width >= 960 ? 'B' : width >= 840 ? 'C' : 'D';
 
 /** The element's content width, live; Infinity where ResizeObserver is unavailable (tests). */
-export function useWidth(ref: RefObject<HTMLElement>): number {
+export function useWidth(ref: RefObject<HTMLElement | null>): number {
   const [width, setWidth] = useState(Number.POSITIVE_INFINITY);
   useLayoutEffect(() => {
     const el = ref.current;

@@ -72,10 +72,11 @@ Worker tests that need the real runtime (HTMLRewriter) are named `*.workerd.test
 
 ## Deploy
 
-- **CI** (`.github/workflows/ci.yml`): every pull request runs the checks, the build, the budgets and the end-to-end suite, then uploads a preview version (`pr-<number>` alias). Pushes to `main` deploy to production.
-- **Manual:** `npm run deploy`, with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` set.
-- **Domains:** `pismozones.ashwingopalsamy.in` (custom domain, attached through `routes` in `wrangler.jsonc`) and the `workers.dev` URL.
-- **Build-time variable:** `VITE_CF_BEACON_TOKEN` enables Cloudflare Web Analytics (see `.env.example`).
+Both hosts build straight from GitHub; GitHub Actions only runs the checks (`.github/workflows/ci.yml`).
+
+- **Cloudflare (canonical):** `pismozones.ashwingopalsamy.in` and the `workers.dev` URL. Cloudflare Workers Builds deploys `main` (build `npm run build`, deploy `npx wrangler deploy`) and uploads a preview version for other branches (`npx wrangler versions upload`). The build variable `VITE_CF_BEACON_TOKEN` enables Cloudflare Web Analytics. The Worker serves link previews (`/s/…`) and the event endpoint (`/e`).
+- **Vercel (mirror):** `pismozones.vercel.app`, built from `main` by Vercel's Git integration using `vercel.json` (static `dist/client`, the same security headers). Vercel Web Analytics counts page views there; product events go to the Cloudflare `/e`; share links always use the canonical domain.
+- **Manual:** `npm run deploy` (Cloudflare), with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` set.
 
 ## Licence
 

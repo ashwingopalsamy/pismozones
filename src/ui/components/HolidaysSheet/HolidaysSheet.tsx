@@ -38,7 +38,10 @@ export function HolidaysSheet({
     setTab(m.selected);
   }, [open, focus?.officeId, focus?.date]);
   useLayoutEffect(() => {
-    if (open) list.current?.querySelector<HTMLElement>('[data-focused]')?.scrollIntoView({ block: 'center' });
+    if (open)
+      list.current
+        ?.querySelector<HTMLElement>('[data-focused]')
+        ?.scrollIntoView({ block: 'center' });
   }, [open, tab]);
 
   const months: HolidayMonth[] = tab === 'upcoming' ? m.upcoming : (m.country[tab] ?? []);
@@ -97,7 +100,9 @@ export function HolidaysSheet({
                       {h.name}
                       {h.state === 'today' && <i class={styles.badge}>{t('holidays.today')}</i>}
                       {h.state === 'next' && <i class={styles.badge}>{t('holidays.next')}</i>}
-                      {h.half && <i class={`${styles.badge} ${styles.half}`}>{t('holidays.halfDay')}</i>}
+                      {h.half && (
+                        <i class={`${styles.badge} ${styles.half}`}>{t('holidays.halfDay')}</i>
+                      )}
                     </b>
                     <span>{[h.offices, h.note].filter(Boolean).join(' · ')}</span>
                   </span>

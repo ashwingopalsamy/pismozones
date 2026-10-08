@@ -30,7 +30,20 @@ it('writes one positional data point per event', async () => {
   expect(res.status).toBe(204);
   expect(writeDataPoint).toHaveBeenNthCalledWith(1, {
     indexes: ['commit'],
-    blobs: ['commit', '1', '2.0.0', 'XX', 'abcd1234abcd1234', 'ruler', '', '', '', '', '', 'pismozones.ashwingopalsamy.in'],
+    blobs: [
+      'commit',
+      '1',
+      '2.0.0',
+      'XX',
+      'abcd1234abcd1234',
+      'ruler',
+      '',
+      '',
+      '',
+      '',
+      '',
+      'pismozones.ashwingopalsamy.in',
+    ],
     doubles: [1200, 2.5],
   });
   expect(writeDataPoint).toHaveBeenCalledTimes(2);

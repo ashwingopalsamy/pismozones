@@ -18,5 +18,7 @@ it('tabs follow active countries; a chip focus opens its country at the date', (
 });
 
 it('notes an unpublished year inside the window', () => {
-  expect(holidaysModel(offices(['saopaulo']), { year: 2026, month: 12, day: 1 }, 'en').unpublished).toBe(2027);
+  expect(
+    holidaysModel(offices(['saopaulo']), { year: 2026, month: 12, day: 1 }, 'en').unpublished,
+  ).toBe(2027);
 });
