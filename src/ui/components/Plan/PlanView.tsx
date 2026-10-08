@@ -8,7 +8,6 @@ import { Icon } from '../Icon';
 import { planViewModel } from './model';
 import styles from './Plan.module.css';
 
-const QUARTER = 900_000;
 const LEGEND: Record<WorkKind, Key> = {
   working: 'plan.legend.working',
   early: 'plan.legend.edge',
@@ -31,6 +30,7 @@ export function PlanView({ layout }: { layout: 'phone' | 'panel' }) {
     offices,
     ref,
     moment,
+    app.mode.value,
     app.prefs.hourCycle.value,
     app.prefs.lang.value,
     app.env.viewerZone,
@@ -45,11 +45,15 @@ export function PlanView({ layout }: { layout: 'phone' | 'panel' }) {
       'day_nav',
     );
   };
+  // Pointer on a column pins its start; dragging across columns scrubs.
+  const columnAt = (e: PointerEvent) => {
+    const el = (e.target as HTMLElement).closest<HTMLElement>('[data-col]');
+    return el ? Number(el.dataset.col) : null;
+  };
   const scrubTo = (e: PointerEvent) => {
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    const f = rect.width ? Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)) : 0;
-    const t = plan.day.start + f * (plan.day.end - plan.day.start);
-    app.scrub(Math.min(Math.round(t / QUARTER) * QUARTER, plan.day.end - QUARTER));
+    const c = columnAt(e);
+    const col = c === null ? undefined : m.columns[c];
+    if (col) app.scrub(col.start);
   };
 
   return (
@@ -84,8 +88,12 @@ export function PlanView({ layout }: { layout: 'phone' | 'panel' }) {
       {m.best ? (
         <div class={styles.best}>
           <span class={styles.bestText}>
-            <span class={styles.bestLabel}>{m.best.label}</span>
-            <span class={styles.outside}>{m.best.outside ?? t('plan.everyone')}</span>
+            <span class={styles.bestLabel}>{m.best.head}</span>
+            <span class={styles.perCity}>
+              {m.best.perCity.map((p) => (
+                <span key={p.id}>{p.text}</span>
+              ))}
+            </span>
           </span>
           <button
             type="button"
@@ -105,28 +113,13 @@ export function PlanView({ layout }: { layout: 'phone' | 'panel' }) {
         <div class={styles.best}>{t('plan.none', { date: m.dayTitle })}</div>
       )}
 
-      <div class={styles.grid} aria-hidden="true">
-        <div class={styles.axis}>
-          {m.axis.map((a) => (
-            <span key={a.label} style={{ left: `${a.pct}%` }}>
-              {a.label}
-            </span>
-          ))}
-        </div>
-        <div class={styles.labels}>
-          {m.rows.map((r) => (
-            <div key={r.id} class={styles.lab}>
-              <b>
-                <i class={`${styles.dot} ${styles[r.kind]}`} />
-                {r.name}
-              </b>
-              <span>{r.at}</span>
-            </div>
-          ))}
-        </div>
+      <div class={styles.scroller}>
         <div
-          class={styles.tracks}
+          class={styles.grid}
+          aria-hidden="true"
+          style={`--cols:${m.columns.length}`}
           onPointerDown={(e) => {
+            if (columnAt(e) === null) return;
             try {
               (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
             } catch {
@@ -143,29 +136,40 @@ export function PlanView({ layout }: { layout: 'phone' | 'panel' }) {
             dragging.current = false;
             app.endScrub('plan_drag');
           }}
+          onPointerCancel={() => {
+            dragging.current = false;
+          }}
         >
-          {m.band && (
-            <div
-              class={styles.band}
-              style={{ left: `${m.band.leftPct}%`, width: `${m.band.widthPct}%` }}
-            />
-          )}
-          {m.rows.map((r) => (
-            <div key={r.id}>
-              <div class={styles.rowLabel}>
-                <b>{r.name}</b>
-                <span>{r.at}</span>
-              </div>
-              <div class={styles.bar}>
-                {r.cells.map((c, i) => (
-                  <i key={i} class={`${styles.cell} ${styles[c]}`} />
-                ))}
-              </div>
-            </div>
+          <span class={styles.corner} />
+          {m.columns.map((c, i) => (
+            <span key={c.start} class={styles.colHead}>
+              {m.selected?.column === i && <b class={styles.selLabel}>{m.selected.label}</b>}
+            </span>
           ))}
-          {m.cursorPct !== null && (
-            <div class={styles.cursor} style={{ left: `${m.cursorPct}%` }} />
-          )}
+          {m.rows.map((r) => [
+            <span key={`${r.id}-h`} class={styles.rowHead}>
+              <b>
+                <i class={`${styles.dot} ${styles[r.kind]}`} />
+                {r.name}
+              </b>
+              <span>
+                {r.hours} · {r.at}
+              </span>
+            </span>,
+            ...r.cells.map((c, i) => {
+              const inBest = m.best && i >= m.best.columns[0] && i < m.best.columns[1];
+              return (
+                <span
+                  key={`${r.id}-${i}`}
+                  data-col={i}
+                  class={`${styles.slot} ${styles[c.kinds[0]]} ${c.kinds[1] ? styles[`to_${c.kinds[1]}`] : ''} ${inBest ? styles.inBest : ''} ${m.selected?.column === i ? styles.sel : ''}`}
+                >
+                  {c.label}
+                  {c.dayMark && <sup class={styles.dayMark}>{c.dayMark}</sup>}
+                </span>
+              );
+            }),
+          ])}
         </div>
       </div>
 
