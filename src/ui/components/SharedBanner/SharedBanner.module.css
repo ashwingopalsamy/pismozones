@@ -5,7 +5,7 @@
   justify-content: space-between;
   gap: var(--sp-10);
   padding: var(--sp-10) var(--sp-10) var(--sp-10) var(--sp-16);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   background: var(--glass);
   border: 1px solid var(--line);
   font-size: var(--fs-14);
@@ -13,7 +13,7 @@
 .back {
   min-height: 40px;
   padding: 0 var(--sp-14);
-  border-radius: var(--r-chip);
+  border-radius: var(--r-full);
   border: 0;
   background: var(--text-1);
   color: var(--ground);

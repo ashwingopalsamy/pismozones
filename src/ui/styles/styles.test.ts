@@ -14,7 +14,12 @@ const REQUIRED = [
   '--text-2',
   '--text-3',
   '--text-4',
-  '--accent',
+  '--sel-soft',
+  '--sel-line',
+  '--sel-ink',
+  '--now',
+  '--edge',
+  '--focus-ring',
   '--focus',
   '--ok',
   '--warn',
@@ -25,10 +30,13 @@ const REQUIRED = [
   '--plan-off',
   '--font-ui',
   '--font-mono',
-  '--r-chip',
-  '--r-control',
-  '--r-card',
-  '--r-sheet',
+  '--r-xs',
+  '--r-sm',
+  '--r-md',
+  '--r-lg',
+  '--r-xl',
+  '--r-2xl',
+  '--r-full',
   '--ease-out',
   '--ease-spring',
   '--dur-press',
@@ -65,5 +73,19 @@ it('component CSS uses tokens only', () => {
   for (const f of walk('src/ui')) {
     const css = readFileSync(f, 'utf8');
     expect(css, f).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(|!important/i);
+  }
+});
+
+it('corner radii come from the scale only', () => {
+  const walk = (d: string): string[] =>
+    readdirSync(d).flatMap((f) => {
+      const p = join(d, f);
+      return statSync(p).isDirectory() ? walk(p) : p.endsWith('.module.css') ? [p] : [];
+    });
+  for (const f of walk('src/ui')) {
+    for (const [, value] of readFileSync(f, 'utf8').matchAll(/border-radius:\s*([^;]+);/g))
+      expect(value, `${f}: border-radius ${value}`).toMatch(
+        /^(var\(--r-[a-z0-9]+\)|50%|0|inherit)$/,
+      );
   }
 });

@@ -1,7 +1,7 @@
 .card {
   position: relative;
   flex: none;
-  border-radius: var(--r-card);
+  border-radius: var(--r-xl);
   overflow: hidden;
   isolation: isolate;
   color: var(--on-sky);
@@ -23,19 +23,19 @@
     inset 0 0 0 1px var(--on-sky-edge);
 }
 .ref {
-  box-shadow:
-    0 0 0 2px var(--accent),
-    var(--elev-2);
-}
-.hero {
-  border-radius: 24px;
   box-shadow: var(--elev-2);
 }
-.hero.ref {
+/* The active city: a quiet inner hairline, the same on every card — never a colour. */
+.ref::after {
   box-shadow:
-    0 0 0 2px var(--accent),
-    var(--elev-2);
+    inset 0 1px 0 var(--on-sky-line),
+    inset 0 0 0 1.5px color-mix(in srgb, var(--on-sky-ring) 55%, transparent);
 }
+.hero {
+  border-radius: var(--r-xl);
+  box-shadow: var(--elev-2);
+}
+
 /* The whole card picks it as the active city; its own controls sit above this. */
 .select {
   position: absolute;
@@ -119,7 +119,7 @@
   position: absolute;
   width: 84px;
   height: 1.5px;
-  border-radius: 1px;
+  border-radius: var(--r-full);
   background: linear-gradient(90deg, transparent, var(--star));
   opacity: 0;
   transform-origin: right center;
@@ -188,13 +188,13 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 3px 6px;
-  border-radius: 6px;
+  border-radius: var(--r-xs);
   background: var(--on-sky-tag);
 }
 .add {
   height: 28px;
   padding: 0 10px;
-  border-radius: var(--r-chip);
+  border-radius: var(--r-full);
   border: 1px solid var(--on-sky-line);
   background: var(--on-sky-chip);
   font-size: var(--fs-12);
@@ -206,7 +206,7 @@
   gap: 7px;
   height: 26px;
   padding: 0 10px;
-  border-radius: var(--r-chip);
+  border-radius: var(--r-full);
   font-size: var(--fs-12);
   font-weight: 550;
   white-space: nowrap;
@@ -233,7 +233,7 @@ button.chip {
 .early .dot,
 .late .dot,
 .holiday .dot {
-  background: var(--warn);
+  background: var(--edge);
 }
 .timeBtn {
   display: flex;
@@ -241,7 +241,7 @@ button.chip {
   padding: 2px 6px;
   margin: -2px -6px;
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   background: transparent;
   color: inherit;
   cursor: text;

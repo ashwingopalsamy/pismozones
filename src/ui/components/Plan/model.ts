@@ -55,7 +55,6 @@ export interface PlanViewModel {
     to: number;
     perCity: Array<{ id: OfficeId; name: string; range: string; outside: boolean }>;
   } | null;
-  noCalendar: string[];
 }
 
 const clock = (t: Instant, zone: string, hc: HourCycle) => {
@@ -176,7 +175,6 @@ export function planViewModel(
     rows,
     selected,
     best,
-    noCalendar: offices.filter((o) => !o.holidayCalendar).map((o) => o.name),
   };
 }
 

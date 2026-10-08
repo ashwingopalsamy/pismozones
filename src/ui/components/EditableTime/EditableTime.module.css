@@ -8,7 +8,7 @@
   max-width: 60vw;
   height: 54px;
   padding: 0 var(--sp-12);
-  border-radius: 14px;
+  border-radius: var(--r-md);
   border: 1.5px solid var(--on-sky-ring);
   background: var(--on-sky-chip);
   color: var(--on-sky);
@@ -35,7 +35,7 @@
   min-width: 44px;
   height: 32px;
   padding: 0 10px;
-  border-radius: var(--r-chip);
+  border-radius: var(--r-full);
   border: 1px solid var(--on-sky-line);
   background: var(--on-sky-chip);
   color: var(--on-sky);

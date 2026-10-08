@@ -5,7 +5,9 @@ import { gzipSync } from 'node:zlib';
 
 const ROOT = 'dist/client';
 const KB = 1024;
-const BUDGETS = { entry: 45 * KB, css: 12 * KB, total: 160 * KB };
+// Raised once, deliberately (2026-10-08): Design v2's flags, planner and Lucide icons took the entry to
+// ~46.4 KB, and the owner-requested Inter + JetBrains Mono fonts add ~6 KB to the total.
+const BUDGETS = { entry: 47 * KB, css: 12 * KB, total: 168 * KB };
 
 const walk = (dir) =>
   readdirSync(dir, { withFileTypes: true }).flatMap((e) =>

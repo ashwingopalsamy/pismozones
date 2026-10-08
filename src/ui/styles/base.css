@@ -2,6 +2,8 @@ html {
   background: var(--ground);
   color: var(--text-1);
   font-family: var(--font-ui);
+  font-feature-settings: "cv11";
+  font-optical-sizing: auto;
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -32,7 +34,7 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--focus);
+  outline: 2px solid color-mix(in srgb, var(--text-1) 55%, transparent);
   outline-offset: 2px;
 }
 /* Text fields draw their ring on the whole field (:focus-within), never a box inside it. */
