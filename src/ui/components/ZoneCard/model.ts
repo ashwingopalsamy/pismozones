@@ -7,6 +7,7 @@ import { type RelativeDay, relativeDay } from '@core/time/relative';
 import { nextTransition } from '@core/time/transitions';
 import type { Instant } from '@core/time/types';
 import { startOfDay, zonedFields } from '@core/time/zoned';
+import { holidayName } from '@core/work/holidays';
 import { type WorkState, workState } from '@core/work/policy';
 import type { Key } from '../../i18n';
 
@@ -143,7 +144,7 @@ function labelFor(
     case 'holiday':
       return {
         key: 'state.holiday',
-        params: { name: state.holiday?.name[lang === 'pt-BR' ? 'pt' : 'en'] ?? '' },
+        params: { name: state.holiday ? holidayName(state.holiday, lang) : '' },
       };
   }
 }

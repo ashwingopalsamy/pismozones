@@ -12,7 +12,8 @@ export type OfficeId =
   | 'hochiminh'
   | 'jakarta';
 
-export type CalendarId = 'br-sp' | 'us-tx' | 'gb-eng' | 'in-ka' | 'sg' | 'pl';
+/** Pismo company leave calendars, one per country. */
+export type CalendarId = 'in' | 'br' | 'uk' | 'us' | 'pl';
 
 export interface Office {
   id: OfficeId;
@@ -47,7 +48,7 @@ export const OFFICES: readonly Office[] = [
     lon: -46.63,
     aliases: ['sao paulo', 'saopaulo', 'sampa', 'sp', 'gru', 'hq', 'brazil', 'brasil'],
     workHours: HOURS,
-    holidayCalendar: 'br-sp',
+    holidayCalendar: 'br',
     hq: true,
   },
   {
@@ -61,7 +62,7 @@ export const OFFICES: readonly Office[] = [
     lon: -97.74,
     aliases: ['austin', 'atx', 'aus', 'texas', 'usa'],
     workHours: HOURS,
-    holidayCalendar: 'us-tx',
+    holidayCalendar: 'us',
   },
   {
     id: 'bristol',
@@ -74,7 +75,7 @@ export const OFFICES: readonly Office[] = [
     lon: -2.59,
     aliases: ['bristol', 'brs', 'london', 'uk', 'england', 'britain'],
     workHours: HOURS,
-    holidayCalendar: 'gb-eng',
+    holidayCalendar: 'uk',
   },
   {
     id: 'bangalore',
@@ -87,7 +88,7 @@ export const OFFICES: readonly Office[] = [
     lon: 77.59,
     aliases: ['bangalore', 'bengaluru', 'blr', 'india'],
     workHours: HOURS,
-    holidayCalendar: 'in-ka',
+    holidayCalendar: 'in',
   },
   {
     id: 'singapore',
@@ -100,7 +101,7 @@ export const OFFICES: readonly Office[] = [
     lon: 103.82,
     aliases: ['singapore', 'singapura', 'sin', 'sg'],
     workHours: HOURS,
-    holidayCalendar: 'sg',
+    holidayCalendar: null,
   },
   {
     id: 'warsaw',
