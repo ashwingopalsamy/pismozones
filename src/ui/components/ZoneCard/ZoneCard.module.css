@@ -27,10 +27,77 @@
 .stars {
   z-index: 1;
 }
+.glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-sky) var(--ease-out);
+}
+/* Stars twinkle: each dips by --amp over its own --dur, out of phase with its neighbours. */
 .star {
   position: absolute;
   border-radius: 50%;
   background: var(--star);
+  opacity: var(--o);
+  animation: twinkle var(--dur) ease-in-out var(--delay) infinite;
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: var(--o);
+  }
+  50% {
+    opacity: calc(var(--o) * (1 - var(--amp)));
+  }
+}
+/* The few brightest: a soft halo and a faint four-point sparkle. */
+.bright {
+  box-shadow: 0 0 6px 1px color-mix(in srgb, var(--star) 55%, transparent);
+}
+.bright::before,
+.bright::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 11px;
+  height: 1px;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--star) 70%, transparent),
+    transparent
+  );
+}
+.bright::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+/* A rare shooting star in full night: a short streak once per --cycle. */
+.meteor {
+  position: absolute;
+  width: 84px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, transparent, var(--star));
+  opacity: 0;
+  transform-origin: right center;
+  animation: meteor var(--cycle) linear var(--delay) infinite;
+}
+@keyframes meteor {
+  0%,
+  95% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(16deg);
+  }
+  96% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(150px, 44px) rotate(16deg);
+  }
 }
 .scrim {
   z-index: 2;
