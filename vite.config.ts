@@ -20,7 +20,8 @@ export default defineConfig({
     preact(),
     cloudflare(),
     VitePWA({
-      registerType: 'prompt',
+      // A new deploy takes over on the next check (load, focus or hourly) and the page reloads once.
+      registerType: 'autoUpdate',
       injectRegister: false,
       manifest: {
         name: 'Pismo Zones',
@@ -42,6 +43,9 @@ export default defineConfig({
         ],
       },
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
         globPatterns: ['**/*.{js,css,html,woff2,png,jpg,svg,ico,webmanifest}'],
         // The link-preview image is for crawlers, not the offline app.
         globIgnores: ['og-image.png'],
