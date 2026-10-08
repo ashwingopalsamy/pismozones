@@ -37,10 +37,16 @@
 .wide {
   width: min(var(--page-w), 960px);
   max-height: 80dvh;
+  border: 0;
+  background: var(--surface-1);
+  box-shadow: var(--elev-3);
 }
 .narrow {
   width: min(var(--page-w), 560px);
   max-height: 80dvh;
+  border: 0;
+  background: var(--surface-1);
+  box-shadow: var(--elev-3);
 }
 .inner {
   display: flex;

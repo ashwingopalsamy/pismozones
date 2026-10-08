@@ -3,13 +3,12 @@
   display: flex;
   align-items: center;
   gap: var(--sp-10);
-  height: 46px;
+  height: 44px;
   min-width: 0;
   padding: 0 6px 0 var(--sp-16);
-  border-radius: var(--r-chip);
-  background: var(--glass);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-inset);
+  border-radius: var(--r-control);
+  background: var(--surface-1);
+  box-shadow: var(--ring-rest);
   white-space: nowrap;
 }
 .dot {
@@ -55,12 +54,13 @@
   text-overflow: ellipsis;
 }
 .reset {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   flex: none;
-  border-radius: 50%;
+  border-radius: 9px;
   border: 0;
-  background: var(--glass-strong);
+  background: transparent;
+  color: var(--text-3);
   display: grid;
   place-items: center;
 }

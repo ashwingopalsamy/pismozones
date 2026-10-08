@@ -1,8 +1,8 @@
 import { formatClock } from '@core/time/format';
 import { zonedFields } from '@core/time/zoned';
-import { workState } from '@core/work/policy';
 import type { Ref } from 'preact';
 import { useApp, useT } from '../../app/context';
+import { Flag } from '../Flag/Flag';
 import { Icon } from '../Icon';
 import styles from './CityPill.module.css';
 
@@ -22,7 +22,6 @@ export function CityPill({ mode, expanded, onOpen, ref }: CityPillProps) {
   const moment = app.moment.value;
   const n = app.cities.activeIds.value.length;
   const c = formatClock(zonedFields(moment, office.zone), app.prefs.hourCycle.value);
-  const kind = workState(moment, office).kind;
   return (
     <button
       ref={ref ?? null}
@@ -34,12 +33,12 @@ export function CityPill({ mode, expanded, onOpen, ref }: CityPillProps) {
       title={t('pill.cities', { city: office.name, n: String(n) })}
       onClick={onOpen}
     >
-      <i class={`${styles.dot} ${styles[kind]}`} />
+      <Flag country={office.country} size={24} />
       <span class={styles.name}>{mode === 'code' ? office.code : office.name}</span>
       {mode === 'time' && (
         <span class={styles.time}>{c.period ? `${c.hm} ${c.period}` : c.hm}</span>
       )}
-      <Icon name="chevronDown" size={14} />
+      {mode !== 'code' && <Icon name="chevronDown" size={14} />}
     </button>
   );
 }

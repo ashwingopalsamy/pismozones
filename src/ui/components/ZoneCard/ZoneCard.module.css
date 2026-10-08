@@ -5,10 +5,50 @@
   overflow: hidden;
   isolation: isolate;
   color: var(--on-sky);
-  box-shadow: inset 0 0 0 1px var(--on-sky-edge);
+  box-shadow: var(--elev-1);
+  transition:
+    box-shadow var(--dur-press) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
+}
+/* A hairline and a top light on every card; the active (reference) card wears the accent ring. */
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 1px 0 var(--on-sky-line),
+    inset 0 0 0 1px var(--on-sky-edge);
 }
 .ref {
-  box-shadow: inset 0 0 0 1.5px var(--on-sky-ring);
+  box-shadow:
+    0 0 0 2px var(--accent),
+    var(--elev-2);
+}
+.hero {
+  border-radius: 24px;
+  box-shadow: var(--elev-2);
+}
+.hero.ref {
+  box-shadow:
+    0 0 0 2px var(--accent),
+    var(--elev-2);
+}
+/* The whole card picks it as the active city; its own controls sit above this. */
+.select {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.select:focus-visible {
+  outline-offset: -4px;
+  outline-color: var(--on-sky);
 }
 .temp {
   outline: 1.5px dashed var(--on-sky-ring);
@@ -113,6 +153,7 @@
   position: absolute;
   inset: 0;
   z-index: 5;
+  pointer-events: none;
   padding: var(--sp-14) var(--sp-16) var(--sp-14) 18px;
   display: flex;
   flex-direction: column;
@@ -162,17 +203,20 @@
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   height: 26px;
   padding: 0 10px;
   border-radius: var(--r-chip);
   font-size: var(--fs-12);
-  font-weight: 500;
+  font-weight: 550;
   white-space: nowrap;
-  border: 1px solid var(--on-sky-line);
+  border: 0;
+  color: var(--on-sky);
   background: var(--on-sky-chip);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+}
+.content button,
+.content a {
+  pointer-events: auto;
 }
 button.chip {
   cursor: pointer;
@@ -185,9 +229,9 @@ button.chip {
 }
 .working .dot {
   background: var(--ok);
-  box-shadow: 0 0 8px var(--ok-glow);
 }
 .early .dot,
+.late .dot,
 .holiday .dot {
   background: var(--warn);
 }
@@ -215,7 +259,7 @@ button.chip {
   letter-spacing: -0.035em;
 }
 .large .time {
-  font-size: var(--fs-58);
+  font-size: calc(var(--fs-46) * 1.15);
 }
 .roll {
   display: inline-block;
@@ -245,6 +289,7 @@ button.chip {
   flex-direction: column;
   align-items: flex-end;
   gap: var(--sp-4);
+  white-space: nowrap;
   font-size: var(--fs-13);
   font-weight: 500;
   line-height: 1.1;
@@ -263,7 +308,12 @@ button.chip {
   }
 }
 .hero .time {
-  font-size: calc(var(--fs-58) * 1.45);
+  font-size: clamp(56px, 15vw, 84px);
+}
+@media (max-width: 480px) {
+  .works {
+    display: none;
+  }
 }
 .hero .city {
   font-size: var(--fs-20);

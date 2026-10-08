@@ -56,6 +56,14 @@ export function CardList({ layout, editable, onHoliday }: CardListProps) {
       box={box}
       hero={hero}
       onEdit={() => setEditing(office.id)}
+      onSelect={() => {
+        app.cities.refId.value = office.id;
+        app.track('cities_change', {
+          action: 'reference',
+          officeId: office.id,
+          activeCount: app.cities.activeIds.value.length,
+        });
+      }}
       editor={
         editing === office.id ? (
           <EditableTime

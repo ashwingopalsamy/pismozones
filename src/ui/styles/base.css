@@ -35,6 +35,10 @@ button {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
+/* Text fields draw their ring on the whole field (:focus-within), never a box inside it. */
+input:focus-visible {
+  outline: none;
+}
 
 .sr-only {
   position: absolute;

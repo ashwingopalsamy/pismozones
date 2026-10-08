@@ -47,8 +47,11 @@ export function CitiesPanel({ open, onClose }: { open: boolean; onClose(): void 
   }, [open]);
 
   return (
-    <dialog ref={dialog} class={styles.panel} aria-label={t('cities.title')}>
-      {open && <CityList wide />}
-    </dialog>
+    <>
+      {open && <div class={styles.scrim} />}
+      <dialog ref={dialog} class={styles.panel} aria-label={t('cities.title')}>
+        {open && <CityList wide />}
+      </dialog>
+    </>
   );
 }

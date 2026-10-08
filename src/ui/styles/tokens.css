@@ -1,22 +1,25 @@
 /* Design tokens. Components use these via var(--…) only; theme switching swaps tokens, never components. */
 :root {
   color-scheme: dark;
-  --ground: #000;
-  --surface-1: #141518;
-  --surface-2: #0e0f12;
-  --glass: rgba(255, 255, 255, 0.07);
-  --glass-strong: rgba(255, 255, 255, 0.13);
-  --line: rgba(255, 255, 255, 0.1);
-  --text-1: #f4f6fb;
-  --text-2: rgba(244, 246, 251, 0.85);
-  --text-3: rgba(244, 246, 251, 0.65);
-  --text-4: rgba(244, 246, 251, 0.55);
+  /* Solid materials, three elevations: ground → raised (surface-1) → inner (surface-2). No glass. */
+  --ground: #0a0b0e;
+  --surface-1: #15171c;
+  --surface-2: #1a1d23;
+  --inset: #0f1115;
+  --glass: #15171c;
+  --glass-strong: #23272f;
+  --line: rgba(255, 255, 255, 0.07);
+  --line-2: rgba(255, 255, 255, 0.14);
+  --text-1: #f2f4f8;
+  --text-2: #c6ccd7;
+  --text-3: #929aaa;
+  --text-4: #858d9d;
   --on-sky: #fff;
-  --on-sky-chip: rgba(6, 10, 24, 0.34);
+  --on-sky-chip: rgba(6, 14, 40, 0.32);
   --on-sky-line: rgba(255, 255, 255, 0.14);
-  --on-sky-tag: rgba(255, 255, 255, 0.2);
+  --on-sky-tag: rgba(255, 255, 255, 0.22);
   --on-sky-ring: rgba(255, 255, 255, 0.72);
-  --on-sky-edge: rgba(255, 255, 255, 0.09);
+  --on-sky-edge: rgba(255, 255, 255, 0.08);
   --sun: #fff7e2;
   --sun-glow: rgba(255, 238, 200, 0.6);
   --sun-halo: rgba(255, 214, 150, 0.22);
@@ -25,9 +28,16 @@
   --arc-above: rgba(255, 255, 255, 0.45);
   --arc-work: rgba(255, 255, 255, 0.6);
   --star: #fff;
-  --accent: #5b9bff;
-  --focus: rgba(122, 167, 255, 0.6);
-  --focus-soft: rgba(122, 167, 255, 0.14);
+  --accent: #fbbf24;
+  --accent-soft: rgba(251, 191, 36, 0.16);
+  --accent-ink: #fcd34d;
+  --logo-top: #fbbf24;
+  --logo-bottom: #f59e0b;
+  --logo-ink: #5a2e05;
+  --logo-shadow: rgba(146, 64, 14, 0.35);
+  --logo-light: rgba(255, 255, 255, 0.45);
+  --focus: #f2f4f8;
+  --focus-soft: rgba(242, 244, 248, 0.14);
   --ok: #4ade80;
   --ok-glow: rgba(74, 222, 128, 0.55);
   --ok-soft: rgba(74, 222, 128, 0.1);
@@ -36,18 +46,28 @@
   --warn-soft: rgba(251, 191, 36, 0.1);
   --warn-line: rgba(251, 191, 36, 0.28);
   --warn-text: #fde7b0;
-  --neutral: rgba(255, 255, 255, 0.45);
+  --neutral: #5b6474;
   --plan-work: #5b9bff;
   --plan-edge: rgba(91, 155, 255, 0.42);
   --plan-late: rgba(91, 155, 255, 0.24);
-  --plan-off: rgba(255, 255, 255, 0.06);
-  --plan-weekend: rgba(255, 255, 255, 0.16);
+  --plan-off: #1d2027;
+  --plan-weekend: rgba(255, 255, 255, 0.14);
   --plan-holiday: rgba(251, 191, 36, 0.6);
-  --plan-hatch-gap: rgba(255, 255, 255, 0.03);
-  --shadow-float: 0 10px 30px rgba(0, 0, 0, 0.5);
-  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  --dock-fade: rgba(0, 0, 0, 0.84);
-  --backdrop: rgba(0, 0, 0, 0.55);
+  --plan-hatch-gap: rgba(255, 255, 255, 0.02);
+  --ring-rest: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  --elev-1:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.07),
+    0 10px 28px -14px rgba(0, 0, 0, 0.8);
+  --elev-2:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 0 0 1px rgba(255, 255, 255, 0.07),
+    0 20px 44px -16px rgba(0, 0, 0, 0.85);
+  --elev-3:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 36px 72px -20px rgba(0, 0, 0, 0.9);
+  --shadow-float: var(--elev-3);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --dock-fade: rgba(10, 11, 14, 0.86);
+  --backdrop: rgba(10, 11, 14, 0.62);
 
   --font-ui: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -64,9 +84,9 @@
   --fs-58: 58px;
 
   --r-chip: 999px;
-  --r-control: 22px;
-  --r-card: 26px;
-  --r-sheet: 28px;
+  --r-control: 12px;
+  --r-card: 20px;
+  --r-sheet: 24px;
   --r-cell: 3px;
   --sp-4: 4px;
   --sp-8: 8px;
@@ -101,7 +121,7 @@
 
 @media (min-width: 1024px) {
   :root {
-    --r-card: 28px;
+    --r-card: 22px;
     --gutter: 32px;
   }
 }
@@ -109,43 +129,79 @@
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
     color-scheme: light;
-    --ground: #f2f2f5;
+    --ground: #f2f3f5;
     --surface-1: #fff;
-    --surface-2: #fff;
-    --glass: rgba(13, 15, 20, 0.06);
-    --glass-strong: rgba(13, 15, 20, 0.1);
-    --line: rgba(13, 15, 20, 0.1);
-    --text-1: #0d0f14;
-    --text-2: rgba(13, 15, 20, 0.85);
-    --text-3: rgba(13, 15, 20, 0.65);
-    --text-4: rgba(13, 15, 20, 0.6);
-    --plan-off: rgba(13, 15, 20, 0.07);
-    --plan-weekend: rgba(13, 15, 20, 0.14);
-    --plan-hatch-gap: rgba(13, 15, 20, 0.03);
-    --shadow-float: 0 10px 30px rgba(13, 15, 20, 0.12);
+    --surface-2: #f8f9fb;
+    --inset: #eef0f3;
+    --glass: #fff;
+    --glass-strong: #e9ecf1;
+    --line: rgba(15, 23, 42, 0.09);
+    --line-2: rgba(15, 23, 42, 0.16);
+    --text-1: #0e1525;
+    --text-2: #3a4456;
+    --text-3: #5f697b;
+    --text-4: #646e80;
+    --accent: #f59e0b;
+    --accent-soft: rgba(245, 158, 11, 0.16);
+    --accent-ink: #8a4b06;
+    --focus: #0e1525;
+    --focus-soft: rgba(14, 21, 37, 0.14);
+    --neutral: #a3abb9;
+    --plan-off: #eef0f3;
+    --plan-weekend: rgba(15, 23, 42, 0.12);
+    --plan-hatch-gap: rgba(15, 23, 42, 0.02);
+    --ring-rest: 0 0 0 1px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.06);
+    --elev-1:
+      0 0 0 1px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.05),
+      0 8px 24px -12px rgba(15, 23, 42, 0.18);
+    --elev-2:
+      0 0 0 1px rgba(15, 23, 42, 0.06), 0 2px 4px rgba(15, 23, 42, 0.05),
+      0 18px 40px -16px rgba(15, 23, 42, 0.3);
+    --elev-3:
+      0 0 0 1px rgba(15, 23, 42, 0.08), 0 4px 8px rgba(15, 23, 42, 0.06),
+      0 32px 64px -20px rgba(15, 23, 42, 0.38);
+    --shadow-float: var(--elev-3);
     --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.6);
-    --dock-fade: rgba(242, 242, 245, 0.88);
-    --backdrop: rgba(13, 15, 20, 0.3);
+    --dock-fade: rgba(242, 243, 245, 0.9);
+    --backdrop: rgba(15, 23, 42, 0.28);
   }
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --ground: #f2f2f5;
+  --ground: #f2f3f5;
   --surface-1: #fff;
-  --surface-2: #fff;
-  --glass: rgba(13, 15, 20, 0.06);
-  --glass-strong: rgba(13, 15, 20, 0.1);
-  --line: rgba(13, 15, 20, 0.1);
-  --text-1: #0d0f14;
-  --text-2: rgba(13, 15, 20, 0.85);
-  --text-3: rgba(13, 15, 20, 0.65);
-  --text-4: rgba(13, 15, 20, 0.6);
-  --plan-off: rgba(13, 15, 20, 0.07);
-  --plan-weekend: rgba(13, 15, 20, 0.14);
-  --plan-hatch-gap: rgba(13, 15, 20, 0.03);
-  --shadow-float: 0 10px 30px rgba(13, 15, 20, 0.12);
+  --surface-2: #f8f9fb;
+  --inset: #eef0f3;
+  --glass: #fff;
+  --glass-strong: #e9ecf1;
+  --line: rgba(15, 23, 42, 0.09);
+  --line-2: rgba(15, 23, 42, 0.16);
+  --text-1: #0e1525;
+  --text-2: #3a4456;
+  --text-3: #5f697b;
+  --text-4: #646e80;
+  --accent: #f59e0b;
+  --accent-soft: rgba(245, 158, 11, 0.16);
+  --accent-ink: #8a4b06;
+  --focus: #0e1525;
+  --focus-soft: rgba(14, 21, 37, 0.14);
+  --neutral: #a3abb9;
+  --plan-off: #eef0f3;
+  --plan-weekend: rgba(15, 23, 42, 0.12);
+  --plan-hatch-gap: rgba(15, 23, 42, 0.02);
+  --ring-rest: 0 0 0 1px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.06);
+  --elev-1:
+    0 0 0 1px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.05),
+    0 8px 24px -12px rgba(15, 23, 42, 0.18);
+  --elev-2:
+    0 0 0 1px rgba(15, 23, 42, 0.06), 0 2px 4px rgba(15, 23, 42, 0.05),
+    0 18px 40px -16px rgba(15, 23, 42, 0.3);
+  --elev-3:
+    0 0 0 1px rgba(15, 23, 42, 0.08), 0 4px 8px rgba(15, 23, 42, 0.06),
+    0 32px 64px -20px rgba(15, 23, 42, 0.38);
+  --shadow-float: var(--elev-3);
   --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  --dock-fade: rgba(242, 242, 245, 0.88);
-  --backdrop: rgba(13, 15, 20, 0.3);
+  --dock-fade: rgba(242, 243, 245, 0.9);
+  --backdrop: rgba(15, 23, 42, 0.28);
 }

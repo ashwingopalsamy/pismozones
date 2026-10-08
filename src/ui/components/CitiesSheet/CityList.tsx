@@ -1,12 +1,23 @@
 import { ANCHOR, type Office, type OfficeId } from '@core/cities/registry';
-import { formatClock, formatOffset } from '@core/time/format';
+import { formatClock } from '@core/time/format';
 import { zonedFields } from '@core/time/zoned';
-import { workState } from '@core/work/policy';
+import { type WorkKind, workState } from '@core/work/policy';
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { useApp, useT } from '../../app/context';
+import type { Key } from '../../i18n';
+import { Flag } from '../Flag/Flag';
 import { Icon } from '../Icon';
 import styles from './CitiesSheet.module.css';
 import { searchOffices } from './search';
+
+const STATE: Record<WorkKind, Key> = {
+  working: 'state.working',
+  early: 'cities.state.early',
+  late: 'state.late',
+  off: 'state.off',
+  weekend: 'state.weekend',
+  holiday: 'cities.state.holiday',
+};
 
 /**
  * Search, then Active and Available cities. Picking a row makes it the reference city (adding it
@@ -60,18 +71,23 @@ export function CityList({ wide = false }: { wide?: boolean }) {
     const c = formatClock(f, hc);
     const kind = workState(moment, o).kind;
     const time = c.period ? `${c.hm} ${c.period}` : c.hm;
+    const isRef = o.id === refId;
     return (
-      <li key={o.id} class={styles.item} data-ref={o.id === refId || undefined}>
+      <li
+        key={o.id}
+        class={`${styles.item} ${isOn ? styles.on : ''}`}
+        data-ref={isRef || undefined}
+      >
         <button
           type="button"
           class={styles.pick}
           data-pick={o.id}
-          aria-current={o.id === refId ? 'true' : undefined}
+          aria-current={isRef ? 'true' : undefined}
           aria-label={`${o.name}, ${time}. ${t('cities.makeRef', { city: o.name })}`}
           onClick={() => app.cities.setReference(o.id)}
           onKeyDown={onKey(o)}
         >
-          <i class={`${styles.dot} ${styles[kind]}`} />
+          <Flag country={o.country} size={28} />
           <span class={styles.name}>
             <b>
               {o.name}
@@ -81,7 +97,10 @@ export function CityList({ wide = false }: { wide?: boolean }) {
           </span>
           <span class={styles.time}>
             <b>{time}</b>
-            <span>{formatOffset(f.offsetMinutes)}</span>
+            <span class={styles[kind]}>
+              <i class={styles.dot} />
+              {t(STATE[kind])}
+            </span>
           </span>
         </button>
         {o.id === ANCHOR ? (
@@ -91,17 +110,28 @@ export function CityList({ wide = false }: { wide?: boolean }) {
             title={t('cities.always')}
             aria-label={t('cities.always')}
           >
-            <Icon name="lock" size={15} />
+            <Icon name="lock" size={16} />
           </span>
+        ) : isOn ? (
+          <button
+            type="button"
+            class={styles.check}
+            style={{ background: o.hue }}
+            aria-label={`${t('cities.remove')} ${o.name}`}
+            title={`${t('cities.remove')} ${o.name}`}
+            onClick={() => toggle(o.id)}
+          >
+            <Icon name="check" size={16} />
+          </button>
         ) : (
           <button
             type="button"
-            class={`${styles.action} ${isOn ? styles.remove : ''}`}
-            aria-label={`${isOn ? t('cities.remove') : t('cities.add')} ${o.name}`}
-            title={`${isOn ? t('cities.remove') : t('cities.add')} ${o.name}`}
+            class={styles.add}
+            aria-label={`${t('cities.add')} ${o.name}`}
+            title={`${t('cities.add')} ${o.name}`}
             onClick={() => toggle(o.id)}
           >
-            <Icon name={isOn ? 'minus' : 'plus'} size={16} />
+            <Icon name="plus" size={16} />
           </button>
         )}
       </li>

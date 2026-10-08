@@ -1,6 +1,7 @@
 import type { Office, OfficeId } from '@core/cities/registry';
 import type { Lang } from '@core/i18n';
 import type { PlanResult } from '@core/plan/overlap';
+import { type Attendance, suggestSlots } from '@core/plan/suggest';
 import { formatClock, formatShortDate, type HourCycle } from '@core/time/format';
 import { dayDelta, relativeDay } from '@core/time/relative';
 import type { Instant } from '@core/time/types';
@@ -26,6 +27,11 @@ export interface HourLabel {
 export interface PlanRow {
   id: OfficeId;
   name: string;
+  country: string;
+  /** City colour for its bars. */
+  hue: string;
+  /** Work hours, e.g. "09–18". */
+  hours: string;
   /** Local time at the selected moment, with the weekday when it differs from the reference day. */
   at: string;
   kind: WorkKind;
@@ -116,6 +122,9 @@ export function planViewModel(
     return {
       id: o.id,
       name: o.name,
+      country: o.country,
+      hue: o.hue,
+      hours: `${String(Math.floor(o.workHours.start / 60)).padStart(2, '0')}–${String(Math.floor(o.workHours.end / 60)).padStart(2, '0')}`,
       at: `${clock(moment, o.zone, hc)}${otherDay ? ` · ${formatShortDate(at, lang).split(' ')[0]}` : ''}`,
       kind: workState(moment, o).kind,
       labels,
@@ -169,4 +178,59 @@ export function planViewModel(
     best,
     noCalendar: offices.filter((o) => !o.holidayCalendar).map((o) => o.name),
   };
+}
+
+export interface SuggestionView {
+  startIndex: number;
+  endIndex: number;
+  start: Instant;
+  inHours: number;
+  best: boolean;
+  /** In the reference city's time. */
+  range: string;
+  /** Left / width of the window as fractions of the day. */
+  from: number;
+  to: number;
+  people: Array<{
+    id: OfficeId;
+    name: string;
+    country: string;
+    time: string;
+    attendance: Attendance;
+  }>;
+}
+
+/** Suggested meeting windows for the planner, ready to render. */
+export function suggestionsView(
+  plan: PlanResult,
+  offices: readonly Office[],
+  ref: Office,
+  slotsPerMeeting: number,
+  hc: HourCycle,
+): SuggestionView[] {
+  const n = plan.slots.length;
+  const found = suggestSlots(plan, slotsPerMeeting);
+  const top = Math.max(0, ...found.map((s) => s.inHours));
+  let bestTaken = false;
+  return found.map((s) => {
+    const best = !bestTaken && s.inHours === top;
+    if (best) bestTaken = true;
+    return {
+      startIndex: s.startIndex,
+      endIndex: s.endIndex,
+      start: s.start,
+      inHours: s.inHours,
+      best,
+      range: `${clock(s.start, ref.zone, hc)}–${clock(s.end, ref.zone, hc)}`,
+      from: s.startIndex / n,
+      to: s.endIndex / n,
+      people: offices.map((o, k) => ({
+        id: o.id,
+        name: o.name,
+        country: o.country,
+        time: clock(s.start, o.zone, hc),
+        attendance: s.attendance[k] ?? 'out',
+      })),
+    };
+  });
 }

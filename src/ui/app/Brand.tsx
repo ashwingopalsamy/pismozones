@@ -6,7 +6,7 @@ export function Brand({ wordmark = true }: { wordmark?: boolean }) {
   return (
     <div class={styles.brand}>
       <span class={styles.logo}>
-        <Icon name="globe" size={22} />
+        <Icon name="globe" size={17} />
       </span>
       {wordmark ? 'Pismo Zones' : <span class="sr-only">Pismo Zones</span>}
     </div>

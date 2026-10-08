@@ -20,6 +20,8 @@ export interface Office {
   name: string;
   /** 3-letter city code for tight layouts (display only). */
   code: string;
+  /** The city's identity colour (white text passes 4.5:1 on it): planner bars, picker checks. */
+  hue: string;
   /** ISO 3166-1 alpha-2 */
   country: string;
   countryName: { en: string; pt: string };
@@ -40,6 +42,7 @@ export const OFFICES: readonly Office[] = [
   {
     id: 'saopaulo',
     code: 'SAO',
+    hue: '#0B7A3E',
     name: 'São Paulo',
     country: 'BR',
     countryName: { en: 'Brazil', pt: 'Brasil' },
@@ -54,6 +57,7 @@ export const OFFICES: readonly Office[] = [
   {
     id: 'austin',
     code: 'AUS',
+    hue: '#2B57D6',
     name: 'Austin',
     country: 'US',
     countryName: { en: 'United States', pt: 'Estados Unidos' },
@@ -67,6 +71,7 @@ export const OFFICES: readonly Office[] = [
   {
     id: 'bristol',
     code: 'BRS',
+    hue: '#7A3FC8',
     name: 'Bristol',
     country: 'GB',
     countryName: { en: 'United Kingdom', pt: 'Reino Unido' },
@@ -80,6 +85,7 @@ export const OFFICES: readonly Office[] = [
   {
     id: 'bangalore',
     code: 'BLR',
+    hue: '#C2410C',
     name: 'Bengaluru',
     country: 'IN',
     countryName: { en: 'India', pt: 'Índia' },
@@ -93,6 +99,7 @@ export const OFFICES: readonly Office[] = [
   {
     id: 'singapore',
     code: 'SIN',
+    hue: '#BE185D',
     name: 'Singapore',
     country: 'SG',
     countryName: { en: 'Singapore', pt: 'Singapura' },
@@ -106,6 +113,7 @@ export const OFFICES: readonly Office[] = [
   {
     id: 'warsaw',
     code: 'WAW',
+    hue: '#A21CAF',
     name: 'Warsaw',
     country: 'PL',
     countryName: { en: 'Poland', pt: 'Polônia' },
@@ -119,6 +127,7 @@ export const OFFICES: readonly Office[] = [
   {
     id: 'mexicocity',
     code: 'MEX',
+    hue: '#0F766E',
     name: 'Mexico City',
     country: 'MX',
     countryName: { en: 'Mexico', pt: 'México' },
@@ -132,6 +141,7 @@ export const OFFICES: readonly Office[] = [
   {
     id: 'buenosaires',
     code: 'BUE',
+    hue: '#0369A1',
     name: 'Buenos Aires',
     country: 'AR',
     countryName: { en: 'Argentina', pt: 'Argentina' },
@@ -145,6 +155,7 @@ export const OFFICES: readonly Office[] = [
   {
     id: 'bogota',
     code: 'BOG',
+    hue: '#A16207',
     name: 'Bogotá',
     country: 'CO',
     countryName: { en: 'Colombia', pt: 'Colômbia' },
@@ -158,6 +169,7 @@ export const OFFICES: readonly Office[] = [
   {
     id: 'sydney',
     code: 'SYD',
+    hue: '#4338CA',
     name: 'Sydney',
     country: 'AU',
     countryName: { en: 'Australia', pt: 'Austrália' },
@@ -171,6 +183,7 @@ export const OFFICES: readonly Office[] = [
   {
     id: 'hochiminh',
     code: 'SGN',
+    hue: '#4D7C0F',
     name: 'Ho Chi Minh',
     country: 'VN',
     countryName: { en: 'Vietnam', pt: 'Vietnã' },
@@ -184,6 +197,7 @@ export const OFFICES: readonly Office[] = [
   {
     id: 'jakarta',
     code: 'JKT',
+    hue: '#B91C1C',
     name: 'Jakarta',
     country: 'ID',
     countryName: { en: 'Indonesia', pt: 'Indonésia' },
