@@ -1,0 +1,170 @@
+.iconbtn {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--text-1);
+  background: var(--glass);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-inset);
+  transition: transform var(--dur-press) var(--ease-out);
+}
+.iconbtn:active {
+  transform: scale(0.94);
+}
+
+/* Phone */
+.phone {
+  min-height: 100dvh;
+}
+.phoneHeader {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(env(safe-area-inset-top, 0px) + var(--sp-8)) var(--sp-16) var(--sp-8);
+  background: linear-gradient(180deg, var(--ground) 70%, transparent);
+}
+.seg {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--r-chip);
+  background: var(--glass);
+  border: 1px solid var(--line);
+}
+.seg button {
+  height: 38px;
+  padding: 0 var(--sp-14);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 0;
+  border-radius: var(--r-chip);
+  background: transparent;
+  font-size: var(--fs-14);
+  font-weight: 500;
+  color: var(--text-3);
+}
+.seg button[aria-pressed="true"] {
+  background: var(--glass-strong);
+  color: var(--text-1);
+  box-shadow: var(--shadow-inset);
+}
+.phoneMain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-10);
+  padding: var(--sp-4) var(--sp-16) 300px;
+}
+.dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-dock);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-10);
+  padding: 44px var(--sp-16) calc(env(safe-area-inset-bottom, 0px) + var(--sp-16));
+  background: linear-gradient(180deg, transparent 0, var(--dock-fade) 40px, var(--ground) 78px);
+}
+.momentRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-10);
+}
+
+/* Wide */
+.top {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-14);
+  padding: var(--sp-16) var(--sp-32);
+  background: linear-gradient(180deg, var(--ground) 65%, transparent);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: var(--fs-15);
+  font-weight: 600;
+  white-space: nowrap;
+  margin-right: 6px;
+}
+.logo {
+  color: var(--warn);
+  display: grid;
+}
+.spacer {
+  flex: 1 1 0;
+}
+.you {
+  font-size: var(--fs-13);
+  color: var(--text-3);
+  white-space: nowrap;
+}
+.wideMain {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--sp-4) var(--sp-32) var(--sp-32);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--sp-10);
+  padding: 6px var(--sp-4) 0;
+  font-size: var(--fs-12);
+  color: var(--text-4);
+}
+.footer a {
+  color: inherit;
+}
+
+/* Error */
+.error {
+  min-height: 100dvh;
+  display: grid;
+  place-content: center;
+  gap: var(--sp-16);
+  text-align: center;
+  padding: var(--sp-24);
+}
+.error button {
+  justify-self: center;
+  height: 44px;
+  padding: 0 var(--sp-24);
+  border-radius: var(--r-chip);
+  border: 0;
+  background: var(--text-1);
+  color: var(--ground);
+  font-weight: 600;
+}
+.shortcuts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--sp-12) var(--sp-16);
+  margin: 0;
+  font-size: var(--fs-14);
+}
+.shortcuts dt {
+  font-family: var(--font-mono);
+  color: var(--text-2);
+}
+.shortcuts dd {
+  margin: 0;
+  color: var(--text-3);
+}

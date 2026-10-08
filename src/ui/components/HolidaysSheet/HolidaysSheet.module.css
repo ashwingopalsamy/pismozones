@@ -1,0 +1,56 @@
+.month {
+  font-size: var(--fs-12);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-4);
+  margin: var(--sp-16) 6px var(--sp-8);
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 22px;
+  background: var(--surface-1);
+  overflow: hidden;
+}
+.item {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: var(--sp-12);
+  padding: var(--sp-12) var(--sp-16);
+  align-items: baseline;
+}
+.item + .item {
+  border-top: 1px solid var(--line);
+}
+.focused {
+  background: var(--warn-soft);
+  box-shadow: inset 3px 0 0 var(--warn);
+}
+.date {
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+  color: var(--text-3);
+}
+.name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.name b {
+  font-weight: 500;
+  font-size: var(--fs-15);
+}
+.name span {
+  font-size: var(--fs-13);
+  color: var(--text-3);
+}
+.half {
+  color: var(--warn);
+}
+.note {
+  font-size: var(--fs-13);
+  color: var(--text-3);
+  margin: var(--sp-16) 6px 0;
+}

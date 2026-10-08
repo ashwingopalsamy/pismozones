@@ -1,0 +1,14 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-10);
+}
+.wrap {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--sp-14);
+}
+.wrap > * {
+  flex: 1 1 360px;
+  min-width: 0;
+}

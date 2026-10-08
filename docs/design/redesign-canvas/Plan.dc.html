@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pismo Zones · Phone · Plan</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#000}
+.pz,.pz *{box-sizing:border-box}
+.pz{font-family:'Geist',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;color:#f4f6fb;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;letter-spacing:-.005em}
+.pz .mono{font-family:'Geist Mono',ui-monospace,'SF Mono',Menlo,monospace;letter-spacing:0}
+.pz button{font:inherit;color:inherit}
+.pz svg.i{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.hdr{position:absolute;top:52px;left:16px;right:16px;height:48px;display:flex;align-items:center;justify-content:space-between;z-index:10}
+.iconbtn{width:44px;height:44px;flex:none;border-radius:22px;display:grid;place-items:center;color:#eef2f8;text-decoration:none;cursor:pointer;background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.10);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 6px 18px rgba(0,0,0,.45)}
+.iconbtn:active{transform:scale(.94)}
+.iconbtn svg{width:20px;height:20px}
+.seg{display:flex;padding:3px;gap:2px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08)}
+.seg a{height:38px;padding:0 15px;display:flex;align-items:center;gap:7px;border-radius:19px;font-size:14px;font-weight:500;color:rgba(244,246,251,.6);text-decoration:none}
+.seg a.on{background:rgba(255,255,255,.15);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+.seg svg{width:16px;height:16px}
+.body{position:absolute;top:112px;left:0;right:0;bottom:0;overflow-y:auto;padding:4px 16px 150px;display:flex;flex-direction:column;gap:14px;scrollbar-width:none}
+.daynav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.daynav .t{display:flex;flex-direction:column;align-items:center;line-height:1.2}
+.daynav strong{font-size:17px;font-weight:600;letter-spacing:-.01em}
+.daynav span{font-size:12.5px;color:rgba(244,246,251,.56)}
+.chev{width:44px;height:44px;flex:none;border-radius:22px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.06);display:grid;place-items:center;cursor:pointer;color:rgba(244,246,251,.85)}
+.chev svg{width:18px;height:18px}
+.best{position:relative;overflow:hidden;border-radius:24px;padding:16px 18px 14px;background:linear-gradient(160deg,#1d3f7d 0%,#24356a 46%,#3b2f5c 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.best .lbl{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.best .range{font-size:34px;font-weight:300;letter-spacing:-.03em;margin-top:6px;line-height:1}
+.best .sub{font-size:13px;color:rgba(255,255,255,.78);margin-top:6px}
+.who{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.who div{display:flex;align-items:center;justify-content:space-between;font-size:13.5px}
+.who b{font-weight:500}
+.who span{display:inline-flex;align-items:center;gap:7px;color:rgba(255,255,255,.82)}
+.who i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4)}
+.who i.working{background:#4ade80}
+.who i.soon,.who i.after,.who i.holiday{background:#fbbf24}
+.use{margin-top:14px;height:44px;width:100%;border-radius:22px;border:0;background:#fff;color:#0b1020;font-weight:600;font-size:15px;cursor:pointer}
+.grid{position:relative;padding:22px 0 4px;touch-action:none;cursor:crosshair;user-select:none}
+.axis{position:absolute;left:0;right:0;top:0;height:16px}
+.axis span{position:absolute;top:0;transform:translateX(-50%);font-size:10.5px;color:rgba(244,246,251,.5);font-family:'Geist Mono',ui-monospace,monospace}
+.band{position:absolute;top:18px;bottom:0;border-radius:8px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
+.cursor{position:absolute;top:16px;bottom:-2px;width:2px;margin-left:-1px;border-radius:1px;background:#fff;box-shadow:0 0 10px rgba(255,255,255,.6);z-index:3}
+.prow{position:relative;z-index:2;padding:8px 0 10px}
+.prow .top{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;margin-bottom:6px;padding:0 2px}
+.prow .top b{font-weight:600}
+.prow .top span{color:rgba(244,246,251,.72);font-size:12.5px}
+.bar{display:flex;gap:1px;height:16px}
+.bar i{flex:1;border-radius:2px;background:rgba(255,255,255,.06)}
+.bar i.working{background:#5b9bff}
+.bar i.soon{background:rgba(91,155,255,.42)}
+.bar i.after{background:rgba(91,155,255,.24)}
+.bar i.weekend{background:repeating-linear-gradient(135deg,rgba(255,255,255,.16) 0 2px,rgba(255,255,255,.03) 2px 4px)}
+.bar i.holiday{background:repeating-linear-gradient(135deg,rgba(251,191,36,.6) 0 2px,rgba(251,191,36,.12) 2px 4px)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:rgba(244,246,251,.65)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:8px;border-radius:2px;display:inline-block}
+.dock{position:absolute;left:0;right:0;bottom:0;z-index:10;padding:36px 16px 24px;display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(180deg,rgba(0,0,0,0) 0,rgba(0,0,0,.86) 34px,#000 70px)}
+.readout{height:46px;flex:1;max-width:250px;padding:0 18px;border-radius:23px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;line-height:1.18;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)}
+.readout strong{font-size:15px;font-weight:600}
+.readout span{font-size:12px;color:rgba(244,246,251,.6)}
+</style>
+</helmet>
+<div class="pz" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #000;">
+  <header class="hdr">
+    <a class="iconbtn" href="Settings.dc.html" aria-label="Settings">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h4M12 17h8"></path><circle cx="15" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>
+    </a>
+    <nav class="seg" aria-label="View">
+      <a href="Main.dc.html"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="6" rx="2"></rect><rect x="4" y="14" width="16" height="6" rx="2"></rect></svg>Zones</a>
+      <a class="on" href="Plan.dc.html" aria-current="page"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h8M9 12h11M6 18h9"></path></svg>Plan</a>
+    </nav>
+    <a class="iconbtn" href="Cities.dc.html" aria-label="Cities">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"></path></svg>
+    </a>
+  </header>
+
+  <main class="body">
+    <div class="daynav">
+      <button class="chev" type="button" aria-label="Previous day" onClick="{{prevDay}}"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></button>
+      <div class="t"><strong>{{dayTitle}}</strong><span>Hours in {{refName}}</span></div>
+      <button class="chev" type="button" aria-label="Next day" onClick="{{nextDay}}"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button>
+    </div>
+
+    <section class="best" aria-label="Best overlap">
+      <div class="lbl">{{bestLabel}}</div>
+      <div class="range">{{bestRange}}</div>
+      <div class="sub">{{bestSub}}</div>
+      <div class="who">
+        <sc-for list="{{bestWho}}" as="w" hint-placeholder-count="5">
+          <div><b>{{w.name}}</b><span>{{w.range}}<i class="{{w.kind}}"></i></span></div>
+        </sc-for>
+      </div>
+      <button class="use" type="button" onClick="{{useBest}}">Set cursor to this slot</button>
+    </section>
+
+    <section class="grid" aria-label="Working hours across cities" onPointerDown="{{gridDown}}" onPointerMove="{{gridMove}}" onPointerUp="{{gridUp}}" onPointerCancel="{{gridUp}}">
+      <div class="axis">
+        <sc-for list="{{axis}}" as="a" hint-placeholder-count="9"><span style="left: {{a.x}}%;">{{a.label}}</span></sc-for>
+      </div>
+      <sc-if value="{{hasBest}}" hint-placeholder-val="{{ true }}">
+        <div class="band" style="left: {{bandX}}%; width: {{bandW}}%;"></div>
+      </sc-if>
+      <div class="cursor" style="left: {{cursorX}}%;"></div>
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+        <div class="prow">
+          <div class="top"><b>{{r.name}}</b><span>{{r.at}}</span></div>
+          <div class="bar"><sc-for list="{{r.cells}}" as="k" hint-placeholder-count="48"><i class="{{k.cls}}"></i></sc-for></div>
+        </div>
+      </sc-for>
+    </section>
+
+    <div class="legend" aria-hidden="true">
+      <span><i style="background: #5b9bff;"></i>Working</span>
+      <span><i style="background: rgba(91,155,255,.42);"></i>Early / late</span>
+      <span><i style="background: rgba(255,255,255,.08);"></i>Off</span>
+      <span><i style="background: repeating-linear-gradient(135deg,rgba(255,255,255,.2) 0 2px,rgba(255,255,255,.03) 2px 4px);"></i>Weekend</span>
+      <span><i style="background: repeating-linear-gradient(135deg,rgba(251,191,36,.7) 0 2px,rgba(251,191,36,.12) 2px 4px);"></i>Holiday</span>
+    </div>
+  </main>
+
+  <section class="dock" aria-label="Selected time">
+    <button class="iconbtn" type="button" aria-label="Share this time"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4"></path><path d="M6 12v6a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-6"></path></svg></button>
+    <div class="readout" role="status" aria-live="polite"><strong>{{readMain}}</strong><span>{{readSub}}</span></div>
+    <a class="iconbtn" href="Main.dc.html" aria-label="Open in Zones"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="6" rx="2"></rect><rect x="4" y="14" width="16" height="6" rx="2"></rect></svg></a>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"use24h":{"editor":"boolean","default":true,"section":"Format"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.viewerTz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    const you = this.cities().find((c) => c.tz === this.viewerTz);
+    this.refId = you ? you.id : 'sao-paulo';
+    this.fmts = {};
+    this.dragging = false;
+    this.state = { now: Date.now(), dayOff: 0, cursorMin: null };
+    const setFromEvent = (e) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const f = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      this.setState({ cursorMin: Math.min(1425, Math.round((f * 1440) / 15) * 15) });
+    };
+    this.h = {
+      prevDay: () => this.setState({ dayOff: this.state.dayOff - 1, cursorMin: null }),
+      nextDay: () => this.setState({ dayOff: this.state.dayOff + 1, cursorMin: null }),
+      useBest: () => { if (this.best) this.setState({ cursorMin: this.best.start * 30 }); },
+      gridDown: (e) => { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* no capture */ } this.dragging = true; setFromEvent(e); },
+      gridMove: (e) => { if (this.dragging) setFromEvent(e); },
+      gridUp: () => { this.dragging = false; },
+    };
+  }
+
+  componentDidMount() { this.t = setInterval(() => this.setState({ now: Date.now() }), 30000); }
+  componentWillUnmount() { clearInterval(this.t); }
+
+  cities() {
+    if (!this._c) {
+      this._c = [
+        { id: 'sao-paulo', name: 'São Paulo', cc: 'BR', tz: 'America/Sao_Paulo' },
+        { id: 'austin', name: 'Austin', cc: 'US', tz: 'America/Chicago' },
+        { id: 'bristol', name: 'Bristol', cc: 'UK', tz: 'Europe/London' },
+        { id: 'bangalore', name: 'Bangalore', cc: 'IN', tz: 'Asia/Kolkata' },
+        { id: 'singapore', name: 'Singapore', cc: 'SG', tz: 'Asia/Singapore' },
+      ];
+    }
+    return this._c;
+  }
+
+  pad(n) { return String(n).padStart(2, '0'); }
+
+  parts(ms, tz) {
+    if (!this.fmts[tz]) this.fmts[tz] = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', weekday: 'short' });
+    const o = {};
+    for (const p of this.fmts[tz].formatToParts(new Date(ms))) o[p.type] = p.value;
+    return { y: +o.year, mo: +o.month, d: +o.day, h: (+o.hour) % 24, mi: +o.minute, s: +o.second, wd: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(o.weekday) };
+  }
+
+  offset(ms, tz) {
+    const p = this.parts(ms, tz);
+    return Math.round((Date.UTC(p.y, p.mo - 1, p.d, p.h, p.mi, p.s) - Math.floor(ms / 1000) * 1000) / 60000);
+  }
+
+  zoned(y, mo, d, h, mi, tz) {
+    const guess = Date.UTC(y, mo - 1, d, h, mi);
+    const first = guess - this.offset(guess, tz) * 60000;
+    return guess - this.offset(first, tz) * 60000;
+  }
+
+  dayNum(p) { return Date.UTC(p.y, p.mo - 1, p.d) / 86400000; }
+
+  relLabel(p, vp) {
+    const WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const abs = WD[p.wd] + ' ' + p.d + ' ' + MON[p.mo - 1];
+    const diff = this.dayNum(p) - this.dayNum(vp);
+    const rel = diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : diff === -1 ? 'Yesterday' : '';
+    return rel ? rel + ', ' + abs : abs;
+  }
+
+  hm(p, use24) {
+    if (use24) return this.pad(p.h) + ':' + this.pad(p.mi);
+    return (((p.h + 11) % 12) + 1) + ':' + this.pad(p.mi) + (p.h < 12 ? ' AM' : ' PM');
+  }
+
+  holidays() {
+    if (!this._hol) {
+      this._hol = {
+        BR: { '2026-10-12': 'Aparecida', '2026-11-02': 'Finados', '2026-11-15': 'República', '2026-11-20': 'Consciência Negra', '2026-12-25': 'Natal' },
+        US: { '2026-11-26': 'Thanksgiving', '2026-12-25': 'Christmas' },
+        UK: { '2026-12-25': 'Christmas', '2026-12-28': 'Boxing Day' },
+        IN: { '2026-12-25': 'Christmas' },
+        SG: { '2026-12-25': 'Christmas' },
+      };
+    }
+    return this._hol;
+  }
+
+  kind(p, cc) {
+    const key = p.y + '-' + this.pad(p.mo) + '-' + this.pad(p.d);
+    const hol = (this.holidays()[cc] || {})[key];
+    if (hol) return { kind: 'holiday', label: 'Holiday · ' + hol };
+    if (p.wd === 0 || p.wd === 6) return { kind: 'weekend', label: 'Weekend' };
+    const m = p.h * 60 + p.mi;
+    if (m >= 540 && m < 1080) return { kind: 'working', label: 'Working' };
+    if (m >= 420 && m < 540) return { kind: 'soon', label: 'Early' };
+    if (m >= 1080 && m < 1200) return { kind: 'after', label: 'After hours' };
+    return { kind: 'off', label: 'Off hours' };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const use24 = this.props.use24h ?? true;
+    const ref = this.cities().find((c) => c.id === this.refId);
+    const vp = this.parts(s.now, this.viewerTz);
+    const today = this.parts(s.now, ref.tz);
+    const base = new Date(Date.UTC(today.y, today.mo - 1, today.d + s.dayOff));
+    const day = { y: base.getUTCFullYear(), mo: base.getUTCMonth() + 1, d: base.getUTCDate(), wd: base.getUTCDay() };
+    const midnight = this.zoned(day.y, day.mo, day.d, 0, 0, ref.tz);
+    const slotT = (i) => midnight + i * 1800000;
+    const cities = this.cities();
+    const grid = cities.map((c) => {
+      const cells = [];
+      for (let i = 0; i < 48; i++) cells.push(this.kind(this.parts(slotT(i), c.tz), c.cc).kind);
+      return cells;
+    });
+    const n = []; const score = [];
+    for (let i = 0; i < 48; i++) {
+      let w = 0; let soft = 0;
+      for (const row of grid) { if (row[i] === 'working') w++; else if (row[i] === 'soon' || row[i] === 'after') soft++; }
+      n.push(w); score.push(w + soft * 0.25);
+    }
+    const max = Math.max.apply(null, n);
+    let best = null; let i = 0;
+    while (i < 48) {
+      if (n[i] === max && max > 0) {
+        let j = i; let sum = 0;
+        while (j < 48 && n[j] === max) { sum += score[j]; j++; }
+        if (!best || sum > best.sum) best = { start: i, end: j, sum };
+        i = j;
+      } else i++;
+    }
+    this.best = best;
+    const nowSlotMin = s.dayOff === 0 ? today.h * 60 + today.mi : null;
+    const cursorMin = s.cursorMin != null ? s.cursorMin : (nowSlotMin != null ? nowSlotMin : (best ? best.start * 30 : 540));
+    const cursorT = midnight + cursorMin * 60000;
+    const rows = cities.map((c, k) => {
+      const p = this.parts(cursorT, c.tz);
+      const st = this.kind(p, c.cc);
+      return { name: c.name, at: this.hm(p, use24) + ' · ' + st.label, cells: grid[k].map((cls) => ({ cls })) };
+    });
+    let working = 0;
+    for (const c of cities) if (this.kind(this.parts(cursorT, c.tz), c.cc).kind === 'working') working++;
+    const axis = [];
+    for (let h = 0; h <= 24; h += 3) axis.push({ x: ((h / 24) * 100).toFixed(2), label: use24 ? this.pad(h % 24) : (((h % 24) + 11) % 12 + 1) + ((h % 24) < 12 ? 'a' : 'p') });
+    let bestRange = 'No overlap'; let bestSub = 'Nobody is in working hours on this day'; let bestWho = []; let bestLabel = 'Best overlap';
+    if (best) {
+      const a = this.parts(slotT(best.start), ref.tz); const b = this.parts(slotT(best.end), ref.tz);
+      bestRange = this.hm(a, use24) + ' – ' + this.hm(b, use24);
+      bestLabel = 'Best overlap · ' + ref.name + ' time';
+      const out = [];
+      bestWho = cities.map((c) => {
+        const pa = this.parts(slotT(best.start), c.tz); const pb = this.parts(slotT(best.end), c.tz);
+        const st = this.kind(pa, c.cc);
+        if (st.kind !== 'working') out.push(c.name);
+        return { name: c.name, range: this.hm(pa, use24) + '–' + this.hm(pb, use24), kind: st.kind };
+      });
+      bestSub = max + ' of ' + cities.length + ' in working hours' + (out.length ? ' · ' + out.join(', ') + ' outside' : ' · everyone');
+    }
+    const cp = this.parts(cursorT, ref.tz);
+    return Object.assign({}, this.h, {
+      dayTitle: this.relLabel(day.wd !== undefined ? Object.assign({}, day) : day, vp),
+      refName: ref.name,
+      bestLabel, bestRange, bestSub, bestWho,
+      hasBest: !!best,
+      bandX: best ? ((best.start / 48) * 100).toFixed(2) : '0',
+      bandW: best ? (((best.end - best.start) / 48) * 100).toFixed(2) : '0',
+      cursorX: ((cursorMin / 1440) * 100).toFixed(2),
+      rows, axis,
+      readMain: this.hm(cp, use24) + ' ' + ref.name,
+      readSub: working + ' of ' + cities.length + ' working · ' + this.relLabel(cp, vp).split(',')[0],
+    });
+  }
+}
+</script>
+</body>
+</html>

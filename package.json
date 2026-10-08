@@ -1,38 +1,51 @@
 {
   "name": "pismozones",
+  "version": "2.0.0",
   "private": true,
-  "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node -e \"const fs=require('fs');const f='dist/sw.js';fs.writeFileSync(f,fs.readFileSync(f,'utf8').replace('pismozones-v1','pismozones-'+Date.now().toString(36)))\"",
-    "lint": "eslint .",
+    "build": "npm run typecheck && vite build",
+    "preview": "npm run build && vite preview",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.worker.json --noEmit && tsc -p tsconfig.node.json --noEmit",
+    "lint": "biome check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "preview": "vite preview"
+    "check": "npm run lint && npm run typecheck && npm run test",
+    "cf-typegen": "wrangler types",
+    "e2e": "playwright test",
+    "analytics": "sh scripts/analytics.sh",
+    "size": "node scripts/size.mjs",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
-    "@vercel/analytics": "^2.0.1",
-    "framer-motion": "^11.15.0",
-    "luxon": "^3.5.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "@preact/signals": "^2.11.3",
+    "preact": "^11.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.17.0",
-    "@testing-library/jest-dom": "6.9.1",
-    "@testing-library/react": "16.3.2",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "@vitejs/plugin-react": "^4.3.4",
-    "@vitest/coverage-v8": "4.1.7",
-    "eslint": "^9.17.0",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5.0.0",
-    "eslint-plugin-react-refresh": "^0.4.16",
-    "globals": "^15.14.0",
-    "jsdom": "29.1.1",
-    "vite": "^6.0.7",
-    "vitest": "4.1.7"
+    "@axe-core/playwright": "^4.13.0",
+    "@biomejs/biome": "^2.5.15",
+    "@cloudflare/vite-plugin": "^1.63.0",
+    "@playwright/test": "^1.63.0",
+    "@preact/preset-vite": "^2.10.6",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/preact": "^3.2.4",
+    "@testing-library/user-event": "^14.6.7",
+    "@types/node": "^26.6.4",
+    "@vitest/coverage-v8": "^5.0.3",
+    "axe-core": "^4.14.0",
+    "esbuild": "0.28.1",
+    "fast-check": "^4.10.2",
+    "jsdom": "^29.1.1",
+    "miniflare": "5.20261006.0-alpha",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.3",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.0.3",
+    "workbox-window": "^7.4.1",
+    "wrangler": "^4.148.0"
   }
 }

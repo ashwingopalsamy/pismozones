@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "types": [],
+    "paths": {
+      "@core/*": ["./src/core/*"]
+    }
+  },
+  "include": ["worker", "src/core", "worker-configuration.d.ts"],
+  "exclude": ["src/**/*.test.ts", "worker/**/*.workerd.test.ts", "worker/testing.ts"]
+}

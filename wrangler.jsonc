@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "pismozones",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "routes": [{ "pattern": "pismozones.ashwingopalsamy.in", "custom_domain": true }],
+  "assets": {
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/s/*", "/e"]
+  },
+  "analytics_engine_datasets": [{ "binding": "EVENTS", "dataset": "pismozones_events" }],
+  "observability": { "enabled": true }
+}
