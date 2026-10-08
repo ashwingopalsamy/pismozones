@@ -89,6 +89,7 @@ export function planViewModel(
         midnight
           ? {
               text: formatShortDate(f, lang).split(' ').slice(0, 2).join(' '),
+              suffix: null,
               kind,
               sub: null,
               day: true,
