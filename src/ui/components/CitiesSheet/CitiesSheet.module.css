@@ -132,3 +132,74 @@
   color: var(--text-1);
   font-size: var(--fs-16);
 }
+.isRef {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--text-4);
+}
+.working {
+  background: var(--ok);
+}
+.early,
+.late,
+.holiday {
+  background: var(--warn);
+}
+.toggle {
+  width: 44px;
+  align-self: stretch;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--text-3);
+}
+.always {
+  flex: none;
+  padding: 0 var(--sp-14);
+  font-size: var(--fs-12);
+  color: var(--text-4);
+  white-space: nowrap;
+}
+.hint {
+  margin: var(--sp-12) 6px 0;
+  font-size: var(--fs-12);
+  color: var(--text-4);
+}
+/* Desktop dropdown: under the lane, the width of the content column. */
+.panel {
+  position: fixed;
+  top: 78px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--page-w);
+  max-height: min(70dvh, 640px);
+  margin: 0;
+  padding: var(--sp-16);
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sheet);
+  background: var(--ground);
+  color: var(--text-1);
+  box-shadow: var(--shadow-float);
+  z-index: var(--z-header);
+}
+.wide .list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 1px;
+}
+.wide .item + .item {
+  border-top: 0;
+}
+.wide .item {
+  border-bottom: 1px solid var(--line);
+}
+.wide .search {
+  position: static;
+  margin: 0 0 var(--sp-8);
+}

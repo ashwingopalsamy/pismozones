@@ -3,7 +3,7 @@ import { useApp, useT } from '../../app/context';
 import type { Install } from '../../app/install';
 import type { Key } from '../../i18n';
 import { Icon, type IconName } from '../Icon';
-import { Sheet } from '../Sheet/Sheet';
+import { Sheet, type SheetVariant } from '../Sheet/Sheet';
 import { cardModel, PHONE_BOX } from '../ZoneCard/model';
 import { ZoneCard } from '../ZoneCard/ZoneCard';
 import styles from './SettingsSheet.module.css';
@@ -21,6 +21,7 @@ export interface SettingsSheetProps {
   onOpenCities(): void;
   onOpenHolidays(): void;
   install?: Install;
+  variant?: SheetVariant;
 }
 
 export function SettingsSheet({
@@ -29,6 +30,7 @@ export function SettingsSheet({
   onOpenCities,
   onOpenHolidays,
   install,
+  variant = 'sheet',
 }: SettingsSheetProps) {
   const app = useApp();
   const t = useT();
@@ -85,84 +87,97 @@ export function SettingsSheet({
   };
 
   return (
-    <Sheet open={open} onClose={onClose} title={t('settings.title')}>
-      <div class={styles.preview}>
-        <ZoneCard model={model} live editable={false} box={PHONE_BOX} />
-        <div class={styles.caption}>{t('settings.preview')}</div>
-      </div>
-
-      <div class={styles.section}>{t('settings.display')}</div>
-      <div class={styles.group}>
-        {choices.map((c) => (
-          <div key={c.key} class={styles.row}>
-            <span class={styles.icon}>
-              <Icon name={c.icon as IconName} />
-            </span>
-            <span class={styles.label}>{t(c.label as Key)}</span>
-            <fieldset class={styles.seg} aria-label={t(c.label as Key)}>
-              {c.options.map((o) => (
-                <button
-                  key={o.value}
-                  type="button"
-                  aria-pressed={prefs[c.key as keyof Prefs] === o.value}
-                  onClick={() => set(c.key as keyof Prefs, o.value as never)}
-                >
-                  {o.label}
-                </button>
-              ))}
-            </fieldset>
+    <Sheet open={open} onClose={onClose} title={t('settings.title')} variant={variant}>
+      <div class={variant === 'dialog' ? styles.split : undefined}>
+        <div class={styles.preview}>
+          <ZoneCard model={model} live editable={false} box={PHONE_BOX} />
+          <div class={styles.caption}>{t('settings.preview')}</div>
+        </div>
+        <div>
+          <div class={styles.section}>{t('settings.display')}</div>
+          <div class={styles.group}>
+            {choices.map((c) => (
+              <div key={c.key} class={styles.row}>
+                <span class={styles.icon}>
+                  <Icon name={c.icon as IconName} />
+                </span>
+                <span class={styles.label}>{t(c.label as Key)}</span>
+                <fieldset class={styles.seg} aria-label={t(c.label as Key)}>
+                  {c.options.map((o) => (
+                    <button
+                      key={o.value}
+                      type="button"
+                      aria-pressed={prefs[c.key as keyof Prefs] === o.value}
+                      onClick={() => set(c.key as keyof Prefs, o.value as never)}
+                    >
+                      {o.label}
+                    </button>
+                  ))}
+                </fieldset>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      <div class={styles.section}>{t('settings.places')}</div>
-      <div class={styles.group}>
-        <button type="button" class={styles.row} onClick={onOpenCities}>
-          <span class={styles.icon}>
-            <Icon name="globe" />
-          </span>
-          <span class={styles.label}>{t('cities.title')}</span>
-          <span class={styles.value}>
-            {app.cities.activeIds.value.length}
-            <Icon name="chevronRight" size={16} />
-          </span>
-        </button>
-        <button type="button" class={styles.row} onClick={onOpenHolidays}>
-          <span class={styles.icon}>
-            <Icon name="calendar" />
-          </span>
-          <span class={styles.label}>{t('holidays.title')}</span>
-          <span class={styles.value}>
-            <Icon name="chevronRight" size={16} />
-          </span>
-        </button>
-        {install?.available.value === 'prompt' && (
-          <button type="button" class={styles.row} onClick={() => void install.prompt()}>
-            <span class={styles.icon}>
-              <Icon name="download" />
-            </span>
-            <span class={styles.label}>{t('settings.install')}</span>
-          </button>
-        )}
-      </div>
-      {install?.available.value === 'ios' && <p class={styles.hint}>{t('settings.installIos')}</p>}
+          <div class={styles.section}>{t('settings.places')}</div>
+          <div class={styles.group}>
+            <button type="button" class={styles.row} onClick={onOpenCities}>
+              <span class={styles.icon}>
+                <Icon name="globe" />
+              </span>
+              <span class={styles.label}>{t('cities.title')}</span>
+              <span class={styles.value}>
+                {app.cities.activeIds.value.length}
+                <Icon name="chevronRight" size={16} />
+              </span>
+            </button>
+            <button type="button" class={styles.row} onClick={onOpenHolidays}>
+              <span class={styles.icon}>
+                <Icon name="calendar" />
+              </span>
+              <span class={styles.label}>{t('holidays.title')}</span>
+              <span class={styles.value}>
+                <Icon name="chevronRight" size={16} />
+              </span>
+            </button>
+            {install?.available.value === 'prompt' && (
+              <button type="button" class={styles.row} onClick={() => void install.prompt()}>
+                <span class={styles.icon}>
+                  <Icon name="download" />
+                </span>
+                <span class={styles.label}>{t('settings.install')}</span>
+              </button>
+            )}
+          </div>
+          {install?.available.value === 'ios' && (
+            <p class={styles.hint}>{t('settings.installIos')}</p>
+          )}
 
-      <div class={styles.section}>{t('settings.privacy')}</div>
-      <div class={styles.group}>
-        <p class={styles.note}>{t('settings.privacyNote')}</p>
-      </div>
+          <div class={styles.section}>{t('settings.privacy')}</div>
+          <div class={styles.group}>
+            <p class={styles.note}>{t('settings.privacyNote')}</p>
+          </div>
 
-      <p class={styles.credit}>
-        Pismo Zones ·{' '}
-        <a
-          href="https://github.com/ashwingopalsamy/pismozones"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          GitHub
-        </a>{' '}
-        · Ashwin Gopalsamy
-      </p>
+          <p class={styles.credit}>
+            <img
+              class={styles.avatar}
+              src="/ashwin.jpg"
+              width={24}
+              height={24}
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+            Ashwin Gopalsamy · Auth Tribe, Pismo ·{' '}
+            <a
+              href="https://github.com/ashwingopalsamy/pismozones"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+          </p>
+        </div>
+      </div>
     </Sheet>
   );
 }

@@ -3,7 +3,8 @@ import { Icon } from '../Icon';
 import styles from './MomentPill.module.css';
 import { momentPillModel } from './model';
 
-export function MomentPill() {
+/** `compact`: one line (the date context is on the ruler and cards). */
+export function MomentPill({ compact = false }: { compact?: boolean }) {
   const app = useApp();
   const t = useT();
   const m = momentPillModel(
@@ -16,11 +17,11 @@ export function MomentPill() {
     app.prefs.lang.value,
   );
   return (
-    <div class={`${styles.pill} ${styles[m.tone]}`}>
+    <div class={`${styles.pill} ${styles[m.tone]} ${compact ? styles.compact : ''}`}>
       <span class={styles.dot} />
       <span class={styles.text}>
         <span class={styles.main}>{m.main}</span>
-        <span class={styles.sub}>{m.sub}</span>
+        {!compact && <span class={styles.sub}>{m.sub}</span>}
       </span>
       <button
         type="button"

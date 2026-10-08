@@ -20,6 +20,9 @@ const PATHS = {
   language: 'M4 6h9M8.5 4v2M6 6c.7 3.5 3 6 6 7.5M11 6c-.8 3.6-3.4 6.4-7 8M13 20l4-9 4 9M14.5 17h5',
   lock: 'M7 11V8a5 5 0 0 1 10 0v3M6 11h12v9H6z',
   download: 'M12 4v11M7 10l5 5 5-5M5 20h14',
+  sun: 'M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z',
+  chevronDown: 'M6 9l6 6 6-6',
+  plus: 'M12 5v14M5 12h14',
 } as const;
 
 export type IconName = keyof typeof PATHS;
