@@ -20,7 +20,7 @@ export function setQuery(app: AppState, text: string) {
   const started = performance.now();
   app.preview.value = parse(text, {
     now: app.clock.minuteNow.value,
-    referenceId: app.cities.defaultRef.value.id,
+    referenceId: app.homeRef.value.id,
     locale: app.prefs.locale.value,
   });
   lastParseMs = performance.now() - started;
