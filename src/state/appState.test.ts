@@ -53,10 +53,10 @@ describe('createAppState', () => {
     });
     s.exitOverlay();
     expect(JSON.parse(env.storage?.getItem('pz:v1') ?? '{}').activeIds).toEqual([
-      'austin',
       'saopaulo',
-      'bristol',
+      'austin',
       'bangalore',
+      'bristol',
     ]);
     expect(s.mode.value).toBe('live');
     expect(s.reference.value.id).toBe('bangalore');

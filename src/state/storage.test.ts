@@ -5,17 +5,17 @@ import { makeEnv } from './testing';
 describe('storage', () => {
   it('defaults include the viewer office', () => {
     expect(defaultPersisted('Asia/Singapore').activeIds).toEqual([
-      'austin',
       'saopaulo',
-      'bristol',
+      'austin',
       'bangalore',
+      'bristol',
       'singapore',
     ]);
     expect(defaultPersisted('Asia/Kolkata').activeIds).toEqual([
-      'austin',
       'saopaulo',
-      'bristol',
+      'austin',
       'bangalore',
+      'bristol',
     ]);
   });
   it('survives broken storage', () => {
@@ -32,10 +32,10 @@ describe('storage', () => {
     expect(() => savePersisted(throwing, defaultPersisted('UTC'))).not.toThrow();
     const env = makeEnv({ storageData: { 'pz:v1': '{nope' } });
     expect(loadPersisted(env.storage, 'Asia/Kolkata').activeIds).toEqual([
-      'austin',
       'saopaulo',
-      'bristol',
+      'austin',
       'bangalore',
+      'bristol',
     ]);
   });
   it('migrates legacy keys once', () => {
