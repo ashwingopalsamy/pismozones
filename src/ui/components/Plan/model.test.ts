@@ -1,39 +1,43 @@
-import { getOffice, type Office } from '@core/cities/registry';
+import { getOffice, type Office, type OfficeId } from '@core/cities/registry';
 import { planDay } from '@core/plan/overlap';
+import type { HourCycle } from '@core/time/format';
 import { NOW } from '@state/testing';
 import { expect, it } from 'vitest';
 import { planViewModel } from './model';
 
-it('labels the best overlap for five offices', () => {
-  const five = ['saopaulo', 'austin', 'bristol', 'bangalore', 'singapore'].map(
-    (i) => getOffice(i) as Office,
+const vm = (o: {
+  ref: OfficeId;
+  offices: OfficeId[];
+  date: [number, number, number];
+  hc?: HourCycle;
+}) => {
+  const ref = getOffice(o.ref) as Office;
+  const offices = o.offices.map((id) => getOffice(id) as Office);
+  const [year, month, day] = o.date;
+  const plan = planDay({ year, month, day }, ref.zone, offices);
+  return planViewModel(plan, offices, ref, NOW, 'live', o.hc ?? 'h23', 'en', 'UTC', NOW);
+};
+
+it('world-clock grid: local labels, half-hour zones, DST days, 12h', () => {
+  const m = vm({ ref: 'saopaulo', offices: ['saopaulo', 'bangalore'], date: [2026, 10, 7] });
+  expect(m.columns).toHaveLength(24);
+  expect(m.rows[1]?.cells[0]?.label).toBe('8:30');
+  expect(vm({ ref: 'bristol', offices: ['bristol'], date: [2026, 10, 25] }).columns).toHaveLength(
+    25,
   );
-  const p = planDay({ year: 2026, month: 10, day: 8 }, 'America/Sao_Paulo', five);
-  const m = planViewModel(
-    p,
-    five,
-    getOffice('saopaulo') as Office,
-    Date.UTC(2026, 9, 8, 14),
-    'h23',
-    'en',
-    'Asia/Kolkata',
-    NOW,
+  expect(
+    vm({ ref: 'saopaulo', offices: ['saopaulo'], date: [2026, 10, 7], hc: 'h12' }).rows[0]
+      ?.cells[13]?.label,
+  ).toBe('1p');
+});
+
+it('spells out the best window per city', () => {
+  const m = vm({
+    ref: 'saopaulo',
+    offices: ['saopaulo', 'austin', 'bristol', 'bangalore'],
+    date: [2026, 10, 7],
+  });
+  expect(m.best?.perCity.map((p) => p.text)).toEqual(
+    expect.arrayContaining([expect.stringMatching(/^Bengaluru outside \(/)]),
   );
-  expect(m.best).toEqual({
-    label: 'Best overlap 11:00–14:00 · 3 of 5 working',
-    outside: 'Bangalore, Singapore outside',
-    start: Date.UTC(2026, 9, 8, 14),
-    working: 3,
-  });
-  expect(m.band).toEqual({ leftPct: (22 / 48) * 100, widthPct: (6 / 48) * 100 });
-  expect(m.cursorPct).toBeCloseTo((22 / 48) * 100, 5);
-  expect(m.noCalendar).toEqual([]);
-  expect(m.dayTitle).toBe('Tomorrow, Thu 8 Oct');
-  expect(m.axis.map((a) => a.label)).toEqual(['00', '03', '06', '09', '12', '15', '18', '21']);
-  expect(m.rows[0]).toMatchObject({
-    id: 'saopaulo',
-    name: 'São Paulo',
-    at: '11:00',
-    kind: 'working',
-  });
 });

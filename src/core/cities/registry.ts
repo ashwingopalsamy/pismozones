@@ -12,11 +12,14 @@ export type OfficeId =
   | 'hochiminh'
   | 'jakarta';
 
-export type CalendarId = 'br-sp' | 'us-tx' | 'gb-eng' | 'in-ka' | 'sg' | 'pl';
+/** Pismo company leave calendars, one per country. */
+export type CalendarId = 'in' | 'br' | 'uk' | 'us' | 'pl';
 
 export interface Office {
   id: OfficeId;
   name: string;
+  /** 3-letter city code for tight layouts (display only). */
+  code: string;
   /** ISO 3166-1 alpha-2 */
   country: string;
   countryName: { en: string; pt: string };
@@ -36,6 +39,7 @@ const HOURS = { start: 540, end: 1080 } as const;
 export const OFFICES: readonly Office[] = [
   {
     id: 'saopaulo',
+    code: 'SAO',
     name: 'São Paulo',
     country: 'BR',
     countryName: { en: 'Brazil', pt: 'Brasil' },
@@ -44,11 +48,12 @@ export const OFFICES: readonly Office[] = [
     lon: -46.63,
     aliases: ['sao paulo', 'saopaulo', 'sampa', 'sp', 'gru', 'hq', 'brazil', 'brasil'],
     workHours: HOURS,
-    holidayCalendar: 'br-sp',
+    holidayCalendar: 'br',
     hq: true,
   },
   {
     id: 'austin',
+    code: 'AUS',
     name: 'Austin',
     country: 'US',
     countryName: { en: 'United States', pt: 'Estados Unidos' },
@@ -57,10 +62,11 @@ export const OFFICES: readonly Office[] = [
     lon: -97.74,
     aliases: ['austin', 'atx', 'aus', 'texas', 'usa'],
     workHours: HOURS,
-    holidayCalendar: 'us-tx',
+    holidayCalendar: 'us',
   },
   {
     id: 'bristol',
+    code: 'BRS',
     name: 'Bristol',
     country: 'GB',
     countryName: { en: 'United Kingdom', pt: 'Reino Unido' },
@@ -69,11 +75,12 @@ export const OFFICES: readonly Office[] = [
     lon: -2.59,
     aliases: ['bristol', 'brs', 'london', 'uk', 'england', 'britain'],
     workHours: HOURS,
-    holidayCalendar: 'gb-eng',
+    holidayCalendar: 'uk',
   },
   {
     id: 'bangalore',
-    name: 'Bangalore',
+    code: 'BLR',
+    name: 'Bengaluru',
     country: 'IN',
     countryName: { en: 'India', pt: 'Índia' },
     zone: 'Asia/Kolkata',
@@ -81,10 +88,11 @@ export const OFFICES: readonly Office[] = [
     lon: 77.59,
     aliases: ['bangalore', 'bengaluru', 'blr', 'india'],
     workHours: HOURS,
-    holidayCalendar: 'in-ka',
+    holidayCalendar: 'in',
   },
   {
     id: 'singapore',
+    code: 'SIN',
     name: 'Singapore',
     country: 'SG',
     countryName: { en: 'Singapore', pt: 'Singapura' },
@@ -93,10 +101,11 @@ export const OFFICES: readonly Office[] = [
     lon: 103.82,
     aliases: ['singapore', 'singapura', 'sin', 'sg'],
     workHours: HOURS,
-    holidayCalendar: 'sg',
+    holidayCalendar: null,
   },
   {
     id: 'warsaw',
+    code: 'WAW',
     name: 'Warsaw',
     country: 'PL',
     countryName: { en: 'Poland', pt: 'Polônia' },
@@ -109,6 +118,7 @@ export const OFFICES: readonly Office[] = [
   },
   {
     id: 'mexicocity',
+    code: 'MEX',
     name: 'Mexico City',
     country: 'MX',
     countryName: { en: 'Mexico', pt: 'México' },
@@ -121,6 +131,7 @@ export const OFFICES: readonly Office[] = [
   },
   {
     id: 'buenosaires',
+    code: 'BUE',
     name: 'Buenos Aires',
     country: 'AR',
     countryName: { en: 'Argentina', pt: 'Argentina' },
@@ -133,6 +144,7 @@ export const OFFICES: readonly Office[] = [
   },
   {
     id: 'bogota',
+    code: 'BOG',
     name: 'Bogotá',
     country: 'CO',
     countryName: { en: 'Colombia', pt: 'Colômbia' },
@@ -145,6 +157,7 @@ export const OFFICES: readonly Office[] = [
   },
   {
     id: 'sydney',
+    code: 'SYD',
     name: 'Sydney',
     country: 'AU',
     countryName: { en: 'Australia', pt: 'Austrália' },
@@ -157,6 +170,7 @@ export const OFFICES: readonly Office[] = [
   },
   {
     id: 'hochiminh',
+    code: 'SGN',
     name: 'Ho Chi Minh',
     country: 'VN',
     countryName: { en: 'Vietnam', pt: 'Vietnã' },
@@ -169,6 +183,7 @@ export const OFFICES: readonly Office[] = [
   },
   {
     id: 'jakarta',
+    code: 'JKT',
     name: 'Jakarta',
     country: 'ID',
     countryName: { en: 'Indonesia', pt: 'Indonésia' },
@@ -215,4 +230,7 @@ export function officeForZone(zone: string): Office | undefined {
   return OFFICES.find((o) => sameZone(o.zone, zone));
 }
 
-export const DEFAULT_ACTIVE: readonly OfficeId[] = ['austin', 'saopaulo', 'bristol', 'bangalore'];
+export const DEFAULT_ACTIVE: readonly OfficeId[] = ['saopaulo', 'austin', 'bangalore', 'bristol'];
+
+/** São Paulo (HQ) is always active and always shown first. */
+export const ANCHOR: OfficeId = 'saopaulo';

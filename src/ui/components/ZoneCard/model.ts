@@ -1,12 +1,13 @@
 import { type Office, type OfficeId, sameZone } from '@core/cities/registry';
 import type { Lang } from '@core/i18n';
 import { type SkyStops, skyFor, starAlpha } from '@core/sky/sky';
-import { solarElevation, sunSamples } from '@core/sky/sun';
+import { solarElevation } from '@core/sky/sun';
 import { formatClock, formatOffset, formatShortDate, type HourCycle } from '@core/time/format';
 import { type RelativeDay, relativeDay } from '@core/time/relative';
 import { nextTransition } from '@core/time/transitions';
 import type { Instant } from '@core/time/types';
-import { startOfDay, zonedFields } from '@core/time/zoned';
+import { zonedFields } from '@core/time/zoned';
+import { holidayName } from '@core/work/holidays';
 import { type WorkState, workState } from '@core/work/policy';
 import type { Key } from '../../i18n';
 
@@ -16,6 +17,9 @@ export interface CardBox {
 }
 export const PHONE_BOX: CardBox = { w: 358, h: 124 };
 export const DESKTOP_BOX: CardBox = { w: 400, h: 152 };
+/** São Paulo's hero card: the full content column on desktop, a taller card on phone. */
+export const HERO_BOX: CardBox = { w: 1216, h: 176 };
+export const PHONE_HERO_BOX: CardBox = { w: 358, h: 148 };
 
 export interface Star {
   x: number;
@@ -38,8 +42,8 @@ export interface CardModel {
   sky: SkyStops;
   starAlpha: number;
   stars: Star[];
-  sun: { xPct: number; yPct: number; up: boolean };
-  path: { above: string; below: string; horizonY: number; workX: [number, number] };
+  /** Office work hours, e.g. "09:00–18:00". */
+  hours: string;
   isRef: boolean;
 }
 
@@ -78,43 +82,6 @@ function starField(id: string, count: number, alpha: number): Star[] {
   });
 }
 
-/** Above/below-horizon polylines of the sun's elevation over the local day, sharing crossing vertices. */
-function sunPath(elevations: number[], box: CardBox, horizonY: number, k: number) {
-  let above = '';
-  let below = '';
-  let prev: { up: boolean; x: number; y: number } | null = null;
-  const n = elevations.length - 1;
-  elevations.forEach((el, i) => {
-    const x = (i / n) * box.w;
-    const y = horizonY - el * k;
-    const up = el >= 0;
-    const pt = `${x.toFixed(1)} ${y.toFixed(1)}`;
-    const seg = !prev
-      ? `M${pt}`
-      : prev.up === up
-        ? ` L${pt}`
-        : ` M${prev.x.toFixed(1)} ${prev.y.toFixed(1)} L${pt}`;
-    if (up) above += seg;
-    else below += seg;
-    prev = { up, x, y };
-  });
-  return { above: above.trim(), below: below.trim() };
-}
-
-const memo = new Map<string, number[]>();
-function daySamples(office: Office, moment: Instant): number[] {
-  const f = zonedFields(moment, office.zone);
-  const key = `${office.id}:${f.year}-${f.month}-${f.day}`;
-  let s = memo.get(key);
-  if (!s) {
-    const day = startOfDay(f, office.zone);
-    s = sunSamples(day.start, day.end, office.lat, office.lon, 97);
-    if (memo.size > 512) memo.clear();
-    memo.set(key, s);
-  }
-  return s;
-}
-
 function labelFor(
   state: WorkState,
   office: Office,
@@ -143,7 +110,7 @@ function labelFor(
     case 'holiday':
       return {
         key: 'state.holiday',
-        params: { name: state.holiday?.name[lang === 'pt-BR' ? 'pt' : 'en'] ?? '' },
+        params: { name: state.holiday ? holidayName(state.holiday, lang) : '' },
       };
   }
 }
@@ -152,9 +119,6 @@ export function cardModel(office: Office, moment: Instant, ctx: CardContext): Ca
   const f = zonedFields(moment, office.zone);
   const viewer = zonedFields(ctx.now, ctx.viewerZone);
   const elevation = solarElevation(moment, office.lat, office.lon);
-  const { h, w } = ctx.box;
-  const horizonY = Math.round(0.645 * h);
-  const k = 0.00565 * h;
   const state = workState(moment, office);
   const t = nextTransition(moment, office.zone, 7);
   const alpha = starAlpha(elevation);
@@ -162,7 +126,10 @@ export function cardModel(office: Office, moment: Instant, ctx: CardContext): Ca
   if (office.hq) tags.push('hq');
   if (sameZone(office.zone, ctx.viewerZone)) tags.push('you');
   if (ctx.temp) tags.push('temp');
-  const minutes = f.hour * 60 + f.minute;
+  const at = (m: number) => {
+    const c = formatClock({ hour: Math.floor(m / 60), minute: m % 60 }, ctx.hourCycle);
+    return c.period ? `${c.hm} ${c.period}` : c.hm;
+  };
 
   return {
     id: office.id,
@@ -184,16 +151,7 @@ export function cardModel(office: Office, moment: Instant, ctx: CardContext): Ca
     sky: skyFor(elevation),
     starAlpha: alpha,
     stars: starField(office.id, ctx.starCount, alpha),
-    sun: {
-      xPct: (minutes / 1440) * 100,
-      yPct: Math.max(6, Math.min(94, ((horizonY - elevation * k) / h) * 100)),
-      up: elevation >= 0,
-    },
-    path: {
-      ...sunPath(daySamples(office, moment), ctx.box, horizonY, k),
-      horizonY,
-      workX: [(office.workHours.start / 1440) * w, (office.workHours.end / 1440) * w],
-    },
+    hours: `${at(office.workHours.start)}–${at(office.workHours.end)}`,
     isRef: office.id === ctx.refId,
   };
 }

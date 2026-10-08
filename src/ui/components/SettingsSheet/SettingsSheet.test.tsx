@@ -10,7 +10,7 @@ it('switches to 12h and updates the preview', async () => {
     <SettingsSheet open onClose={() => {}} onOpenCities={() => {}} onOpenHolidays={() => {}} />,
   );
   await user.click(getByRole('button', { name: '12h' }));
-  expect(getByRole('article').getAttribute('aria-label')).toMatch(/^Bangalore, 7:52 PM,/);
+  expect(getByRole('article').getAttribute('aria-label')).toMatch(/^Bengaluru, 7:52 PM,/);
   expect(app.prefs.prefs.value.hourCycle).toBe('h12');
   await user.click(getByRole('button', { name: 'Português' }));
   expect(app.prefs.lang.value).toBe('pt-BR');

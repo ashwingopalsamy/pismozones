@@ -1,11 +1,25 @@
-import { Sheet } from '../components/Sheet/Sheet';
+import { Sheet, type SheetVariant } from '../components/Sheet/Sheet';
 import { useT } from './context';
 import styles from './layout.module.css';
 
-export function ShortcutsSheet({ open, onClose }: { open: boolean; onClose(): void }) {
+export function ShortcutsSheet({
+  open,
+  onClose,
+  variant = 'sheet',
+}: {
+  open: boolean;
+  onClose(): void;
+  variant?: SheetVariant;
+}) {
   const t = useT();
   return (
-    <Sheet open={open} onClose={onClose} title={t('shortcuts.title')}>
+    <Sheet
+      open={open}
+      onClose={onClose}
+      title={t('shortcuts.title')}
+      variant={variant}
+      size="narrow"
+    >
       <dl class={styles.shortcuts}>
         <dt>/ · ⌘K</dt>
         <dd>{t('shortcuts.focus')}</dd>

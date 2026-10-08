@@ -1,4 +1,4 @@
-import { getOffice, type Office, type OfficeId } from '@core/cities/registry';
+import { ANCHOR, getOffice, type Office, type OfficeId } from '@core/cities/registry';
 import { encodeShare } from '@core/share/codec';
 import type { Instant } from '@core/time/types';
 import { batch, computed, effect, type ReadonlySignal, type Signal, signal } from '@preact/signals';
@@ -6,6 +6,7 @@ import { type CitiesState, createCities } from './cities';
 import { type ClockState, createClock } from './clock';
 import type { AppEnv } from './env';
 import { createHistory } from './history';
+import { hostKind, shareOrigin } from './host';
 import { createMoment, type MomentState } from './moment';
 import { createPrefs, type PrefsState } from './prefs';
 import { type Boot, bootFromLocation, type SharedView } from './shareOverlay';
@@ -78,7 +79,8 @@ export function createAppState(env: AppEnv, track: Track = () => {}): AppState {
       p?.status === 'ok'
         ? p.intent.destinations.flatMap((d) => (d.kind === 'office' ? [d.id] : []))
         : [];
-    const ids = [...new Set<OfficeId>([...base, ...m.extras.value, ...previewDests])];
+    // São Paulo is always shown, first — also inside a shared view that left it out.
+    const ids = [...new Set<OfficeId>([ANCHOR, ...base, ...m.extras.value, ...previewDests])];
     return ids.flatMap((id) => {
       const office = getOffice(id);
       return office ? [{ office, temp: !active.includes(id) }] : [];
@@ -120,7 +122,8 @@ export function createAppState(env: AppEnv, track: Track = () => {}): AppState {
         refId: reference.value.id,
         officeIds: displayed.value.map((d) => d.office.id),
       });
-      return `${env.location.origin}/s/${token}`;
+      const origin = env.location.origin;
+      return `${shareOrigin(hostKind(new URL(origin).hostname), origin)}/s/${token}`;
     },
     start() {
       const stopClock = clock.start();

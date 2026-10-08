@@ -29,10 +29,6 @@ describe('cardModel', () => {
       transition: null,
       isRef: false,
     });
-    expect(m.sun.up).toBe(true);
-    expect(m.sun.xPct).toBeCloseTo(47.36, 1);
-    expect(m.path.horizonY).toBe(80);
-    expect(m.path.above.length).toBeGreaterThan(0);
     expect(m.stars).toEqual([]);
   });
   it('12h clocks, tomorrow, and upcoming DST', () => {

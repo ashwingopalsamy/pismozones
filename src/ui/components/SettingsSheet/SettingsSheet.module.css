@@ -99,3 +99,26 @@
 .credit a {
   color: inherit;
 }
+/* Desktop dialog: preview on the left, settings on the right. */
+.split {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: var(--sp-24);
+  align-items: start;
+}
+.split .preview {
+  position: sticky;
+  top: 0;
+}
+.credit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-8);
+}
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+}

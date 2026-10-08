@@ -18,7 +18,7 @@ describe('sentenceModel', () => {
       { label: 'Meant 03:00?', query: 'meeting at 03:00 with sp team' },
     ]);
     expect(sentenceModel(parseOk('sp to ist'), c).text).toBe(
-      'Now · 11:22 São Paulo → 19:52 Bangalore',
+      'Now · 11:22 São Paulo → 19:52 Bengaluru',
     );
   });
   it('describes errors with suggestion chips', () => {

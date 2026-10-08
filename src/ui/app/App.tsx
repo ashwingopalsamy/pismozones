@@ -21,6 +21,9 @@ const SettingsSheet = lazyComponent(() =>
 const CitiesSheet = lazyComponent(() =>
   import('../components/CitiesSheet/CitiesSheet').then((m) => m.CitiesSheet),
 );
+const CitiesPanel = lazyComponent(() =>
+  import('../components/CitiesSheet/CitiesPanel').then((m) => m.CitiesPanel),
+);
 const HolidaysSheet = lazyComponent(() =>
   import('../components/HolidaysSheet/HolidaysSheet').then((m) => m.HolidaysSheet),
 );
@@ -108,7 +111,7 @@ export function App({ install }: { install?: Install }) {
 
   const actions: LayoutActions = {
     openSettings: () => setSheet('settings'),
-    openCities: () => setSheet('cities'),
+    openCities: () => setSheet((s) => (s === 'cities' ? null : 'cities')),
     openHolidays: (focus) => {
       setHolidayFocus(focus);
       setHolidayEntry(focus ? 'chip' : 'header');
@@ -122,25 +125,35 @@ export function App({ install }: { install?: Install }) {
   return (
     <>
       {wide ? (
-        <WideLayout actions={actions} commandRef={command} />
+        <WideLayout actions={actions} commandRef={command} citiesOpen={sheet === 'cities'} />
       ) : (
-        <PhoneLayout actions={actions} />
+        <PhoneLayout actions={actions} citiesOpen={sheet === 'cities'} />
       )}
       <SettingsSheet
+        variant={wide ? 'dialog' : 'sheet'}
         open={sheet === 'settings'}
         onClose={close}
         onOpenCities={() => setSheet('cities')}
         onOpenHolidays={() => actions.openHolidays()}
         {...(install ? { install } : {})}
       />
-      <CitiesSheet open={sheet === 'cities'} onClose={close} />
+      {wide ? (
+        <CitiesPanel open={sheet === 'cities'} onClose={close} />
+      ) : (
+        <CitiesSheet open={sheet === 'cities'} onClose={close} />
+      )}
       <HolidaysSheet
+        variant={wide ? 'dialog' : 'sheet'}
         open={sheet === 'holidays'}
         onClose={close}
         entry={holidayEntry}
         focus={holidayFocus}
       />
-      <ShortcutsSheet open={sheet === 'shortcuts'} onClose={close} />
+      <ShortcutsSheet
+        open={sheet === 'shortcuts'}
+        onClose={close}
+        variant={wide ? 'dialog' : 'sheet'}
+      />
       <Toast />
       <UpdatePrompt />
       <div class="sr-only" role="status" aria-live="polite">

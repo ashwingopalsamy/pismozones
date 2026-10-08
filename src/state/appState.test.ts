@@ -48,7 +48,7 @@ describe('createAppState', () => {
       expect.arrayContaining(['sydney', 'jakarta']),
     );
     expect(JSON.parse(env.storage?.getItem('pz:v1') ?? '{}')).toMatchObject({
-      activeIds: ['austin', 'saopaulo', 'bristol', 'bangalore'],
+      activeIds: ['saopaulo', 'austin', 'bangalore', 'bristol'],
       refId: null,
     });
     s.exitOverlay();
@@ -85,7 +85,7 @@ describe('createAppState', () => {
     s.cities.add('warsaw');
     s.prefs.set('theme', 'light');
     expect(JSON.parse(env.storage?.getItem('pz:v1') ?? '{}')).toMatchObject({
-      activeIds: ['austin', 'saopaulo', 'bristol', 'bangalore', 'warsaw'],
+      activeIds: ['saopaulo', 'austin', 'bangalore', 'bristol', 'warsaw'],
       refId: null,
       prefs: { theme: 'light' },
     });

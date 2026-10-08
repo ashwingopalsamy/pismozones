@@ -24,12 +24,19 @@
   top: 0;
   z-index: var(--z-header);
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
+  gap: var(--sp-4);
   padding: calc(env(safe-area-inset-top, 0px) + var(--sp-8)) var(--sp-16) var(--sp-8);
   background: linear-gradient(180deg, var(--ground) 70%, transparent);
 }
+.phoneHeader .iconbtn {
+  width: 40px;
+  height: 40px;
+}
 .seg {
+  flex: none;
   display: flex;
   gap: 2px;
   padding: 3px;
@@ -39,7 +46,7 @@
 }
 .seg button {
   height: 38px;
-  padding: 0 var(--sp-14);
+  padding: 0 var(--sp-10);
   display: flex;
   align-items: center;
   gap: 7px;
@@ -80,58 +87,94 @@
   gap: var(--sp-10);
 }
 
-/* Wide */
-.top {
+/* Wide: one content column for everything */
+.wide {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+.column {
+  width: var(--page-w);
+  margin-inline: auto;
+}
+.topBar {
   position: sticky;
   top: 0;
   z-index: var(--z-header);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-14);
-  padding: var(--sp-16) var(--sp-32);
   background: linear-gradient(180deg, var(--ground) 65%, transparent);
 }
+/* The control lane: one line, never wraps; only the command bar stretches. */
+.lane {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--sp-8);
+  padding-block: var(--sp-16);
+}
+.lane .iconbtn {
+  width: 40px;
+  height: 40px;
+}
 .brand {
+  flex: none;
   display: flex;
   align-items: center;
   gap: 9px;
   font-size: var(--fs-15);
   font-weight: 600;
   white-space: nowrap;
-  margin-right: 6px;
+  margin-right: var(--sp-4);
 }
 .logo {
   color: var(--warn);
   display: grid;
 }
-.spacer {
-  flex: 1 1 0;
-}
 .you {
+  flex: none;
   font-size: var(--fs-13);
   color: var(--text-3);
   white-space: nowrap;
 }
 .wideMain {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: var(--sp-4) var(--sp-32) var(--sp-32);
+  padding-block: var(--sp-4) var(--sp-32);
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
+.rulerRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-12);
+}
+.rulerRow > :last-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
 .footer {
+  margin-top: auto;
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
   gap: var(--sp-10);
-  padding: 6px var(--sp-4) 0;
+  padding-block: var(--sp-16) var(--sp-24);
   font-size: var(--fs-12);
   color: var(--text-4);
 }
 .footer a {
   color: inherit;
+}
+.credit {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+}
+.avatar {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid var(--line);
 }
 
 /* Error */

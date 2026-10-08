@@ -12,11 +12,18 @@ export interface CommandBarProps {
   placement: 'top' | 'dock';
   /** Render the preview sentence under the bar (default: only for 'top'). */
   sentence?: boolean;
+  /** Overrides the example placeholder (tight lanes use a shorter one). */
+  placeholder?: string | undefined;
   /** Preact 11 passes `ref` to function components as a prop. */
   ref?: Ref<HTMLInputElement>;
 }
 
-export function CommandBar({ placement, sentence = placement === 'top', ref }: CommandBarProps) {
+export function CommandBar({
+  placement,
+  sentence = placement === 'top',
+  placeholder,
+  ref,
+}: CommandBarProps) {
   const app = useApp();
   const t = useT();
   const mirror = useRef<HTMLDivElement>(null);
@@ -63,7 +70,7 @@ export function CommandBar({ placement, sentence = placement === 'top', ref }: C
             class={styles.input}
             type="text"
             aria-label={t('command.label')}
-            placeholder={t('command.placeholder')}
+            placeholder={placeholder ?? t('command.placeholder')}
             enterKeyHint="go"
             autoComplete="off"
             autoCapitalize="off"
