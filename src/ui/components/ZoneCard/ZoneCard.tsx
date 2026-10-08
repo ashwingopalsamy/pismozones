@@ -65,21 +65,29 @@ export function ZoneCard({
           background: `linear-gradient(180deg, ${m.sky.top} 0%, ${m.sky.mid} 58%, ${m.sky.bottom} 100%)`,
         }}
       />
+      {m.glow && (
+        <div
+          class={styles.glow}
+          style={`opacity:${m.glow.alpha.toFixed(3)};background:radial-gradient(circle ${Math.round(
+            Math.min(m.glow.r * box.w, box.h * 2.4),
+          )}px at ${(m.glow.x * 100).toFixed(1)}% ${(m.glow.y * 100).toFixed(1)}%, ${m.glow.color}, transparent)`}
+        />
+      )}
       {m.stars.length > 0 && (
         <div class={styles.stars}>
           {m.stars.map((s) => (
             <i
               key={`${s.x}:${s.y}`}
-              class={styles.star}
-              style={{
-                left: `${s.x}%`,
-                top: `${s.y}%`,
-                width: `${s.r}px`,
-                height: `${s.r}px`,
-                opacity: s.o,
-              }}
+              class={cx(styles.star, s.bright && styles.bright)}
+              style={`left:${s.x.toFixed(2)}%;top:${s.y.toFixed(2)}%;width:${s.r}px;height:${s.r}px;--o:${s.o.toFixed(3)};--amp:${s.amp.toFixed(2)};--dur:${s.dur.toFixed(2)}s;--delay:${s.delay.toFixed(2)}s`}
             />
           ))}
+          {m.shooting && (
+            <i
+              class={styles.meteor}
+              style={`left:${m.shooting.x.toFixed(1)}%;top:${m.shooting.y.toFixed(1)}%;--cycle:${m.shooting.cycle.toFixed(1)}s;--delay:${m.shooting.delay.toFixed(1)}s`}
+            />
+          )}
         </div>
       )}
       <div class={styles.scrim} />

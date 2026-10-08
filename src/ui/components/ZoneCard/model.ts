@@ -1,7 +1,7 @@
 import { type Office, type OfficeId, sameZone } from '@core/cities/registry';
 import type { Lang } from '@core/i18n';
-import { type SkyStops, skyFor, starAlpha } from '@core/sky/sky';
-import { solarElevation } from '@core/sky/sun';
+import { nightDepth, type SkyStops, type SunGlow, skyFor, starAlpha, sunGlow } from '@core/sky/sky';
+import { solarElevation, solarHourAngle } from '@core/sky/sun';
 import { formatClock, formatOffset, formatShortDate, type HourCycle } from '@core/time/format';
 import { type RelativeDay, relativeDay } from '@core/time/relative';
 import { nextTransition } from '@core/time/transitions';
@@ -24,8 +24,24 @@ export const PHONE_HERO_BOX: CardBox = { w: 358, h: 148 };
 export interface Star {
   x: number;
   y: number;
-  r: 1 | 1.5 | 2;
+  r: 1 | 1.5 | 2 | 2.5;
+  /** Peak opacity. */
   o: number;
+  /** Twinkle period and phase, seconds. */
+  dur: number;
+  delay: number;
+  /** How far the twinkle dips (0–1); stronger near the horizon, as in a real sky. */
+  amp: number;
+  /** One of the few brightest: gets a soft halo and sparkle. */
+  bright: boolean;
+}
+
+export interface ShootingStar {
+  x: number;
+  y: number;
+  /** Seconds between streaks, and this card's offset into the cycle. */
+  cycle: number;
+  delay: number;
 }
 
 export interface CardModel {
@@ -40,8 +56,10 @@ export interface CardModel {
   offsetLabel: string;
   transition: { fromLabel: string; toLabel: string; dateLabel: string } | null;
   sky: SkyStops;
+  glow: SunGlow | null;
   starAlpha: number;
   stars: Star[];
+  shooting: ShootingStar | null;
   /** Office work hours, e.g. "09:00–18:00". */
   hours: string;
   isRef: boolean;
@@ -70,16 +88,42 @@ function seeded(id: string): () => number {
   };
 }
 
-function starField(id: string, count: number, alpha: number): Star[] {
-  if (alpha < 0.03) return [];
+/**
+ * Stars come out the way they do in a real sky: the brightest first at dusk, the faint ones only in
+ * full night. Positions and brightness are seeded per office, so a card's sky is stable.
+ */
+function starField(id: string, count: number, visible: number, depth: number): Star[] {
+  if (visible < 0.03) return [];
   const rnd = seeded(id);
-  return Array.from({ length: count }, () => {
+  const threshold = 1 - visible * (0.55 + 0.45 * depth);
+  const stars: Star[] = [];
+  for (let i = 0; i < count; i++) {
     const x = 3 + rnd() * 94;
-    const y = 4 + rnd() * 58;
-    const z = rnd();
-    const o = (0.3 + rnd() * 0.7) * alpha;
-    return { x, y, r: z < 0.15 ? 2 : z < 0.5 ? 1.5 : 1, o };
-  });
+    const y = 4 + rnd() * 62;
+    const b = rnd();
+    const dur = 2.4 + rnd() * 4.2;
+    const phase = rnd();
+    if (b <= threshold) continue;
+    const bright = b > 0.94;
+    stars.push({
+      x,
+      y,
+      r: bright ? 2.5 : b > 0.8 ? 2 : b > 0.5 ? 1.5 : 1,
+      o: Math.min(1, (0.35 + 0.65 * b) * Math.min(1, visible * 1.25)),
+      dur,
+      delay: -phase * dur,
+      amp: Math.min(0.85, 0.25 + 0.4 * (y / 66) + 0.15 * depth),
+      bright,
+    });
+  }
+  return stars;
+}
+
+function shootingStar(id: string, depth: number): ShootingStar | null {
+  if (depth < 0.5) return null;
+  const rnd = seeded(`${id}:meteor`);
+  const cycle = 22 + rnd() * 26;
+  return { x: 15 + rnd() * 55, y: 6 + rnd() * 22, cycle, delay: -rnd() * cycle };
 }
 
 function labelFor(
@@ -119,6 +163,8 @@ export function cardModel(office: Office, moment: Instant, ctx: CardContext): Ca
   const f = zonedFields(moment, office.zone);
   const viewer = zonedFields(ctx.now, ctx.viewerZone);
   const elevation = solarElevation(moment, office.lat, office.lon);
+  const hourAngle = solarHourAngle(moment, office.lon);
+  const depth = nightDepth(elevation);
   const state = workState(moment, office);
   const t = nextTransition(moment, office.zone, 7);
   const alpha = starAlpha(elevation);
@@ -148,9 +194,11 @@ export function cardModel(office: Office, moment: Instant, ctx: CardContext): Ca
           dateLabel: formatShortDate(zonedFields(t.at, office.zone), ctx.lang),
         }
       : null,
-    sky: skyFor(elevation),
+    sky: skyFor(elevation, hourAngle < 0),
+    glow: sunGlow(elevation, hourAngle),
     starAlpha: alpha,
-    stars: starField(office.id, ctx.starCount, alpha),
+    stars: starField(office.id, ctx.starCount, alpha, depth),
+    shooting: shootingStar(office.id, depth),
     hours: `${at(office.workHours.start)}–${at(office.workHours.end)}`,
     isRef: office.id === ctx.refId,
   };

@@ -37,6 +37,15 @@ export function solarElevation(instant: Instant, lat: number, lon: number): numb
   );
 }
 
+/**
+ * Solar hour angle in degrees, normalised to −180…180: 0 at local solar noon, negative in the
+ * morning (sun in the east), positive in the afternoon and evening (sun in the west).
+ */
+export function solarHourAngle(instant: Instant, lon: number): number {
+  const deg = hourAngle(position(instant), lon) / RAD;
+  return ((((deg + 180) % 360) + 360) % 360) - 180;
+}
+
 /** Elevations sampled evenly from start to end inclusive. */
 export function sunSamples(
   start: Instant,
