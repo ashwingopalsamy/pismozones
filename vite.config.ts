@@ -42,7 +42,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,woff2,png,svg,ico,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,woff2,png,jpg,svg,ico,webmanifest}'],
         // The link-preview image is for crawlers, not the offline app.
         globIgnores: ['og-image.png'],
         navigateFallback: '/index.html',

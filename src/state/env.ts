@@ -1,3 +1,4 @@
+import { eventsUrl, hostKind } from './host';
 export interface Scheduler {
   now(): number;
   setTimeout(fn: () => void, ms: number): number;
@@ -68,8 +69,9 @@ export function browserEnv(): AppEnv {
       },
     },
     send: (body) => {
-      if (!navigator.sendBeacon?.('/e', body))
-        void fetch('/e', { method: 'POST', body, keepalive: true }).catch(() => {});
+      const url = eventsUrl(hostKind(location.hostname));
+      if (!navigator.sendBeacon?.(url, body))
+        void fetch(url, { method: 'POST', body, keepalive: true }).catch(() => {});
     },
     appVersion: import.meta.env.VITE_APP_VERSION ?? 'dev',
     shareErrorFlag: document.documentElement.dataset.shareError === '1',

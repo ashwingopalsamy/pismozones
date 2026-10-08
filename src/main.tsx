@@ -1,11 +1,13 @@
 import { createTracker } from '@state/analytics';
 import { browserEnv } from '@state/env';
+import { hostKind } from '@state/host';
 import { createAppState } from '@state/index';
 import { render } from 'preact';
 import { App } from './ui/app/App';
 import { injectBeacon } from './ui/app/beacon';
 import { AppContext } from './ui/app/context';
 import { createInstall } from './ui/app/install';
+import { injectVercelAnalytics } from './ui/app/vercel';
 import './ui/styles/fonts.css';
 import './ui/styles/tokens.css';
 import './ui/styles/base.css';
@@ -15,7 +17,9 @@ const tracker = createTracker(env);
 const app = createAppState(env, tracker.track);
 app.start();
 const install = createInstall(window, tracker.track);
-injectBeacon(import.meta.env.VITE_CF_BEACON_TOKEN, document);
+const host = hostKind(location.hostname);
+if (host === 'cloudflare') injectBeacon(import.meta.env.VITE_CF_BEACON_TOKEN, document);
+if (host === 'vercel') injectVercelAnalytics(document);
 
 const width = window.innerWidth;
 tracker.track('session_start', {

@@ -6,6 +6,7 @@ import { type CitiesState, createCities } from './cities';
 import { type ClockState, createClock } from './clock';
 import type { AppEnv } from './env';
 import { createHistory } from './history';
+import { hostKind, shareOrigin } from './host';
 import { createMoment, type MomentState } from './moment';
 import { createPrefs, type PrefsState } from './prefs';
 import { type Boot, bootFromLocation, type SharedView } from './shareOverlay';
@@ -121,7 +122,8 @@ export function createAppState(env: AppEnv, track: Track = () => {}): AppState {
         refId: reference.value.id,
         officeIds: displayed.value.map((d) => d.office.id),
       });
-      return `${env.location.origin}/s/${token}`;
+      const origin = env.location.origin;
+      return `${shareOrigin(hostKind(new URL(origin).hostname), origin)}/s/${token}`;
     },
     start() {
       const stopClock = clock.start();
