@@ -4,17 +4,29 @@ import { useT } from '../../app/context';
 import { Icon } from '../Icon';
 import styles from './Sheet.module.css';
 
+/** 'sheet': phone, full-screen; 'dialog': desktop, centred and constrained to the content column. */
+export type SheetVariant = 'sheet' | 'dialog';
+
 export interface SheetProps {
   open: boolean;
   onClose(): void;
   title: string;
   children: ComponentChildren;
+  variant?: SheetVariant;
+  size?: 'wide' | 'narrow';
 }
 
 type ViewTransitionDoc = Document & { startViewTransition?: (cb: () => void) => unknown };
 
 /** Modal dialog: native <dialog> focus containment, Esc/backdrop close, focus returns to the opener. */
-export function Sheet({ open, onClose, title, children }: SheetProps) {
+export function Sheet({
+  open,
+  onClose,
+  title,
+  children,
+  variant = 'sheet',
+  size = 'wide',
+}: SheetProps) {
   const t = useT();
   const dialog = useRef<HTMLDialogElement>(null);
   const opener = useRef<HTMLElement | null>(null);
@@ -44,7 +56,8 @@ export function Sheet({ open, onClose, title, children }: SheetProps) {
   return (
     <dialog
       ref={dialog}
-      class={styles.sheet}
+      class={`${styles.sheet} ${variant === 'dialog' ? styles[size] : ''}`}
+      data-variant={variant}
       aria-labelledby={titleId}
       onCancel={(e) => {
         e.preventDefault();

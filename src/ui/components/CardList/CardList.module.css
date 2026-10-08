@@ -3,12 +3,17 @@
   flex-direction: column;
   gap: var(--sp-10);
 }
-.wrap {
-  flex-direction: row;
-  flex-wrap: wrap;
+/* Every city except São Paulo: one row of up to four, wrapping into further rows. */
+.lane {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--sp-14);
 }
-.wrap > * {
-  flex: 1 1 360px;
+.lane > * {
   min-width: 0;
+}
+@media (min-width: 768px) {
+  .list {
+    gap: var(--sp-14);
+  }
 }

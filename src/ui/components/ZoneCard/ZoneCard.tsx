@@ -9,6 +9,8 @@ export interface ZoneCardProps {
   live: boolean;
   editable: boolean;
   box: CardBox;
+  /** São Paulo's full-width hero card. */
+  hero?: boolean;
   onEdit?: () => void;
   onAdd?: () => void;
   onHoliday?: () => void;
@@ -23,6 +25,7 @@ export function ZoneCard({
   live,
   editable,
   box,
+  hero = false,
   onEdit,
   onAdd,
   onHoliday,
@@ -50,7 +53,9 @@ export function ZoneCard({
         m.isRef && styles.ref,
         m.tags.includes('temp') && styles.temp,
         box.h > 130 && styles.large,
+        hero && styles.hero,
       )}
+      data-hero={hero || undefined}
       style={{ height: `${box.h}px` }}
       aria-label={t('card.a11y', { city: m.name, time, day, state, offset: m.offsetLabel })}
     >
@@ -78,24 +83,6 @@ export function ZoneCard({
         </div>
       )}
       <div class={styles.scrim} />
-      <svg
-        class={styles.arc}
-        viewBox={`0 0 ${box.w} ${box.h}`}
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path class={styles.horizon} d={`M0 ${m.path.horizonY} L${box.w} ${m.path.horizonY}`} />
-        <path class={styles.below} d={m.path.below} />
-        <path class={styles.above} d={m.path.above} />
-        <path
-          class={styles.work}
-          d={`M${m.path.workX[0].toFixed(1)} ${m.path.horizonY} L${m.path.workX[1].toFixed(1)} ${m.path.horizonY}`}
-        />
-      </svg>
-      <div
-        class={cx(styles.sun, !m.sun.up && styles.down)}
-        style={{ left: `${m.sun.xPct}%`, top: `${m.sun.yPct}%` }}
-      />
       <div class={styles.content}>
         <div class={styles.row}>
           <div class={styles.title}>
@@ -139,7 +126,7 @@ export function ZoneCard({
               timeBody
             ))}
           <div class={styles.meta}>
-            <span>{day}</span>
+            <span>{hero ? `${day} · ${m.hours}` : day}</span>
             <span class={styles.mono}>
               {m.transition
                 ? t('card.clocksChange', {

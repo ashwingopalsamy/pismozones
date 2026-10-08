@@ -93,9 +93,16 @@
   --scrim-bottom: 0.36;
 }
 
+/* One content column for every desktop element (header, cards, ruler, Plan, footer, dialogs). */
+:root {
+  --gutter: 24px;
+  --page-w: min(1280px, 100% - 2 * var(--gutter));
+}
+
 @media (min-width: 1024px) {
   :root {
     --r-card: 28px;
+    --gutter: 32px;
   }
 }
 

@@ -34,6 +34,14 @@
     border: 0;
   }
 }
+.wide {
+  width: min(var(--page-w), 960px);
+  max-height: 80dvh;
+}
+.narrow {
+  width: min(var(--page-w), 560px);
+  max-height: 80dvh;
+}
 .inner {
   display: flex;
   flex-direction: column;

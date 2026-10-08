@@ -16,8 +16,7 @@
 }
 .sky,
 .stars,
-.scrim,
-.arc {
+.scrim {
   position: absolute;
   inset: 0;
 }
@@ -42,56 +41,6 @@
     transparent 50%,
     color-mix(in srgb, black calc(var(--scrim-bottom) * 100%), transparent) 100%
   );
-}
-.arc {
-  z-index: 3;
-  width: 100%;
-  height: 100%;
-}
-.arc path {
-  fill: none;
-  vector-effect: non-scaling-stroke;
-}
-.horizon {
-  stroke: var(--arc-horizon);
-  stroke-width: 1;
-}
-.below {
-  stroke: var(--arc-horizon);
-  stroke-width: 1.2;
-  stroke-dasharray: 2 4;
-}
-.above {
-  stroke: var(--arc-above);
-  stroke-width: 1.4;
-}
-.work {
-  stroke: var(--arc-work);
-  stroke-width: 2.2;
-  stroke-linecap: round;
-}
-.sun {
-  position: absolute;
-  z-index: 4;
-  width: 11px;
-  height: 11px;
-  margin: -5.5px 0 0 -5.5px;
-  border-radius: 50%;
-  background: var(--sun);
-  box-shadow:
-    0 0 10px 3px var(--sun-glow),
-    0 0 34px 10px var(--sun-halo);
-  transition:
-    left 500ms var(--ease-out),
-    top 500ms var(--ease-out);
-}
-.down {
-  width: 9px;
-  height: 9px;
-  margin: -4.5px 0 0 -4.5px;
-  background: transparent;
-  box-shadow: none;
-  border: 1.5px solid var(--sun-ring);
 }
 .content {
   position: absolute;
@@ -242,9 +191,13 @@ button.chip {
 @media (forced-colors: active) {
   .sky,
   .stars,
-  .scrim,
-  .arc,
-  .sun {
+  .scrim {
     display: none;
   }
+}
+.hero .time {
+  font-size: calc(var(--fs-58) * 1.45);
+}
+.hero .city {
+  font-size: var(--fs-20);
 }

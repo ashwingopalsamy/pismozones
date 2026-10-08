@@ -2,9 +2,8 @@ import { fireEvent } from '@testing-library/preact';
 import { describe, expect, it } from 'vitest';
 import { renderWithApp } from '../../test/render';
 import { CardList } from '../CardList/CardList';
-import { DESKTOP_BOX, PHONE_BOX } from '../ZoneCard/model';
 
-const renderCards = () => renderWithApp(<CardList box={DESKTOP_BOX} editable />);
+const renderCards = () => renderWithApp(<CardList layout="desktop" editable />);
 
 describe('inline time edit', () => {
   it('types 1530 in São Paulo and pins 18:30Z', async () => {
@@ -43,7 +42,7 @@ describe('inline time edit', () => {
     expect(document.activeElement).toBe(button());
   });
   it('PgUp, PgDn and Tomorrow step civil days in the card’s zone across DST', async () => {
-    const { app, user, getByRole } = renderWithApp(<CardList box={PHONE_BOX} editable />, {
+    const { app, user, getByRole } = renderWithApp(<CardList layout="phone" editable />, {
       moment: Date.UTC(2026, 9, 24, 14), // Sat 24 Oct, 15:00 BST
     });
     await user.click(getByRole('button', { name: 'Set time in Bristol' }));
@@ -55,7 +54,7 @@ describe('inline time edit', () => {
     expect(app.pinned.value).toBe(Date.UTC(2026, 9, 25, 15));
   });
   it('chips never take focus, so a tap cannot be lost to the editor closing on blur', async () => {
-    const { user, getByRole } = renderWithApp(<CardList box={PHONE_BOX} editable />);
+    const { user, getByRole } = renderWithApp(<CardList layout="phone" editable />);
     await user.click(getByRole('button', { name: 'Set time in Austin' }));
     expect(fireEvent.mouseDown(getByRole('button', { name: '+1h' }))).toBe(false);
   });
