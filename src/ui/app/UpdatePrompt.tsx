@@ -19,7 +19,13 @@ export function UpdatePrompt() {
   } = useRegisterSW({
     onRegisteredSW(_url, r) {
       registration.current = r;
-      if (r) setInterval(() => r.update().catch(() => {}), HOUR);
+      if (!r) return;
+      // Check for a new deploy hourly and whenever the tab comes back into view.
+      const check = () => void r.update().catch(() => {});
+      setInterval(check, HOUR);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') check();
+      });
     },
   });
 
