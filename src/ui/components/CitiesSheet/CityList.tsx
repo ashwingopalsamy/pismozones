@@ -59,14 +59,15 @@ export function CityList({ wide = false }: { wide?: boolean }) {
     const f = zonedFields(moment, o.zone);
     const c = formatClock(f, hc);
     const kind = workState(moment, o).kind;
+    const time = c.period ? `${c.hm} ${c.period}` : c.hm;
     return (
-      <li key={o.id} class={`${styles.item} ${o.id === refId ? styles.isRef : ''}`}>
+      <li key={o.id} class={styles.item} data-ref={o.id === refId || undefined}>
         <button
           type="button"
-          class={styles.row}
+          class={styles.pick}
           data-pick={o.id}
           aria-current={o.id === refId ? 'true' : undefined}
-          aria-label={`${o.name}, ${c.period ? `${c.hm} ${c.period}` : c.hm}. ${t('cities.makeRef', { city: o.name })}`}
+          aria-label={`${o.name}, ${time}. ${t('cities.makeRef', { city: o.name })}`}
           onClick={() => app.cities.setReference(o.id)}
           onKeyDown={onKey(o)}
         >
@@ -79,20 +80,28 @@ export function CityList({ wide = false }: { wide?: boolean }) {
             <span>{pt ? o.countryName.pt : o.countryName.en}</span>
           </span>
           <span class={styles.time}>
-            <b>{c.period ? `${c.hm} ${c.period}` : c.hm}</b>
+            <b>{time}</b>
             <span>{formatOffset(f.offsetMinutes)}</span>
           </span>
         </button>
         {o.id === ANCHOR ? (
-          <span class={styles.always}>{t('cities.always')}</span>
+          <span
+            class={styles.lock}
+            role="img"
+            title={t('cities.always')}
+            aria-label={t('cities.always')}
+          >
+            <Icon name="lock" size={15} />
+          </span>
         ) : (
           <button
             type="button"
-            class={styles.toggle}
+            class={`${styles.action} ${isOn ? styles.remove : ''}`}
             aria-label={`${isOn ? t('cities.remove') : t('cities.add')} ${o.name}`}
+            title={`${isOn ? t('cities.remove') : t('cities.add')} ${o.name}`}
             onClick={() => toggle(o.id)}
           >
-            <Icon name={isOn ? 'close' : 'plus'} size={16} />
+            <Icon name={isOn ? 'minus' : 'plus'} size={16} />
           </button>
         )}
       </li>

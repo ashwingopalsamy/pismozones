@@ -74,6 +74,7 @@ export const ptBR: Record<keyof typeof en, string> = {
   'plan.useBest': 'Ir para a melhor janela',
   'plan.bestHead': 'Melhor sobreposição · {n} de {total} trabalhando',
   'plan.outsideCity': '{city} fora ({range})',
+  'plan.outsideTag': 'fora',
   'plan.sel.now': 'Agora {time}',
   'plan.sel.pinned': 'Fixado {time}',
   'plan.sel.preview': 'Prévia {time}',

@@ -70,6 +70,7 @@ export const en = {
   'plan.useBest': 'Jump to best overlap',
   'plan.bestHead': 'Best overlap · {n} of {total} working',
   'plan.outsideCity': '{city} outside ({range})',
+  'plan.outsideTag': 'outside',
   'plan.sel.now': 'Now {time}',
   'plan.sel.pinned': 'Pinned {time}',
   'plan.sel.preview': 'Preview {time}',

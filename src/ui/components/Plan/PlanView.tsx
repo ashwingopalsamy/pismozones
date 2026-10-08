@@ -8,6 +8,7 @@ import { Icon } from '../Icon';
 import { planViewModel } from './model';
 import styles from './Plan.module.css';
 
+const QUARTER = 900_000;
 const LEGEND: Record<WorkKind, Key> = {
   working: 'plan.legend.working',
   early: 'plan.legend.edge',
@@ -16,6 +17,7 @@ const LEGEND: Record<WorkKind, Key> = {
   weekend: 'plan.legend.weekend',
   holiday: 'plan.legend.holiday',
 };
+const pct = (f: number) => `${(f * 100).toFixed(3)}%`;
 
 export function PlanView({ layout }: { layout: 'phone' | 'panel' }) {
   const app = useApp();
@@ -45,15 +47,12 @@ export function PlanView({ layout }: { layout: 'phone' | 'panel' }) {
       'day_nav',
     );
   };
-  // Pointer on a column pins its start; dragging across columns scrubs.
-  const columnAt = (e: PointerEvent) => {
-    const el = (e.target as HTMLElement).closest<HTMLElement>('[data-col]');
-    return el ? Number(el.dataset.col) : null;
-  };
+  // Anywhere on the timeline: press to pin, drag to scrub (15-minute steps).
   const scrubTo = (e: PointerEvent) => {
-    const c = columnAt(e);
-    const col = c === null ? undefined : m.columns[c];
-    if (col) app.scrub(col.start);
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const f = rect.width ? Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)) : 0;
+    const at = plan.day.start + f * (plan.day.end - plan.day.start);
+    app.scrub(Math.min(Math.round(at / QUARTER) * QUARTER, plan.day.end - QUARTER));
   };
 
   return (
@@ -87,14 +86,18 @@ export function PlanView({ layout }: { layout: 'phone' | 'panel' }) {
 
       {m.best ? (
         <div class={styles.best}>
-          <span class={styles.bestText}>
-            <span class={styles.bestLabel}>{m.best.head}</span>
-            <span class={styles.perCity}>
+          <div class={styles.bestMain}>
+            <b class={styles.bestLabel}>{m.best.head}</b>
+            <ul class={styles.chips}>
               {m.best.perCity.map((p) => (
-                <span key={p.id}>{p.text}</span>
+                <li key={p.id} class={p.outside ? styles.outsideChip : undefined}>
+                  <span class={styles.chipName}>{p.name}</span>
+                  <span class={styles.chipRange}>{p.range}</span>
+                  {p.outside && <em>{t('plan.outsideTag')}</em>}
+                </li>
               ))}
-            </span>
-          </span>
+            </ul>
+          </div>
           <button
             type="button"
             class={styles.use}
@@ -113,63 +116,92 @@ export function PlanView({ layout }: { layout: 'phone' | 'panel' }) {
         <div class={styles.best}>{t('plan.none', { date: m.dayTitle })}</div>
       )}
 
-      <div class={styles.scroller}>
-        <div
-          class={styles.grid}
-          aria-hidden="true"
-          style={`--cols:${m.columns.length}`}
-          onPointerDown={(e) => {
-            if (columnAt(e) === null) return;
-            try {
-              (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-            } catch {
-              // best-effort
-            }
-            dragging.current = true;
-            scrubTo(e);
-          }}
-          onPointerMove={(e) => {
-            if (dragging.current) scrubTo(e);
-          }}
-          onPointerUp={() => {
-            if (!dragging.current) return;
-            dragging.current = false;
-            app.endScrub('plan_drag');
-          }}
-          onPointerCancel={() => {
-            dragging.current = false;
-          }}
-        >
-          <span class={styles.corner} />
-          {m.columns.map((c, i) => (
-            <span key={c.start} class={styles.colHead}>
-              {m.selected?.column === i && <b class={styles.selLabel}>{m.selected.label}</b>}
-            </span>
-          ))}
-          {m.rows.map((r) => [
-            <span key={`${r.id}-h`} class={styles.rowHead}>
+      <div class={styles.grid} aria-hidden="true">
+        <div class={styles.heads}>
+          <span class={styles.pillLane} />
+          {m.rows.map((r) => (
+            <div key={r.id} class={styles.rowHead}>
               <b>
                 <i class={`${styles.dot} ${styles[r.kind]}`} />
                 {r.name}
               </b>
-              <span>
-                {r.hours} · {r.at}
-              </span>
-            </span>,
-            ...r.cells.map((c, i) => {
-              const inBest = m.best && i >= m.best.columns[0] && i < m.best.columns[1];
-              return (
-                <span
-                  key={`${r.id}-${i}`}
-                  data-col={i}
-                  class={`${styles.slot} ${styles[c.kinds[0]]} ${c.kinds[1] ? styles[`to_${c.kinds[1]}`] : ''} ${inBest ? styles.inBest : ''} ${m.selected?.column === i ? styles.sel : ''}`}
+              <span>{r.at}</span>
+            </div>
+          ))}
+        </div>
+        <div class={styles.scroller}>
+          <div
+            class={styles.area}
+            style={`--hours:${m.hours}`}
+            onPointerDown={(e) => {
+              try {
+                (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+              } catch {
+                // best-effort
+              }
+              dragging.current = true;
+              scrubTo(e);
+            }}
+            onPointerMove={(e) => {
+              if (dragging.current) scrubTo(e);
+            }}
+            onPointerUp={() => {
+              if (!dragging.current) return;
+              dragging.current = false;
+              app.endScrub('plan_drag');
+            }}
+            onPointerCancel={() => {
+              dragging.current = false;
+            }}
+          >
+            <div class={styles.pillLane}>
+              {m.selected && (
+                <b
+                  class={styles.selLabel}
+                  style={`left:${pct((m.selected.column + 0.5) / m.hours)}`}
                 >
-                  {c.label}
-                  {c.dayMark && <sup class={styles.dayMark}>{c.dayMark}</sup>}
-                </span>
-              );
-            }),
-          ])}
+                  {m.selected.label}
+                </b>
+              )}
+            </div>
+            <div class={styles.tracks}>
+              {m.best && (
+                <i
+                  class={styles.band}
+                  style={`left:${pct(m.best.from)};width:${pct(m.best.to - m.best.from)}`}
+                />
+              )}
+              {m.selected && (
+                <i
+                  class={styles.selCol}
+                  style={`left:${pct(m.selected.column / m.hours)};width:${pct(1 / m.hours)}`}
+                />
+              )}
+              {m.rows.map((r) => (
+                <div key={r.id} class={styles.track}>
+                  {r.segments.map((s) => (
+                    <i
+                      key={s.from}
+                      class={`${styles.seg} ${styles[s.kind]}`}
+                      style={`left:${pct(s.from)};width:${pct(s.to - s.from)}`}
+                    />
+                  ))}
+                  <div class={styles.labels}>
+                    {r.labels.map((l, i) => (
+                      <span
+                        key={i}
+                        class={`${l.day ? styles.dayMark : ''} ${l.kind === 'working' ? styles.onWork : ''}`}
+                      >
+                        {l.text}
+                        {l.sub && <small>{l.sub}</small>}
+                        {l.suffix}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -194,9 +226,9 @@ export function PlanView({ layout }: { layout: 'phone' | 'panel' }) {
       </table>
 
       <div class={styles.legend} aria-hidden="true">
-        {(['working', 'early', 'off', 'weekend', 'holiday'] as const).map((k) => (
+        {(['working', 'early', 'weekend', 'holiday'] as const).map((k) => (
           <span key={k}>
-            <i class={`${styles.cell} ${styles[k]}`} />
+            <i class={`${styles.swatch} ${styles[k]}`} />
             {t(LEGEND[k])}
           </span>
         ))}

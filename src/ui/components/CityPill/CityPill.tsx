@@ -39,7 +39,6 @@ export function CityPill({ mode, expanded, onOpen, ref }: CityPillProps) {
       {mode === 'time' && (
         <span class={styles.time}>{c.period ? `${c.hm} ${c.period}` : c.hm}</span>
       )}
-      <span class={styles.count}>{n}</span>
       <Icon name="chevronDown" size={14} />
     </button>
   );

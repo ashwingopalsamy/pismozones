@@ -48,24 +48,54 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--sp-8) var(--sp-12);
-  padding: var(--sp-12) var(--sp-16);
+  gap: var(--sp-12) var(--sp-16);
+  padding: var(--sp-14) var(--sp-16);
   border-radius: 18px;
   background: var(--ok-soft);
   border: 1px solid var(--ok-line);
 }
-.bestText {
+.bestMain {
+  flex: 1 1 320px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  flex: 1 1 220px;
+  gap: var(--sp-8);
 }
 .bestLabel {
   font-size: var(--fs-15);
   font-weight: 600;
 }
-.outside {
+.chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chips li {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--r-chip);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
   font-size: var(--fs-13);
+  white-space: nowrap;
+}
+.chipName {
+  font-weight: 600;
+}
+.chipRange {
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+.outsideChip {
+  opacity: 0.6;
+}
+.outsideChip em {
+  font-style: normal;
+  font-size: var(--fs-12);
   color: var(--text-3);
 }
 .use {
@@ -80,148 +110,52 @@
   align-items: center;
   gap: var(--sp-8);
 }
-/* World-clock grid: one column per reference hour; every cell is that row's local time. */
-.scroller {
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
+
+/* Timeline: row heads on the left; on the right one track per city over the reference day.
+   Work states are continuous bars (exact to the half hour); each hour shows that city's local hour. */
 .grid {
   display: grid;
-  grid-template-columns: minmax(150px, max-content) repeat(var(--cols), minmax(36px, 1fr));
-  gap: 3px;
-  min-width: max-content;
-  touch-action: pan-y;
-  user-select: none;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: var(--sp-16);
 }
-.panel .grid {
-  min-width: 0;
+.heads {
+  display: flex;
+  flex-direction: column;
 }
-.corner,
-.rowHead {
-  position: sticky;
-  left: 0;
-  z-index: 1;
-  background: var(--surface-2);
-}
-.colHead {
+.pillLane {
   position: relative;
-  height: 22px;
-}
-.selLabel {
-  position: absolute;
-  left: 50%;
-  bottom: 2px;
-  transform: translateX(-50%);
-  padding: 1px var(--sp-8);
-  border-radius: var(--r-chip);
-  background: var(--text-1);
-  color: var(--ground);
-  font-size: var(--fs-11);
-  font-weight: 600;
-  white-space: nowrap;
+  height: 26px;
+  flex: none;
 }
 .rowHead {
+  height: 44px;
+  margin-bottom: 6px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 1px;
-  padding-right: var(--sp-12);
-  font-size: var(--fs-14);
 }
 .rowHead b {
   display: flex;
   align-items: center;
   gap: 7px;
+  font-size: var(--fs-14);
   font-weight: 600;
+  white-space: nowrap;
 }
 .rowHead span {
-  font-family: var(--font-mono);
-  font-size: var(--fs-11);
-  color: var(--text-3);
-}
-.slot {
-  --a: var(--plan-off);
-  --b: var(--a);
-  position: relative;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  border-radius: var(--r-cell);
-  background: linear-gradient(90deg, var(--a) 50%, var(--b) 50%);
-  font-family: var(--font-mono);
+  padding-left: 14px;
   font-size: var(--fs-12);
-  color: var(--text-2);
-  cursor: pointer;
-}
-.slot.working {
-  --a: var(--plan-work);
-  color: var(--on-sky);
-}
-.slot.early {
-  --a: var(--plan-edge);
-}
-.slot.late {
-  --a: var(--plan-late);
-}
-.slot.weekend,
-.slot.holiday {
-  --a: var(--plan-weekend);
-}
-.slot.holiday {
-  --a: var(--plan-holiday);
-}
-.to_working {
-  --b: var(--plan-work);
-}
-.to_early {
-  --b: var(--plan-edge);
-}
-.to_late {
-  --b: var(--plan-late);
-}
-.to_off {
-  --b: var(--plan-off);
-}
-.to_weekend {
-  --b: var(--plan-weekend);
-}
-.to_holiday {
-  --b: var(--plan-holiday);
-}
-.inBest {
-  box-shadow: inset 0 0 0 1.5px var(--ok-line);
-}
-.sel {
-  outline: 2px solid var(--text-1);
-  outline-offset: -2px;
-  z-index: 1;
-}
-.dayMark {
-  position: absolute;
-  top: 2px;
-  right: 3px;
-  font-size: var(--fs-11);
-  line-height: 1;
-  opacity: 0.8;
-}
-.perCity {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px var(--sp-12);
-  font-size: var(--fs-13);
-  color: var(--text-2);
-}
-.cell {
-  flex: 1;
-  height: 16px;
-  border-radius: var(--r-cell);
-  background: var(--plan-off);
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .dot {
   width: 7px;
   height: 7px;
+  flex: none;
   border-radius: 50%;
-  background: var(--neutral);
+  background: var(--text-4);
 }
 .dot.working {
   background: var(--ok);
@@ -231,28 +165,120 @@
 .dot.holiday {
   background: var(--warn);
 }
-.cell.working {
+.scroller {
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.area {
+  position: relative;
+  min-width: calc(var(--hours) * 30px);
+  touch-action: pan-y;
+  user-select: none;
+  cursor: pointer;
+}
+.tracks {
+  position: relative;
+}
+.track {
+  position: relative;
+  height: 44px;
+  margin-bottom: 6px;
+  border-radius: 12px;
+  background: var(--plan-off);
+  overflow: hidden;
+}
+.seg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+.seg.working {
   background: var(--plan-work);
 }
-.cell.early {
+.seg.early {
   background: var(--plan-edge);
 }
-.cell.late {
+.seg.late {
   background: var(--plan-late);
 }
-.cell.weekend {
+.seg.weekend {
   background: repeating-linear-gradient(
     135deg,
     var(--plan-weekend) 0 2px,
-    var(--plan-hatch-gap) 2px 4px
+    var(--plan-hatch-gap) 2px 6px
   );
 }
-.cell.holiday {
+.seg.holiday {
   background: repeating-linear-gradient(
     135deg,
     var(--plan-holiday) 0 2px,
-    var(--plan-hatch-gap) 2px 4px
+    var(--plan-hatch-gap) 2px 6px
   );
+}
+.labels {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--hours), minmax(0, 1fr));
+  align-items: center;
+  pointer-events: none;
+}
+.labels span {
+  text-align: center;
+  font-size: var(--fs-12);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+.labels small {
+  font-size: 0.75em;
+  opacity: 0.75;
+}
+.labels .onWork {
+  color: var(--on-sky);
+}
+.labels .dayMark {
+  font-size: var(--fs-11);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-1);
+}
+.labels .dayMark.onWork {
+  color: var(--on-sky);
+}
+/* Best window: one soft band behind every track. */
+.band {
+  position: absolute;
+  top: -4px;
+  bottom: 2px;
+  border-radius: 14px;
+  background: var(--ok-soft);
+  box-shadow: inset 0 0 0 1.5px var(--ok-line);
+  pointer-events: none;
+  z-index: 1;
+}
+/* The selected moment's hour: one column outline across all tracks. */
+.selCol {
+  position: absolute;
+  top: -4px;
+  bottom: 2px;
+  z-index: 2;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 2px var(--text-1);
+  pointer-events: none;
+}
+.selLabel {
+  position: absolute;
+  bottom: 4px;
+  transform: translateX(-50%);
+  padding: 2px var(--sp-8);
+  border-radius: var(--r-chip);
+  background: var(--text-1);
+  color: var(--ground);
+  font-size: var(--fs-11);
+  font-weight: 600;
+  white-space: nowrap;
 }
 .legend {
   display: flex;
@@ -266,11 +292,31 @@
   align-items: center;
   gap: 6px;
 }
-.legend i {
-  width: 14px;
-  height: 8px;
-  border-radius: 2px;
+.swatch {
+  width: 16px;
+  height: 10px;
+  border-radius: 3px;
   display: inline-block;
+}
+.swatch.working {
+  background: var(--plan-work);
+}
+.swatch.early {
+  background: var(--plan-edge);
+}
+.swatch.weekend {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--plan-weekend) 0 2px,
+    var(--plan-hatch-gap) 2px 4px
+  );
+}
+.swatch.holiday {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--plan-holiday) 0 2px,
+    var(--plan-hatch-gap) 2px 4px
+  );
 }
 .note {
   font-size: var(--fs-12);

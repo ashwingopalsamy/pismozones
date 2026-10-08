@@ -25,6 +25,8 @@ export interface AppState extends MomentState {
   boot: Boot;
   /** The office whose zone typed times are read in: preview source ▸ chosen reference. */
   reference: ReadonlySignal<Office>;
+  /** The reference without a command preview: always a city on screen (chosen ▸ viewer's ▸ São Paulo). */
+  homeRef: ReadonlySignal<Office>;
   displayed: ReadonlySignal<Array<{ office: Office; temp: boolean }>>;
   view: Signal<'zones' | 'plan'>;
   track: Track;
@@ -50,7 +52,7 @@ export function createAppState(env: AppEnv, track: Track = () => {}): AppState {
 
   // The shared view borrows the reference and pins its instant; both are restored on exit.
   const stashedRef = cities.refId.value;
-  const homeRef = () =>
+  const savedRef = () =>
     stashedRef && cities.activeIds.value.includes(stashedRef) ? stashedRef : null;
   if (shared) {
     cities.refId.value = shared.refId;
@@ -62,13 +64,21 @@ export function createAppState(env: AppEnv, track: Track = () => {}): AppState {
       version: shared ? String(shared.version) : '?',
     });
 
+  const homeRef = computed(() => {
+    const shown = displayed.value;
+    const pick = (id: OfficeId | null | undefined) =>
+      id ? shown.find((d) => d.office.id === id)?.office : undefined;
+    return (
+      pick(cities.refId.value) ?? pick(cities.viewerOffice?.id) ?? (getOffice(ANCHOR) as Office)
+    );
+  });
   const reference = computed(() => {
     const p = m.preview.value;
     if (p?.status === 'ok' && p.intent.source.kind === 'office') {
       const office = getOffice(p.intent.source.id);
       if (office) return office;
     }
-    return cities.defaultRef.value;
+    return homeRef.value;
   });
 
   const displayed = computed(() => {
@@ -92,7 +102,7 @@ export function createAppState(env: AppEnv, track: Track = () => {}): AppState {
     if (!o) return;
     batch(() => {
       overlay.value = null;
-      cities.refId.value = homeRef();
+      cities.refId.value = savedRef();
       m.pinned.value = null;
       m.preview.value = null;
       m.query.value = '';
@@ -111,6 +121,7 @@ export function createAppState(env: AppEnv, track: Track = () => {}): AppState {
     overlay,
     boot,
     reference,
+    homeRef,
     displayed,
     view,
     track,
@@ -132,7 +143,7 @@ export function createAppState(env: AppEnv, track: Track = () => {}): AppState {
         savePersisted(env.storage, {
           schema: 1,
           activeIds: cities.activeIds.value,
-          refId: overlay.value ? homeRef() : cities.refId.value,
+          refId: overlay.value ? savedRef() : cities.refId.value,
           prefs: prefs.prefs.value,
           history: history.items.value,
         });

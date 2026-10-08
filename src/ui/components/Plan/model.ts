@@ -10,37 +10,44 @@ import type { Mode } from '@state/moment';
 import { translate } from '../../i18n';
 
 const HOUR = 3_600_000;
-const SLOT = 1_800_000;
 
-export interface PlanCell {
-  /** The row's local time at the column start: "9", "5:30", or "9a" / "5:30p". */
-  label: string;
-  /** Work state of each half hour; one entry when both halves agree. */
-  kinds: [WorkKind] | [WorkKind, WorkKind];
-  /** Marks where the row's local date differs from the reference date (first cell of a run). */
-  dayMark: '+1' | '−1' | null;
+/** A row's label for one reference hour: its local hour, a small ":30" for half-hour zones, or the date at local midnight. */
+export interface HourLabel {
+  text: string;
+  /** 12-hour suffix ("a" / "p"), rendered after the minutes. */
+  suffix: string | null;
+  /** Work state at the start of this hour (labels on working hours render light-on-dark). */
+  kind: WorkKind;
+  sub: string | null;
+  /** True when this cell starts a new local day (text is then the short date). */
+  day: boolean;
+}
+
+export interface PlanRow {
+  id: OfficeId;
+  name: string;
+  /** Local time at the selected moment, with the weekday when it differs from the reference day. */
+  at: string;
+  kind: WorkKind;
+  labels: HourLabel[];
+  /** Contiguous work-state runs as fractions of the reference day; 'off' is left empty. */
+  segments: Array<{ kind: Exclude<WorkKind, 'off'>; from: number; to: number }>;
 }
 
 export interface PlanViewModel {
   dayTitle: string;
-  /** One per hour of the reference city's day: 23, 24 or 25. */
-  columns: Array<{ start: Instant }>;
-  rows: Array<{
-    id: OfficeId;
-    name: string;
-    hours: string;
-    at: string;
-    kind: WorkKind;
-    cells: PlanCell[];
-  }>;
+  /** Hours in the reference city's day: 23, 24 or 25. */
+  hours: number;
+  rows: PlanRow[];
+  /** The hour column holding the selected moment, with its pill label. */
   selected: { column: number; label: string } | null;
   best: {
     start: Instant;
     working: number;
     head: string;
-    /** [first, last) column indexes covered by the window. */
-    columns: [number, number];
-    perCity: Array<{ id: OfficeId; text: string }>;
+    from: number;
+    to: number;
+    perCity: Array<{ id: OfficeId; name: string; range: string; outside: boolean }>;
   } | null;
   noCalendar: string[];
 }
@@ -50,16 +57,9 @@ const clock = (t: Instant, zone: string, hc: HourCycle) => {
   return c.period ? `${c.hm} ${c.period}` : c.hm;
 };
 
-const minutesLabel = (m: number, hc: HourCycle) => {
-  const c = formatClock({ hour: Math.floor(m / 60), minute: m % 60 }, hc);
-  return c.period ? `${c.hm} ${c.period}` : c.hm;
-};
-
-const cellLabel = (hour: number, minute: number, hc: HourCycle) => {
-  const mm = minute ? `:${String(minute).padStart(2, '0')}` : '';
-  if (hc === 'h23') return `${hour}${mm}`;
-  return `${((hour + 11) % 12) + 1}${mm}${hour < 12 ? 'a' : 'p'}`;
-};
+const hourText = (hour: number, hc: HourCycle) =>
+  hc === 'h23' ? String(hour) : String(((hour + 11) % 12) + 1);
+const suffixFor = (hour: number, hc: HourCycle) => (hc === 'h23' ? null : hour < 12 ? 'a' : 'p');
 
 export function planViewModel(
   plan: PlanResult,
@@ -73,55 +73,71 @@ export function planViewModel(
   now: Instant,
 ): PlanViewModel {
   const { start, end } = plan.day;
+  const length = end - start;
   const refDate = zonedFields(start, ref.zone);
   const rel = relativeDay(refDate, zonedFields(now, viewerZone));
+  const hours = Math.round(length / HOUR);
+  const n = plan.slots.length;
 
-  const columns: PlanViewModel['columns'] = [];
-  for (let t = start; t < end; t += HOUR) columns.push({ start: t });
-  const slotAt = (t: Instant) => plan.slots[Math.floor((t - start) / SLOT)];
-
-  const rows = offices.map((o, k) => {
-    let prev = 0;
-    const cells = columns.map((c): PlanCell => {
-      const f = zonedFields(c.start, o.zone);
-      const a = slotAt(c.start)?.states[k] ?? 'off';
-      const b = slotAt(c.start + SLOT)?.states[k];
-      const delta = dayDelta(f, refDate);
-      const dayMark = delta !== prev && delta !== 0 ? (delta > 0 ? '+1' : '−1') : null;
-      prev = delta;
-      return {
-        label: cellLabel(f.hour, f.minute, hc),
-        kinds: b && b !== a ? [a, b] : [a],
-        dayMark,
-      };
-    });
+  const rows = offices.map((o, k): PlanRow => {
+    const labels: HourLabel[] = [];
+    for (let i = 0; i < hours; i++) {
+      const f = zonedFields(start + i * HOUR, o.zone);
+      const kind = (plan.slots[i * 2]?.states[k] ?? 'off') as WorkKind;
+      const midnight = f.hour === 0 && f.minute === 0;
+      labels.push(
+        midnight
+          ? {
+              text: formatShortDate(f, lang).split(' ').slice(0, 2).join(' '),
+              suffix: null,
+              kind,
+              sub: null,
+              day: true,
+            }
+          : {
+              text: hourText(f.hour, hc),
+              suffix: suffixFor(f.hour, hc),
+              kind,
+              sub: f.minute ? `:${String(f.minute).padStart(2, '0')}` : null,
+              day: false,
+            },
+      );
+    }
+    const segments: PlanRow['segments'] = [];
+    for (let i = 0; i < n; ) {
+      const kind = plan.slots[i]?.states[k] as WorkKind;
+      let j = i + 1;
+      while (j < n && plan.slots[j]?.states[k] === kind) j++;
+      if (kind !== 'off') segments.push({ kind, from: i / n, to: j / n });
+      i = j;
+    }
+    const at = zonedFields(moment, o.zone);
+    const otherDay = dayDelta(at, zonedFields(moment, ref.zone)) !== 0;
     return {
       id: o.id,
       name: o.name,
-      hours: `${minutesLabel(o.workHours.start, hc)}–${minutesLabel(o.workHours.end, hc)}`,
-      at: clock(moment, o.zone, hc),
+      at: `${clock(moment, o.zone, hc)}${otherDay ? ` · ${formatShortDate(at, lang).split(' ')[0]}` : ''}`,
       kind: workState(moment, o).kind,
-      cells,
+      labels,
+      segments,
     };
   });
 
-  const inDay = moment >= start && moment < end;
-  const selected = inDay
-    ? {
-        column: Math.floor((moment - start) / HOUR),
-        label: translate(
-          lang,
-          mode === 'live'
-            ? 'plan.sel.now'
-            : mode === 'preview'
-              ? 'plan.sel.preview'
-              : 'plan.sel.pinned',
-          {
-            time: clock(moment, ref.zone, hc),
-          },
-        ),
-      }
-    : null;
+  const selected =
+    moment >= start && moment < end
+      ? {
+          column: Math.min(hours - 1, Math.floor((moment - start) / HOUR)),
+          label: translate(
+            lang,
+            mode === 'live'
+              ? 'plan.sel.now'
+              : mode === 'preview'
+                ? 'plan.sel.preview'
+                : 'plan.sel.pinned',
+            { time: clock(moment, ref.zone, hc) },
+          ),
+        }
+      : null;
 
   const best = plan.best
     ? (() => {
@@ -133,23 +149,21 @@ export function planViewModel(
           start: from,
           working: b.working,
           head: translate(lang, 'plan.bestHead', { n: b.working, total: offices.length }),
-          columns: [Math.floor(b.startIndex / 2), Math.ceil(b.endIndex / 2)] as [number, number],
-          perCity: offices.map((o) => {
-            const range = `${clock(from, o.zone, hc)}–${clock(to, o.zone, hc)}`;
-            return {
-              id: o.id,
-              text: outside.has(o.id)
-                ? translate(lang, 'plan.outsideCity', { city: o.name, range })
-                : `${o.name} ${range}`,
-            };
-          }),
+          from: b.startIndex / n,
+          to: b.endIndex / n,
+          perCity: offices.map((o) => ({
+            id: o.id,
+            name: o.name,
+            range: `${clock(from, o.zone, hc)}–${clock(to, o.zone, hc)}`,
+            outside: outside.has(o.id),
+          })),
         };
       })()
     : null;
 
   return {
     dayTitle: `${rel ? `${translate(lang, `day.${rel}`)}, ` : ''}${formatShortDate(refDate, lang)}`,
-    columns,
+    hours,
     rows,
     selected,
     best,

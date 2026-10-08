@@ -53,7 +53,7 @@ describe('cardModel', () => {
       cardModel(o('saopaulo'), Date.UTC(2026, 9, 12, 15), { ...ctx, lang: 'pt-BR' }).stateLabel,
     ).toEqual({
       key: 'state.holiday',
-      params: { name: 'Nossa Senhora Aparecida' },
+      params: { name: 'Nossa Senhora de Aparecida' },
     });
     expect(cardModel(o('bristol'), Date.UTC(2026, 9, 7, 23), ctx).stars.length).toBeGreaterThan(0);
   });
