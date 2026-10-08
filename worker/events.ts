@@ -1,7 +1,10 @@
 import { validateBatch } from '@core/analytics/schema';
 
 export const ORIGIN_RE =
-  /^(https:\/\/(pismozones\.ashwingopalsamy\.in|([a-z0-9-]+-)?pismozones\.[a-z0-9-]+\.workers\.dev)|http:\/\/localhost:\d+)$/;
+  /^(https:\/\/(pismozones\.ashwingopalsamy\.in|([a-z0-9-]+-)?pismozones\.[a-z0-9-]+\.workers\.dev|pismozones(-[a-z0-9-]+)?\.vercel\.app)|http:\/\/localhost:\d+)$/;
+
+/** Event blobs are padded to this many slots so the host always lands in blob12. */
+const EVENT_BLOBS = 6;
 
 const MAX_BYTES = 16_384;
 
@@ -38,8 +41,8 @@ async function readCapped(request: Request, max: number): Promise<string | null>
 export async function handleEvents(request: Request, env: Pick<Env, 'EVENTS'>): Promise<Response> {
   if (request.method !== 'POST')
     return new Response(null, { status: 405, headers: { allow: 'POST' } });
-  if (!ORIGIN_RE.test(request.headers.get('origin') ?? ''))
-    return new Response(null, { status: 403 });
+  const origin = request.headers.get('origin') ?? '';
+  if (!ORIGIN_RE.test(origin)) return new Response(null, { status: 403 });
   const body = await readCapped(request, MAX_BYTES);
   if (body === null) return new Response(null, { status: 413 });
   let batch: ReturnType<typeof validateBatch>;
@@ -50,10 +53,19 @@ export async function handleEvents(request: Request, env: Pick<Env, 'EVENTS'>): 
   }
   if (!batch) return new Response(null, { status: 400 });
   const country = (request.cf?.country as string | undefined) ?? 'XX';
+  const host = new URL(origin).hostname;
   for (const e of batch.e)
     env.EVENTS.writeDataPoint({
       indexes: [e.n],
-      blobs: [e.n, String(batch.v), batch.a, country, batch.s, ...e.b],
+      blobs: [
+        e.n,
+        String(batch.v),
+        batch.a,
+        country,
+        batch.s,
+        ...Array.from({ length: EVENT_BLOBS }, (_, i) => e.b[i] ?? ''),
+        host,
+      ],
       doubles: [e.t, ...e.d],
     });
   return new Response(null, { status: 204 });

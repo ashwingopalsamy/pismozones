@@ -30,7 +30,7 @@ it('writes one positional data point per event', async () => {
   expect(res.status).toBe(204);
   expect(writeDataPoint).toHaveBeenNthCalledWith(1, {
     indexes: ['commit'],
-    blobs: ['commit', '1', '2.0.0', 'XX', 'abcd1234abcd1234', 'ruler'],
+    blobs: ['commit', '1', '2.0.0', 'XX', 'abcd1234abcd1234', 'ruler', '', '', '', '', '', 'pismozones.ashwingopalsamy.in'],
     doubles: [1200, 2.5],
   });
   expect(writeDataPoint).toHaveBeenCalledTimes(2);
@@ -64,12 +64,15 @@ it('accepts preview aliases and localhost, nothing else', () => {
     'https://pismozones.acme.workers.dev',
     'https://pr-12-pismozones.acme.workers.dev',
     'http://localhost:5173',
+    'https://pismozones.vercel.app',
+    'https://pismozones-git-main-ashwin.vercel.app',
   ])
     expect(ORIGIN_RE.test(o)).toBe(true);
   for (const o of [
     'https://pismozones.ashwingopalsamy.in.evil.example',
     'https://evilpismozones.acme.workers.dev',
     'http://pismozones.ashwingopalsamy.in',
+    'https://evil.vercel.app',
   ])
     expect(ORIGIN_RE.test(o)).toBe(false);
 });

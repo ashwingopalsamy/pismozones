@@ -8,7 +8,9 @@ Pismo Zones measures how it is used so the defaults, parser and planner can get 
 
 - First-party product events (below), batched in memory and sent to `/e` on this origin at most every 60 s, every 50 events, or when the page is hidden.
 - Each batch carries a random session id that lives only in memory for one page load, the app version, and the schema version.
-- The Worker adds the visitor's country, as reported by Cloudflare (`request.cf.country`).
+- The Worker adds the visitor's country, as reported by Cloudflare (`request.cf.country`), and the site's own host name (which deployment sent the event).
+- Events from the Vercel mirror go to the same Worker endpoint, so both hosts share one dataset.
+- On the Vercel mirror, Vercel Web Analytics counts page views in place of Cloudflare Web Analytics.
 - Cloudflare Web Analytics (cookieless page views and Core Web Vitals), when a beacon token is configured.
 
 **Never collected**
@@ -31,7 +33,8 @@ Dataset: `pismozones_events` (Workers Analytics Engine). One data point per even
 | `blob3` | app version |
 | `blob4` | country (ISO 3166-1 alpha-2, `XX` if unknown) |
 | `blob5` | session id (random, per page load) |
-| `blob6`… | the event's blobs, in order |
+| `blob6`–`blob11` | the event's blobs, in order (padded with `''` to six) |
+| `blob12` | the sending host (`pismozones.ashwingopalsamy.in`, `pismozones.vercel.app`, …); `''` on rows written before hosts were recorded |
 | `double1` | ms since the session started |
 | `double2`… | the event's doubles, in order |
 
@@ -139,6 +142,15 @@ All cover the last 30 days.
    FROM pismozones_events
    WHERE index1 = 'error' AND timestamp > now() - INTERVAL '30' DAY
    GROUP BY code, component ORDER BY errors DESC
+   ```
+
+10. Sessions by host
+
+   ```sql
+   SELECT blob12 AS host, SUM(_sample_interval) AS sessions
+   FROM pismozones_events
+   WHERE index1 = 'session_start' AND timestamp > now() - INTERVAL '30' DAY
+   GROUP BY host ORDER BY sessions DESC
    ```
 
 ## Running a query
