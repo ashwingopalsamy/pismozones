@@ -12,21 +12,27 @@
   display: flex;
   align-items: center;
   gap: var(--sp-10);
-  height: 50px;
-  padding: 0 6px 0 var(--sp-16);
-  border-radius: var(--r-chip);
-  background: var(--glass);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-inset);
+  height: 44px;
+  padding: 0 6px 0 14px;
+  border-radius: var(--r-control);
+  background: var(--surface-1);
+  box-shadow: var(--ring-rest);
   color: var(--text-3);
 }
 .bar:focus-within {
-  border-color: var(--focus);
-  box-shadow: 0 0 0 4px var(--focus-soft);
+  box-shadow:
+    0 0 0 2px var(--focus),
+    0 0 0 5px var(--focus-soft);
 }
 .dock .bar {
-  height: 52px;
-  box-shadow: var(--shadow-inset), var(--shadow-float);
+  height: 48px;
+  border-radius: 14px;
+  box-shadow: var(--elev-1);
+}
+.dock .bar:focus-within {
+  box-shadow:
+    0 0 0 2px var(--focus),
+    0 0 0 5px var(--focus-soft);
 }
 .field {
   position: relative;
@@ -87,12 +93,12 @@
   color: var(--text-4);
 }
 .clear {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   flex: none;
-  border-radius: 50%;
+  border-radius: 9px;
   border: 0;
-  background: var(--glass-strong);
+  background: var(--inset);
   display: grid;
   place-items: center;
   color: var(--text-2);

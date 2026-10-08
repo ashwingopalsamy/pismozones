@@ -1,5 +1,4 @@
 import type { OfficeId } from '@core/cities/registry';
-import { useRef } from 'preact/hooks';
 import { CardList } from '../components/CardList/CardList';
 import { CityPill } from '../components/CityPill/CityPill';
 import { CommandBar } from '../components/CommandBar/CommandBar';
@@ -11,8 +10,8 @@ import { Ruler } from '../components/Ruler/Ruler';
 import { SharedBanner } from '../components/SharedBanner/SharedBanner';
 import { ThemeToggle } from '../components/ThemeToggle/ThemeToggle';
 import { YouChip } from '../components/YouChip';
+import { Brand } from './Brand';
 import { useApp, useT } from './context';
-import { useWidth } from './lane';
 import styles from './layout.module.css';
 
 export interface LayoutActions {
@@ -31,9 +30,6 @@ export function PhoneLayout({
 }) {
   const app = useApp();
   const t = useT();
-  const bar = useRef<HTMLElement>(null);
-  // One line down to 360px: below 400px the view labels drop their icons and the pill shows a code.
-  const roomy = useWidth(bar) >= 400;
   const view = app.view.value;
   const setView = (v: 'zones' | 'plan') => {
     app.view.value = v;
@@ -41,31 +37,9 @@ export function PhoneLayout({
   };
   return (
     <div class={styles.phone}>
-      <header ref={bar} class={styles.phoneHeader}>
-        <button
-          type="button"
-          class={styles.iconbtn}
-          aria-label={t('a11y.settings')}
-          onClick={actions.openSettings}
-        >
-          <Icon name="sliders" />
-        </button>
-        <nav class={styles.seg} aria-label={t('a11y.view')}>
-          <button type="button" aria-pressed={view === 'zones'} onClick={() => setView('zones')}>
-            {roomy && <Icon name="zones" size={16} />}
-            {t('view.zones')}
-          </button>
-          <button type="button" aria-pressed={view === 'plan'} onClick={() => setView('plan')}>
-            {roomy && <Icon name="plan" size={16} />}
-            {t('view.plan')}
-          </button>
-        </nav>
+      <header class={styles.phoneHeader}>
+        <Brand />
         <ThemeToggle class={styles.iconbtn} />
-        <CityPill
-          mode={roomy ? 'name' : 'code'}
-          expanded={citiesOpen}
-          onOpen={actions.openCities}
-        />
       </header>
       <main class={styles.phoneMain}>
         <SharedBanner />
@@ -79,22 +53,43 @@ export function PhoneLayout({
           />
         )}
       </main>
-      <section class={styles.dock} aria-label={t('moment.live')}>
+      {/* Thumb zone, bottom-up: controls, then search, then the time scrubber. */}
+      <section class={styles.dock} aria-label={t('a11y.controls')}>
         <Sentence />
-        <div class={styles.momentRow}>
+        <YouChip class={styles.you} />
+        <div class={styles.timeRow}>
+          <MomentPill compact />
+          <Ruler />
+        </div>
+        <CommandBar placement="dock" />
+        <nav class={styles.controls} aria-label={t('a11y.controls')}>
+          <button
+            type="button"
+            class={styles.iconbtn}
+            aria-label={t('a11y.settings')}
+            onClick={actions.openSettings}
+          >
+            <Icon name="sliders" size={19} />
+          </button>
+          <fieldset class={styles.seg}>
+            <legend class="sr-only">{t('a11y.view')}</legend>
+            <button type="button" aria-pressed={view === 'zones'} onClick={() => setView('zones')}>
+              {t('view.zones')}
+            </button>
+            <button type="button" aria-pressed={view === 'plan'} onClick={() => setView('plan')}>
+              {t('view.plan')}
+            </button>
+          </fieldset>
+          <CityPill mode="code" expanded={citiesOpen} onOpen={actions.openCities} />
           <button
             type="button"
             class={styles.iconbtn}
             aria-label={t('share.action')}
             onClick={actions.share}
           >
-            <Icon name="share" />
+            <Icon name="share" size={19} />
           </button>
-          <MomentPill />
-        </div>
-        <YouChip class={styles.you} />
-        <Ruler />
-        <CommandBar placement="dock" />
+        </nav>
       </section>
     </div>
   );

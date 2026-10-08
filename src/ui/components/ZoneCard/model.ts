@@ -31,6 +31,8 @@ export interface Star {
 export interface CardModel {
   id: OfficeId;
   name: string;
+  /** ISO 3166-1 alpha-2, for the flag. */
+  country: string;
   tags: Array<'hq' | 'you' | 'temp'>;
   state: WorkState;
   stateLabel: { key: Key; params?: Record<string, string> };
@@ -134,6 +136,7 @@ export function cardModel(office: Office, moment: Instant, ctx: CardContext): Ca
   return {
     id: office.id,
     name: office.name,
+    country: office.country,
     tags,
     state,
     stateLabel: labelFor(state, office, ctx.hourCycle, ctx.lang),

@@ -22,7 +22,9 @@ it('renders an accessible card, with seconds only when live', async () => {
   const { container, getByRole, rerender } = renderWithApp(
     <ZoneCard model={model} live editable={false} box={PHONE_BOX} />,
   );
-  expect(getByRole('article', { name: 'São Paulo, 11:22, Today, Working, UTC−3' })).toBeTruthy();
+  expect(
+    getByRole('article', { name: 'São Paulo, 11:22, Today · Wed 7 Oct, In hours, UTC−3' }),
+  ).toBeTruthy();
   expect(container.textContent).toMatch(/11:22:\d{2}/);
   rerender(<ZoneCard model={model} live={false} editable={false} box={PHONE_BOX} />);
   expect(container.textContent).not.toMatch(/11:22:\d{2}/);

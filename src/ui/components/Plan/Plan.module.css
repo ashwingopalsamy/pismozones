@@ -1,205 +1,261 @@
 .plan {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-14);
+  gap: var(--sp-16);
 }
 .panel {
-  padding: 18px 22px 20px;
+  padding: var(--sp-24) var(--sp-24) var(--sp-16);
   border-radius: var(--r-sheet);
-  background: var(--surface-2);
-  border: 1px solid var(--line);
+  background: var(--surface-1);
+  box-shadow: var(--elev-1);
 }
+
+/* Header: title, day stepper, meeting length, reference city */
 .head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--sp-12);
+  gap: var(--sp-12) var(--sp-14);
 }
 .title {
   margin: 0;
-  font-size: var(--fs-17);
-  font-weight: 600;
+  font-size: var(--fs-20);
+  font-weight: 650;
+  letter-spacing: -0.015em;
 }
-.daynav {
+.stepper,
+.lengths {
   display: flex;
   align-items: center;
-  gap: var(--sp-4);
-}
-.dayLabel {
-  min-width: 150px;
-  text-align: center;
-  font-size: var(--fs-14);
-  color: var(--text-2);
-}
-.chev {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
+  gap: 2px;
+  height: 36px;
+  margin: 0;
+  padding: 0 2px;
   border: 0;
-  background: var(--glass);
+  border-radius: 10px;
+  background: var(--inset);
+}
+.stepper button {
+  width: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
-}
-.hint {
-  font-size: var(--fs-13);
-  color: var(--text-3);
-}
-.best {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-12) var(--sp-16);
-  padding: var(--sp-14) var(--sp-16);
-  border-radius: 18px;
-  background: var(--ok-soft);
-  border: 1px solid var(--ok-line);
-}
-.bestMain {
-  flex: 1 1 320px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-8);
-}
-.bestLabel {
-  font-size: var(--fs-15);
-  font-weight: 600;
-}
-.chips {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.chips li {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: var(--r-chip);
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  font-size: var(--fs-13);
-  white-space: nowrap;
-}
-.chipName {
-  font-weight: 600;
-}
-.chipRange {
-  color: var(--text-2);
-  font-variant-numeric: tabular-nums;
-}
-.outsideChip {
-  opacity: 0.6;
-}
-.outsideChip em {
-  font-style: normal;
-  font-size: var(--fs-12);
-  color: var(--text-3);
-}
-.use {
-  height: 44px;
-  padding: 0 var(--sp-16);
-  border-radius: var(--r-chip);
   border: 0;
-  background: var(--text-1);
-  color: var(--ground);
-  font-weight: 600;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-2);
+}
+.stepper button:hover {
+  background: var(--surface-1);
+}
+.stepper span {
+  min-width: 112px;
+  text-align: center;
+  font-size: var(--fs-13);
+  font-weight: 550;
+}
+.lengths {
+  padding: 0 3px;
+}
+.lengths button {
+  height: 30px;
+  padding: 0 var(--sp-12);
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-size: var(--fs-13);
+  font-weight: 550;
+  color: var(--text-3);
+}
+.lengths button[aria-pressed="true"] {
+  background: var(--surface-1);
+  color: var(--text-1);
+  box-shadow: var(--ring-rest);
+}
+.ref {
+  margin-left: auto;
   display: inline-flex;
   align-items: center;
   gap: var(--sp-8);
+  font-size: var(--fs-13);
+  color: var(--text-3);
+}
+.ref b {
+  font-weight: 600;
+  color: var(--text-2);
 }
 
-/* Timeline: row heads on the left; on the right one track per city over the reference day.
-   Work states are continuous bars (exact to the half hour); each hour shows that city's local hour. */
-.grid {
+/* Suggestions: compact, selectable; the chosen one is the band on the timeline */
+.suggestions {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
   display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  column-gap: var(--sp-16);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--sp-10);
 }
-.heads {
+.suggestion {
   display: flex;
   flex-direction: column;
+  gap: var(--sp-8);
+  padding: var(--sp-10) var(--sp-12);
+  border: 0;
+  border-radius: var(--r-control);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--text-1);
+  text-align: left;
 }
-.pillLane {
-  position: relative;
-  height: 26px;
-  flex: none;
+.suggestion:hover {
+  box-shadow: inset 0 0 0 1px var(--line-2);
 }
-.rowHead {
-  height: 44px;
-  margin-bottom: 6px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 1px;
+.suggestion[aria-pressed="true"] {
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 1.5px var(--accent);
 }
-.rowHead b {
+.sugHead {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: var(--fs-14);
-  font-weight: 600;
-  white-space: nowrap;
+  gap: var(--sp-8);
 }
-.rowHead span {
-  padding-left: 14px;
+.sugHead b {
+  font-size: var(--fs-15);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.bestTag {
+  padding: 2px 7px;
+  border-radius: var(--r-chip);
+  background: var(--accent);
+  color: var(--logo-ink);
+  font-size: var(--fs-11);
+  font-weight: 650;
+}
+.score {
+  margin-left: auto;
   font-size: var(--fs-12);
   color: var(--text-3);
+}
+.people {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--sp-12);
+}
+.people span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
-.dot {
-  width: 7px;
-  height: 7px;
-  flex: none;
-  border-radius: 50%;
-  background: var(--text-4);
+.in {
+  color: var(--text-2);
 }
-.dot.working {
-  background: var(--ok);
+.stretch {
+  color: var(--accent-ink);
 }
-.dot.early,
-.dot.late,
-.dot.holiday {
-  background: var(--warn);
+.out {
+  color: var(--text-3);
+  opacity: 0.6;
 }
+.none {
+  margin: 0;
+  font-size: var(--fs-13);
+  color: var(--text-3);
+}
+
+/* Timeline: heads | tracks over the reference day; one overlay spans every track */
 .scroller {
   overflow-x: auto;
   scrollbar-width: thin;
 }
-.area {
-  position: relative;
-  min-width: calc(var(--hours) * 30px);
-  touch-action: pan-y;
-  user-select: none;
-  cursor: pointer;
+.timeline {
+  display: grid;
+  grid-template-columns: max-content minmax(calc(var(--hours) * 32px), 1fr);
+  column-gap: var(--sp-16);
+  row-gap: var(--sp-8);
+  align-items: center;
 }
-.tracks {
+.corner {
+  grid-column: 1;
+  grid-row: 1;
+}
+.axis {
+  grid-column: 2;
+  grid-row: 1;
   position: relative;
+  height: 22px;
+}
+.axis span {
+  position: absolute;
+  bottom: 4px;
+  transform: translateX(-50%);
+  font-size: var(--fs-11);
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+.nowPill {
+  position: absolute;
+  bottom: 0;
+  z-index: 1;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  border-radius: var(--r-chip);
+  background: var(--accent);
+  color: var(--logo-ink);
+  font-size: var(--fs-11);
+  font-weight: 650;
+  white-space: nowrap;
+}
+.rowHead {
+  grid-column: 1;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-10);
+  padding-right: var(--sp-8);
+  background: var(--surface-1);
+}
+.rowHead > span {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.rowHead b {
+  font-size: var(--fs-14);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.rowHead small {
+  font-size: var(--fs-12);
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .track {
+  grid-column: 2;
   position: relative;
-  height: 44px;
-  margin-bottom: 6px;
-  border-radius: 12px;
+  height: 40px;
+  border-radius: var(--r-control);
   background: var(--plan-off);
   overflow: hidden;
 }
+/* Work runs: rounded, inset from the track, in the city's colour (early/late in its tint). */
 .seg {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: 3px;
+  bottom: 3px;
+  border-radius: 9px;
 }
 .seg.working {
-  background: var(--plan-work);
+  background: var(--hue);
 }
-.seg.early {
-  background: var(--plan-edge);
-}
+.seg.early,
 .seg.late {
-  background: var(--plan-late);
+  background: var(--tint);
 }
 .seg.weekend {
   background: repeating-linear-gradient(
@@ -225,15 +281,15 @@
 }
 .labels span {
   text-align: center;
-  font-size: var(--fs-12);
+  font-size: 11.5px;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   color: var(--text-3);
   white-space: nowrap;
 }
 .labels small {
-  font-size: 0.75em;
-  opacity: 0.75;
+  font-size: 0.78em;
+  opacity: 0.8;
 }
 .labels .onWork {
   color: var(--on-sky);
@@ -241,84 +297,46 @@
 .labels .dayMark {
   font-size: var(--fs-11);
   font-weight: 700;
-  letter-spacing: 0.02em;
   color: var(--text-1);
 }
 .labels .dayMark.onWork {
   color: var(--on-sky);
 }
-/* Best window: one soft band behind every track. */
+.overlay {
+  grid-column: 2;
+  position: relative;
+  align-self: stretch;
+  z-index: 2;
+  touch-action: pan-y;
+  user-select: none;
+  cursor: pointer;
+}
+/* The chosen window: one soft, rounded spotlight across every city. */
 .band {
   position: absolute;
-  top: -4px;
-  bottom: 2px;
+  top: -6px;
+  bottom: -6px;
   border-radius: 14px;
-  background: var(--ok-soft);
-  box-shadow: inset 0 0 0 1.5px var(--ok-line);
-  pointer-events: none;
-  z-index: 1;
-}
-/* The selected moment's hour: one column outline across all tracks. */
-.selCol {
-  position: absolute;
-  top: -4px;
-  bottom: 2px;
-  z-index: 2;
-  border-radius: 10px;
-  box-shadow: inset 0 0 0 2px var(--text-1);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 2px var(--accent);
   pointer-events: none;
 }
-.selLabel {
+.now {
   position: absolute;
-  bottom: 4px;
-  transform: translateX(-50%);
-  padding: 2px var(--sp-8);
-  border-radius: var(--r-chip);
-  background: var(--text-1);
-  color: var(--ground);
-  font-size: var(--fs-11);
-  font-weight: 600;
-  white-space: nowrap;
-}
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-12);
-  font-size: var(--fs-12);
-  color: var(--text-3);
-}
-.legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.swatch {
-  width: 16px;
-  height: 10px;
-  border-radius: 3px;
-  display: inline-block;
-}
-.swatch.working {
-  background: var(--plan-work);
-}
-.swatch.early {
-  background: var(--plan-edge);
-}
-.swatch.weekend {
-  background: repeating-linear-gradient(
-    135deg,
-    var(--plan-weekend) 0 2px,
-    var(--plan-hatch-gap) 2px 4px
-  );
-}
-.swatch.holiday {
-  background: repeating-linear-gradient(
-    135deg,
-    var(--plan-holiday) 0 2px,
-    var(--plan-hatch-gap) 2px 4px
-  );
+  top: -8px;
+  bottom: -8px;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 2px;
+  background: var(--accent-ink);
+  opacity: 0.6;
+  pointer-events: none;
 }
 .note {
+  margin: 0;
   font-size: var(--fs-12);
   color: var(--text-3);
+}
+.plan:not(.panel) .rowHead {
+  background: var(--ground);
 }

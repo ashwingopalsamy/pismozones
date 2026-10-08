@@ -2,18 +2,18 @@
   display: flex;
   align-items: center;
   gap: var(--sp-4);
-  height: 58px;
+  height: 56px;
   padding: 0 var(--sp-4);
-  border-radius: var(--r-chip);
-  background: var(--glass);
-  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface-1);
+  box-shadow: var(--elev-1);
 }
 .chev {
   width: 44px;
   height: 44px;
   flex: none;
   border: 0;
-  border-radius: 50%;
+  border-radius: 10px;
   background: transparent;
   display: grid;
   place-items: center;

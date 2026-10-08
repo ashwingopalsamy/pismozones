@@ -1,0 +1,21 @@
+.flag {
+  position: relative;
+  flex: none;
+  display: inline-block;
+  border-radius: 50%;
+  overflow: hidden;
+  vertical-align: middle;
+}
+.flag svg {
+  display: block;
+}
+/* A hairline ring and a faint top highlight give every flag the same crisp edge on any ground. */
+.flag::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 1px var(--line-2),
+    inset 0 1px 0 var(--on-sky-edge);
+}

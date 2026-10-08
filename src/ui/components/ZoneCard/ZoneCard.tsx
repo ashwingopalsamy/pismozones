@@ -1,5 +1,6 @@
 import type { ComponentChildren } from 'preact';
 import { useT } from '../../app/context';
+import { Flag } from '../Flag/Flag';
 import { LiveSeconds } from '../LiveSeconds';
 import type { CardBox, CardModel } from './model';
 import styles from './ZoneCard.module.css';
@@ -11,6 +12,8 @@ export interface ZoneCardProps {
   box: CardBox;
   /** São Paulo's full-width hero card. */
   hero?: boolean;
+  /** Tapping the card makes it the active (reference) city. */
+  onSelect?: () => void;
   onEdit?: () => void;
   onAdd?: () => void;
   onHoliday?: () => void;
@@ -26,15 +29,20 @@ export function ZoneCard({
   editable,
   box,
   hero = false,
+  onSelect,
   onEdit,
   onAdd,
   onHoliday,
   editor,
 }: ZoneCardProps) {
   const t = useT();
-  const day = m.relDay ? t(`day.${m.relDay}`) : m.dateLabel;
+  const day = m.relDay ? `${t(`day.${m.relDay}`)} · ${m.dateLabel}` : m.dateLabel;
+  const until =
+    hero && m.stateLabel.key === 'state.working'
+      ? ` · ${t('card.until', { time: m.hours.split('–')[1] ?? '' })}`
+      : '';
   const time = m.clock.period ? `${m.clock.hm} ${m.clock.period}` : m.clock.hm;
-  const state = t(m.stateLabel.key, m.stateLabel.params);
+  const state = t(m.stateLabel.key, m.stateLabel.params) + until;
   const chipClass = cx(styles.chip, styles[m.state.kind]);
   const timeBody = (
     <span class={styles.time}>
@@ -83,9 +91,19 @@ export function ZoneCard({
         </div>
       )}
       <div class={styles.scrim} />
+      {onSelect && (
+        <button
+          type="button"
+          class={styles.select}
+          aria-label={t('cities.makeRef', { city: m.name })}
+          aria-pressed={m.isRef}
+          onClick={onSelect}
+        />
+      )}
       <div class={styles.content}>
         <div class={styles.row}>
           <div class={styles.title}>
+            <Flag country={m.country} size={hero ? 28 : 22} />
             <span class={styles.city}>{m.name}</span>
             {m.tags.map((tag) => (
               <span key={tag} class={styles.tag}>
@@ -126,7 +144,7 @@ export function ZoneCard({
               timeBody
             ))}
           <div class={styles.meta}>
-            <span>{hero ? `${day} · ${m.hours}` : day}</span>
+            <span>{day}</span>
             <span class={styles.mono}>
               {m.transition
                 ? t('card.clocksChange', {
@@ -135,6 +153,11 @@ export function ZoneCard({
                     date: m.transition.dateLabel,
                   })
                 : m.offsetLabel}
+              {hero && !m.transition && (
+                <span class={styles.works}>
+                  {` · ${t('card.works', { hours: m.hours.replace(/:00/g, '') })}`}
+                </span>
+              )}
             </span>
           </div>
         </div>

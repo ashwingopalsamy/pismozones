@@ -10,54 +10,38 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  border-radius: 18px;
-  background: var(--surface-1);
-  border: 1px solid var(--line);
-  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-8);
 }
-/* Row: [pick: dot · name/country · time/offset] [action] — fixed tracks, nothing overlaps. */
+/* Each city is a small card: [flag · name/country · time/state] [action]. Fixed tracks; nothing overlaps. */
 .item {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 48px;
+  grid-template-columns: minmax(0, 1fr) 44px;
   align-items: center;
-  border-bottom: 1px solid var(--line);
-}
-.item:last-child {
-  border-bottom: 0;
+  gap: var(--sp-4);
+  padding: 4px 6px 4px 4px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line);
 }
 .item[data-ref] {
-  background: var(--glass);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 1.5px var(--accent);
 }
 .pick {
   min-width: 0;
   display: grid;
-  grid-template-columns: 8px minmax(0, 1fr) auto;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--sp-12);
-  min-height: 60px;
-  padding: var(--sp-10) var(--sp-8) var(--sp-10) var(--sp-16);
+  padding: 8px 8px 8px 10px;
   border: 0;
+  border-radius: 10px;
   background: transparent;
   color: inherit;
   text-align: left;
   cursor: pointer;
-}
-.pick:hover {
-  background: var(--glass);
-}
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--text-4);
-}
-.working {
-  background: var(--ok);
-}
-.early,
-.late,
-.holiday {
-  background: var(--warn);
 }
 .name {
   min-width: 0;
@@ -68,10 +52,10 @@
 .name b {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   min-width: 0;
   font-size: var(--fs-15);
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -85,64 +69,94 @@
 }
 .tag {
   flex: none;
-  font-size: var(--fs-11);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  padding: 1px 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 5px;
   border-radius: 5px;
-  background: var(--glass-strong);
+  background: var(--inset);
+  color: var(--text-2);
 }
 .time {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 2px;
+  gap: 3px;
   white-space: nowrap;
-  font-variant-numeric: tabular-nums;
 }
 .time b {
   font-size: var(--fs-15);
-  font-weight: 500;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
 }
 .time span {
-  font-size: var(--fs-12);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
   color: var(--text-3);
 }
-.action,
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--neutral);
+}
+.working .dot {
+  background: var(--ok);
+}
+.early .dot,
+.late .dot,
+.holiday .dot {
+  background: var(--warn);
+}
+.check,
+.add,
 .lock {
   justify-self: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
-  border-radius: 50%;
   border: 0;
-  background: transparent;
-  color: var(--text-3);
+  border-radius: 10px;
 }
-.action {
+.check {
+  color: var(--on-sky);
+  box-shadow:
+    inset 0 1px 0 var(--on-sky-line),
+    0 1px 2px var(--line-2);
   cursor: pointer;
 }
-.action:hover {
-  background: var(--glass-strong);
+.add {
+  background: var(--surface-1);
+  box-shadow: var(--ring-rest);
   color: var(--text-1);
+  cursor: pointer;
 }
-.remove:hover {
-  color: var(--warn);
+.add:hover {
+  box-shadow:
+    0 0 0 1.5px var(--text-3),
+    var(--ring-rest);
 }
 .lock {
-  color: var(--text-4);
+  color: var(--text-3);
 }
 .search {
   display: flex;
   align-items: center;
   gap: var(--sp-10);
-  height: 48px;
-  padding: 0 var(--sp-16);
-  border-radius: var(--r-chip);
-  background: var(--glass);
-  border: 1px solid var(--line);
+  height: 46px;
+  padding: 0 14px;
+  border-radius: var(--r-control);
+  background: var(--surface-1);
+  box-shadow: var(--ring-rest);
   color: var(--text-3);
+}
+.search:focus-within {
+  box-shadow:
+    0 0 0 2px var(--focus),
+    0 0 0 5px var(--focus-soft);
 }
 .search input {
   flex: 1;
@@ -161,7 +175,7 @@
 /* Desktop dropdown: under the lane, the width of the content column. */
 .panel {
   position: fixed;
-  top: 78px;
+  top: 85px;
   left: 50%;
   transform: translateX(-50%);
   width: var(--page-w);
@@ -169,20 +183,25 @@
   margin: 0;
   padding: var(--sp-16);
   overflow-y: auto;
-  border: 1px solid var(--line);
-  border-radius: var(--r-sheet);
-  background: var(--ground);
+  border: 0;
+  border-radius: 20px;
+  background: var(--surface-1);
   color: var(--text-1);
-  box-shadow: var(--shadow-float);
+  box-shadow: var(--elev-3);
   z-index: var(--z-header);
 }
 .wide .list {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-.wide .item:nth-child(odd) {
-  border-right: 1px solid var(--line);
+.wide .search {
+  margin-bottom: var(--sp-8);
 }
-.wide .item:nth-last-child(2):nth-child(odd) {
-  border-bottom: 0;
+/* Dims the page under the open dropdown (clicks on it close the panel). */
+.scrim {
+  position: fixed;
+  inset: 77px 0 0;
+  z-index: calc(var(--z-header) - 1);
+  background: var(--backdrop);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
