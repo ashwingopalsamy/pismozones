@@ -3,10 +3,10 @@
   display: flex;
   align-items: center;
   gap: var(--sp-10);
-  height: 44px;
+  height: var(--control-h, 44px);
   min-width: 0;
   padding: 0 6px 0 var(--sp-16);
-  border-radius: var(--r-control);
+  border-radius: var(--r-md);
   background: var(--surface-1);
   box-shadow: var(--ring-rest);
   white-space: nowrap;
@@ -22,10 +22,10 @@
   animation: pulse 2.4s var(--ease-out) infinite;
 }
 .pinned .dot {
-  background: var(--accent);
+  background: var(--text-2);
 }
 .preview .dot {
-  background: var(--warn);
+  background: var(--info);
 }
 @keyframes pulse {
   0% {
@@ -57,7 +57,7 @@
   width: 32px;
   height: 32px;
   flex: none;
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   border: 0;
   background: transparent;
   color: var(--text-3);

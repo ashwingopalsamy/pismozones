@@ -5,7 +5,7 @@
 }
 .panel {
   padding: var(--sp-24) var(--sp-24) var(--sp-16);
-  border-radius: var(--r-sheet);
+  border-radius: var(--r-xl);
   background: var(--surface-1);
   box-shadow: var(--elev-1);
 }
@@ -32,7 +32,7 @@
   margin: 0;
   padding: 0 2px;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--r-md);
   background: var(--inset);
 }
 .stepper button {
@@ -41,7 +41,7 @@
   display: grid;
   place-items: center;
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   background: transparent;
   color: var(--text-2);
 }
@@ -61,7 +61,7 @@
   height: 30px;
   padding: 0 var(--sp-12);
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   background: transparent;
   font-size: var(--fs-13);
   font-weight: 550;
@@ -101,7 +101,7 @@
   gap: var(--sp-8);
   padding: var(--sp-10) var(--sp-12);
   border: 0;
-  border-radius: var(--r-control);
+  border-radius: var(--r-md);
   background: var(--surface-2);
   box-shadow: inset 0 0 0 1px var(--line);
   color: var(--text-1);
@@ -111,8 +111,8 @@
   box-shadow: inset 0 0 0 1px var(--line-2);
 }
 .suggestion[aria-pressed="true"] {
-  background: var(--accent-soft);
-  box-shadow: 0 0 0 1.5px var(--accent);
+  background: var(--sel-soft);
+  box-shadow: inset 0 0 0 1px var(--sel-line);
 }
 .sugHead {
   display: flex;
@@ -126,11 +126,12 @@
 }
 .bestTag {
   padding: 2px 7px;
-  border-radius: var(--r-chip);
-  background: var(--accent);
-  color: var(--logo-ink);
+  border-radius: var(--r-xs);
+  background: var(--ok-soft);
+  color: var(--ok);
   font-size: var(--fs-11);
-  font-weight: 650;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 .score {
   margin-left: auto;
@@ -153,7 +154,7 @@
   color: var(--text-2);
 }
 .stretch {
-  color: var(--accent-ink);
+  color: var(--text-2);
 }
 .out {
   color: var(--text-3);
@@ -191,21 +192,23 @@
   position: absolute;
   bottom: 4px;
   transform: translateX(-50%);
+  font-family: var(--font-mono);
   font-size: var(--fs-11);
   color: var(--text-3);
   font-variant-numeric: tabular-nums;
 }
+/* Now: the calendar convention — a red marker. */
 .nowPill {
   position: absolute;
   bottom: 0;
   z-index: 1;
   transform: translateX(-50%);
-  padding: 2px 8px;
-  border-radius: var(--r-chip);
-  background: var(--accent);
-  color: var(--logo-ink);
+  padding: 1px 7px;
+  border-radius: var(--r-full);
+  background: var(--now);
+  color: var(--on-sky);
   font-size: var(--fs-11);
-  font-weight: 650;
+  font-weight: 600;
   white-space: nowrap;
 }
 .rowHead {
@@ -239,23 +242,24 @@
   grid-column: 2;
   position: relative;
   height: 40px;
-  border-radius: var(--r-control);
+  border-radius: var(--r-md);
   background: var(--plan-off);
   overflow: hidden;
 }
-/* Work runs: rounded, inset from the track, in the city's colour (early/late in its tint). */
 .seg {
   position: absolute;
   top: 3px;
   bottom: 3px;
-  border-radius: 9px;
+  border-radius: var(--r-sm);
 }
+/* Work runs in a translucent tint of the city's colour: present, never loud. */
 .seg.working {
-  background: var(--hue);
+  background: color-mix(in srgb, var(--hue) 22%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hue) 30%, transparent);
 }
 .seg.early,
 .seg.late {
-  background: var(--tint);
+  background: color-mix(in srgb, var(--hue) 9%, transparent);
 }
 .seg.weekend {
   background: repeating-linear-gradient(
@@ -292,7 +296,8 @@
   opacity: 0.8;
 }
 .labels .onWork {
-  color: var(--on-sky);
+  color: color-mix(in srgb, var(--hue) 62%, var(--text-1));
+  font-weight: 600;
 }
 .labels .dayMark {
   font-size: var(--fs-11);
@@ -300,7 +305,7 @@
   color: var(--text-1);
 }
 .labels .dayMark.onWork {
-  color: var(--on-sky);
+  color: color-mix(in srgb, var(--hue) 62%, var(--text-1));
 }
 .overlay {
   grid-column: 2;
@@ -311,14 +316,14 @@
   user-select: none;
   cursor: pointer;
 }
-/* The chosen window: one soft, rounded spotlight across every city. */
+/* The chosen window: one quiet spotlight across every city. */
 .band {
   position: absolute;
   top: -6px;
   bottom: -6px;
-  border-radius: 14px;
-  background: var(--accent-soft);
-  box-shadow: 0 0 0 2px var(--accent);
+  border-radius: var(--r-md);
+  background: var(--sel-soft);
+  box-shadow: inset 0 0 0 1px var(--sel-line);
   pointer-events: none;
 }
 .now {
@@ -327,16 +332,12 @@
   bottom: -8px;
   width: 2px;
   margin-left: -1px;
-  border-radius: 2px;
-  background: var(--accent-ink);
-  opacity: 0.6;
+  border-radius: var(--r-full);
+  background: var(--now);
+  opacity: 0.75;
   pointer-events: none;
 }
-.note {
-  margin: 0;
-  font-size: var(--fs-12);
-  color: var(--text-3);
-}
+
 .plan:not(.panel) .rowHead {
   background: var(--ground);
 }

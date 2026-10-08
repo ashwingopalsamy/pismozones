@@ -53,7 +53,7 @@ src/core/      time/ · cities/ · work/ (policy, holidays) · sky/ · parse/ ·
 src/state/     clock · moment · cities · prefs · storage · shareOverlay · history · analytics
 src/ui/        app/ (shell, layouts, shortcuts, PWA) · components/ · i18n/ (en, pt-BR) · styles/
 worker/        index (router) · share (HTMLRewriter previews) · events (/e ingest) · headers
-public/        fonts (Geist, OFL) · icons · _headers · boot.js
+public/        fonts (Inter, JetBrains Mono; OFL) · icons · _headers · boot.js
 tests/e2e/     Playwright specs
 docs/          analytics.md · design/ · superpowers/ (spec and plans)
 ```
@@ -80,4 +80,4 @@ Both hosts build straight from GitHub; GitHub Actions only runs the checks (`.gi
 
 ## Licence
 
-[CC0 1.0 Universal](LICENSE). The Geist fonts are under the SIL Open Font License (`public/fonts/OFL.txt`).
+[CC0 1.0 Universal](LICENSE). Inter and JetBrains Mono are under the SIL Open Font License (`public/fonts/OFL-*.txt`).

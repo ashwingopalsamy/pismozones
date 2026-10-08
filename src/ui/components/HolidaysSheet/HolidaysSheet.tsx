@@ -1,10 +1,11 @@
-import type { OfficeId } from '@core/cities/registry';
+import type { CalendarId, OfficeId } from '@core/cities/registry';
 import { civilDate } from '@core/time/zoned';
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { useApp, useT } from '../../app/context';
+import { Flag } from '../Flag/Flag';
 import { Sheet, type SheetVariant } from '../Sheet/Sheet';
 import styles from './HolidaysSheet.module.css';
-import { type HolidayMonth, type HolidayTab, holidaysModel } from './model';
+import { type HolidayItem, holidaysModel, relativeLabel } from './model';
 
 export interface HolidaysSheetProps {
   open: boolean;
@@ -14,6 +15,16 @@ export interface HolidaysSheetProps {
   variant?: SheetVariant;
 }
 
+function DateTile({ item, size = 'md' }: { item: HolidayItem; size?: 'md' | 'lg' }) {
+  return (
+    <span class={`${styles.tile} ${size === 'lg' ? styles.tileLg : ''}`} aria-hidden="true">
+      <small>{item.month}</small>
+      <b>{item.day}</b>
+    </span>
+  );
+}
+
+/** Pismo's company holidays: one calendar per country, personalised to the offices on screen. */
 export function HolidaysSheet({
   open,
   onClose,
@@ -23,100 +34,156 @@ export function HolidaysSheet({
 }: HolidaysSheetProps) {
   const app = useApp();
   const t = useT();
-  const list = useRef<HTMLDivElement>(null);
+  const lang = app.prefs.lang.value;
+  const body = useRef<HTMLDivElement>(null);
   const offices = app.displayed.value.filter((d) => !d.temp).map((d) => d.office);
   const m = holidaysModel(
     offices,
+    app.cities.viewerOffice?.id ?? null,
     civilDate(app.clock.minuteNow.value, app.env.viewerZone),
-    app.prefs.lang.value,
+    lang,
     focus,
   );
-  const [tab, setTab] = useState<HolidayTab>(m.selected);
+  const [selected, setSelected] = useState<CalendarId[]>(m.selected);
+  const [full, setFull] = useState(false);
   useEffect(() => {
     if (!open) return;
     app.track('holidays_open', { entry });
-    setTab(m.selected);
+    setSelected(m.selected);
   }, [open, focus?.officeId, focus?.date]);
   useLayoutEffect(() => {
     if (open)
-      list.current
+      body.current
         ?.querySelector<HTMLElement>('[data-focused]')
         ?.scrollIntoView({ block: 'center' });
-  }, [open, tab]);
+  }, [open, selected]);
 
-  const months: HolidayMonth[] = tab === 'upcoming' ? m.upcoming : (m.country[tab] ?? []);
-  const tabs = m.tabs.map((x) => x.id);
-  const onTabKey = (e: KeyboardEvent) => {
-    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-    e.preventDefault();
-    const i = tabs.indexOf(tab) + (e.key === 'ArrowRight' ? 1 : -1);
-    const next = tabs[(i + tabs.length) % tabs.length] as HolidayTab;
-    setTab(next);
-    (e.currentTarget as HTMLElement).parentElement
-      ?.querySelector<HTMLElement>(`[data-tab="${next}"]`)
-      ?.focus();
-  };
+  const toggle = (id: CalendarId) =>
+    setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+  const shown = m.countries.filter((c) => selected.includes(c.id));
+  const nextUp = shown
+    .flatMap((c) => (c.next ? [{ c, item: c.next }] : []))
+    .sort((a, b) => a.item.daysUntil - b.item.daysUntil)[0];
+  const year = m.countries[0]?.year ?? new Date().getUTCFullYear();
 
   return (
     <Sheet open={open} onClose={onClose} title={t('holidays.title')} variant={variant}>
-      <div class={styles.tabs} role="tablist" aria-label={t('holidays.title')}>
-        {m.tabs.map((x) => (
-          <button
-            key={x.id}
-            type="button"
-            role="tab"
-            data-tab={x.id}
-            aria-selected={tab === x.id}
-            tabIndex={tab === x.id ? 0 : -1}
-            class={styles.tab}
-            onClick={() => setTab(x.id)}
-            onKeyDown={onTabKey}
-          >
-            {x.label}
-          </button>
-        ))}
-      </div>
-      <div ref={list} role="tabpanel" class={styles.panel}>
-        {months.length === 0 && (
-          <p class={styles.note}>
-            {tab === 'upcoming' || !m.unpublished
-              ? t('holidays.empty')
-              : t('holidays.unpublished', { year: String(m.unpublished) })}
-          </p>
-        )}
-        {months.map((month) => (
-          <section key={month.title} aria-label={month.title}>
-            <h3 class={styles.month}>{month.title}</h3>
-            <ul class={styles.list}>
-              {month.items.map((h) => (
-                <li
-                  key={`${h.date}${h.name}`}
-                  data-focused={h.focused || undefined}
-                  class={`${styles.item} ${h.focused ? styles.focused : ''} ${h.state === 'past' ? styles.past : ''}`}
-                >
-                  <span class={styles.date}>{h.dateLabel}</span>
-                  <span class={styles.name}>
-                    <b>
-                      {h.name}
-                      {h.state === 'today' && <i class={styles.badge}>{t('holidays.today')}</i>}
-                      {h.state === 'next' && <i class={styles.badge}>{t('holidays.next')}</i>}
-                      {h.half && (
-                        <i class={`${styles.badge} ${styles.half}`}>{t('holidays.halfDay')}</i>
-                      )}
-                    </b>
-                    <span>{[h.offices, h.note].filter(Boolean).join(' · ')}</span>
+      <div class={styles.layout} ref={body}>
+        <aside class={styles.rail}>
+          <p class={styles.sub}>{t('holidays.subtitle', { year: String(year) })}</p>
+          <fieldset class={styles.countries}>
+            <legend class="sr-only">{t('holidays.title')}</legend>
+            {m.countries.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                class={styles.country}
+                aria-pressed={selected.includes(c.id)}
+                onClick={() => toggle(c.id)}
+              >
+                <Flag country={c.iso} size={28} />
+                <span class={styles.countryText}>
+                  <b>
+                    {c.label}
+                    {c.yours && <em>{t('holidays.yourOffice')}</em>}
+                  </b>
+                  <small>{c.offices.join(', ')}</small>
+                </span>
+                <span class={styles.countryNext}>
+                  {c.next ? (
+                    <>
+                      <b>{`${c.next.month} ${c.next.day}`}</b>
+                      <small>{relativeLabel(c.next, lang)}</small>
+                    </>
+                  ) : (
+                    <small>—</small>
+                  )}
+                </span>
+              </button>
+            ))}
+          </fieldset>
+        </aside>
+
+        <div class={styles.main}>
+          <div class={styles.toolbar}>
+            <fieldset class={styles.seg}>
+              <legend class="sr-only">{t('holidays.title')}</legend>
+              <button type="button" aria-pressed={!full} onClick={() => setFull(false)}>
+                {t('holidays.upcoming')}
+              </button>
+              <button type="button" aria-pressed={full} onClick={() => setFull(true)}>
+                {t('holidays.fullYear')}
+              </button>
+            </fieldset>
+          </div>
+
+          {nextUp && (
+            <article class={styles.hero}>
+              <DateTile item={nextUp.item} size="lg" />
+              <div class={styles.heroText}>
+                <span class={styles.eyebrow}>
+                  {t('holidays.nextUp')} · {relativeLabel(nextUp.item, lang)}
+                </span>
+                <h3>{nextUp.item.name}</h3>
+                <p>
+                  <Flag country={nextUp.c.iso} size={16} />
+                  {nextUp.c.offices.join(', ')} · {nextUp.item.weekday}
+                  {nextUp.item.half && ` · ${t('holidays.halfDay')}`}
+                </p>
+              </div>
+            </article>
+          )}
+
+          {shown.length === 0 && <p class={styles.quiet}>{t('holidays.pick')}</p>}
+
+          {shown.map((c) => {
+            const items = full ? c.items : c.items.filter((i) => i.state !== 'past');
+            return (
+              <section key={c.id} class={styles.section} aria-label={c.label}>
+                <header class={styles.sectionHead}>
+                  <Flag country={c.iso} size={22} />
+                  <b>{c.label}</b>
+                  <span>{c.offices.join(', ')}</span>
+                  <span class={styles.count}>
+                    {t('holidays.left', { n: c.remaining, year: String(c.year) })}
                   </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))}
-        {m.unpublished !== null && months.length > 0 && (
-          <p class={styles.note}>{t('holidays.unpublished', { year: String(m.unpublished) })}</p>
-        )}
-        {m.noCalendar.length > 0 && (
-          <p class={styles.note}>{`${t('plan.noCalendar')}: ${m.noCalendar.join(', ')}`}</p>
-        )}
+                </header>
+                {items.length === 0 ? (
+                  <p class={styles.quiet}>{t('holidays.none', { year: String(c.year) })}</p>
+                ) : (
+                  <ul class={styles.rows}>
+                    {items.map((h) => (
+                      <li
+                        key={h.date + h.name}
+                        class={styles.row}
+                        data-state={h.state}
+                        data-focused={h.focused || undefined}
+                      >
+                        <DateTile item={h} />
+                        <span class={styles.what}>
+                          <b>{h.name}</b>
+                          <small>{[h.weekday, h.note].filter(Boolean).join(' · ')}</small>
+                        </span>
+                        <span class={styles.badges}>
+                          {h.half && <i>{t('holidays.halfDay')}</i>}
+                          {h.state === 'next' && (
+                            <i class={styles.nextBadge}>{t('holidays.next')}</i>
+                          )}
+                        </span>
+                        <span class={styles.until}>{relativeLabel(h, lang)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {c.unpublished && (
+                  <p class={styles.quiet}>
+                    {t('holidays.unpublished', { year: String(c.unpublished) })}
+                  </p>
+                )}
+              </section>
+            );
+          })}
+        </div>
       </div>
     </Sheet>
   );

@@ -36,7 +36,7 @@ export function WideLayout({
   return (
     <div class={styles.wide}>
       <div class={styles.topBar}>
-        <header ref={lane} class={`${styles.column} ${styles.lane}`}>
+        <header ref={lane} data-lane class={`${styles.column} ${styles.lane}`}>
           <Brand wordmark={tier === 'A'} />
           <CommandBar
             placement="top"

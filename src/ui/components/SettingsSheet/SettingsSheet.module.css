@@ -19,7 +19,7 @@
   margin: 0 6px var(--sp-8);
 }
 .group {
-  border-radius: 22px;
+  border-radius: var(--r-lg);
   background: var(--surface-1);
   margin-bottom: var(--sp-24);
   overflow: hidden;
@@ -54,7 +54,7 @@
   display: flex;
   gap: 2px;
   padding: 3px;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   background: var(--glass);
 }
 .seg button {
@@ -62,7 +62,7 @@
   min-width: 44px;
   padding: 0 var(--sp-10);
   border: 0;
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   background: transparent;
   font-size: var(--fs-13);
   font-weight: 500;

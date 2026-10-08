@@ -4,7 +4,7 @@
   margin: auto;
   padding: 0;
   border: 1px solid var(--line);
-  border-radius: var(--r-sheet);
+  border-radius: var(--r-2xl);
   background: var(--ground);
   color: var(--text-1);
   overflow: hidden;

@@ -17,6 +17,9 @@ export function CitiesPanel({ open, onClose }: { open: boolean; onClose(): void 
     if (!d) return;
     if (open && !d.open) {
       opener.current = document.activeElement as HTMLElement | null;
+      // Sit just under the floating lane, wherever it is.
+      const lane = document.querySelector('[data-lane]')?.getBoundingClientRect();
+      if (lane) d.style.setProperty('--panel-top', `${Math.round(lane.bottom + 8)}px`);
       d.show();
       d.querySelector<HTMLElement>('input')?.focus();
     } else if (!open && d.open) {

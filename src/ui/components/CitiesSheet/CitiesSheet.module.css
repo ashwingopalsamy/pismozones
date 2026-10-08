@@ -21,13 +21,13 @@
   align-items: center;
   gap: var(--sp-4);
   padding: 4px 6px 4px 4px;
-  border-radius: 14px;
+  border-radius: var(--r-lg);
   background: var(--surface-2);
   box-shadow: inset 0 0 0 1px var(--line);
 }
 .item[data-ref] {
-  background: var(--accent-soft);
-  box-shadow: 0 0 0 1.5px var(--accent);
+  background: var(--sel-soft);
+  box-shadow: inset 0 0 0 1px var(--sel-line);
 }
 .pick {
   min-width: 0;
@@ -37,7 +37,7 @@
   gap: var(--sp-12);
   padding: 8px 8px 8px 10px;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--r-lg);
   background: transparent;
   color: inherit;
   text-align: left;
@@ -73,7 +73,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   padding: 2px 5px;
-  border-radius: 5px;
+  border-radius: var(--r-xs);
   background: var(--inset);
   color: var(--text-2);
 }
@@ -108,7 +108,7 @@
 .early .dot,
 .late .dot,
 .holiday .dot {
-  background: var(--warn);
+  background: var(--edge);
 }
 .check,
 .add,
@@ -119,25 +119,23 @@
   display: grid;
   place-items: center;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--r-full);
 }
+/* Selected: an ink disc with a check — the same for every city. */
 .check {
-  color: var(--on-sky);
-  box-shadow:
-    inset 0 1px 0 var(--on-sky-line),
-    0 1px 2px var(--line-2);
+  background: var(--sel-ink);
+  color: var(--on-sel);
   cursor: pointer;
 }
 .add {
-  background: var(--surface-1);
-  box-shadow: var(--ring-rest);
-  color: var(--text-1);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  color: var(--text-2);
   cursor: pointer;
 }
 .add:hover {
-  box-shadow:
-    0 0 0 1.5px var(--text-3),
-    var(--ring-rest);
+  background: var(--sel-soft);
+  color: var(--text-1);
 }
 .lock {
   color: var(--text-3);
@@ -148,15 +146,15 @@
   gap: var(--sp-10);
   height: 46px;
   padding: 0 14px;
-  border-radius: var(--r-control);
+  border-radius: var(--r-md);
   background: var(--surface-1);
   box-shadow: var(--ring-rest);
   color: var(--text-3);
 }
 .search:focus-within {
   box-shadow:
-    0 0 0 2px var(--focus),
-    0 0 0 5px var(--focus-soft);
+    inset 0 0 0 1px var(--line-strong),
+    0 0 0 3px var(--focus-ring);
 }
 .search input {
   flex: 1;
@@ -175,7 +173,7 @@
 /* Desktop dropdown: under the lane, the width of the content column. */
 .panel {
   position: fixed;
-  top: 85px;
+  top: var(--panel-top, 88px);
   left: 50%;
   transform: translateX(-50%);
   width: var(--page-w);
@@ -184,7 +182,7 @@
   padding: var(--sp-16);
   overflow-y: auto;
   border: 0;
-  border-radius: 20px;
+  border-radius: var(--r-xl);
   background: var(--surface-1);
   color: var(--text-1);
   box-shadow: var(--elev-3);
@@ -199,7 +197,7 @@
 /* Dims the page under the open dropdown (clicks on it close the panel). */
 .scrim {
   position: fixed;
-  inset: 77px 0 0;
+  inset: 0;
   z-index: calc(var(--z-header) - 1);
   background: var(--backdrop);
   backdrop-filter: blur(2px);

@@ -33,7 +33,6 @@ const ATTEND: Record<'in' | 'stretch' | 'out', Key> = {
 };
 const pct = (f: number) => `${(f * 100).toFixed(3)}%`;
 /** A city's colour at ~20% over the track, for early/late hours. */
-const tint = (hue: string) => `color-mix(in srgb, ${hue} 24%, transparent)`;
 
 export function PlanView({ layout }: { layout: 'phone' | 'panel' }) {
   const app = useApp();
@@ -193,12 +192,12 @@ export function PlanView({ layout }: { layout: 'phone' | 'panel' }) {
                 </small>
               </span>
             </div>,
-            <div key={`${r.id}-t`} class={styles.track} style={`grid-row:${i + 2}`}>
+            <div key={`${r.id}-t`} class={styles.track} style={`grid-row:${i + 2};--hue:${r.hue}`}>
               {r.segments.map((g) => (
                 <i
                   key={g.from}
                   class={`${styles.seg} ${styles[g.kind]}`}
-                  style={`left:${pct(g.from)};width:${pct(g.to - g.from)};--hue:${r.hue};--tint:${tint(r.hue)}`}
+                  style={`left:${pct(g.from)};width:${pct(g.to - g.from)}`}
                 />
               ))}
               <div class={styles.labels}>
@@ -269,11 +268,6 @@ export function PlanView({ layout }: { layout: 'phone' | 'panel' }) {
           ))}
         </tbody>
       </table>
-
-      <p class={styles.note}>
-        {t('plan.calendars')}
-        {m.noCalendar.length > 0 && ` · ${t('plan.noCalendar')}: ${m.noCalendar.join(', ')}`}
-      </p>
     </section>
   );
 }

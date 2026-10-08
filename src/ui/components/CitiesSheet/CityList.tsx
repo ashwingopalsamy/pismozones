@@ -116,7 +116,6 @@ export function CityList({ wide = false }: { wide?: boolean }) {
           <button
             type="button"
             class={styles.check}
-            style={{ background: o.hue }}
             aria-label={`${t('cities.remove')} ${o.name}`}
             title={`${t('cities.remove')} ${o.name}`}
             onClick={() => toggle(o.id)}
