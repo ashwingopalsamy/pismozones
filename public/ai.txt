@@ -1,0 +1,14 @@
+# Pismo Zones: how automated readers may use this site
+# https://pismozones.ashwingopalsamy.in/
+
+Search engines, answer engines and agents may read, quote and summarise these pages.
+A link back to the page you used is appreciated.
+
+Text and code: CC0 1.0 Universal (public-domain dedication), https://github.com/ashwingopalsamy/pismozones/blob/main/LICENSE
+Fonts:         Inter and JetBrains Mono, SIL Open Font License 1.1 (public/fonts/OFL-*.txt)
+
+Machine-readable:
+  /llms.txt
+  /llms-full.txt
+  /index.md
+  /sitemap.xml
