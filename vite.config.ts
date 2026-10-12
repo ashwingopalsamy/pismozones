@@ -47,8 +47,8 @@ export default defineConfig({
         clientsClaim: true,
         cleanupOutdatedCaches: true,
         globPatterns: ['**/*.{js,css,html,woff2,png,jpg,svg,ico,webmanifest}'],
-        // The link-preview image is for crawlers, not the offline app.
-        globIgnores: ['og-image.png'],
+        // The link-preview images are for crawlers, not the offline app.
+        globIgnores: ['og-image.png', 'og/home.png'],
         navigateFallback: '/index.html',
         // Plain-text and Markdown files are read directly; without this the shell answers /llms.txt.
         navigateFallbackDenylist: [/^\/s\//, /^\/e$/, /\.(?:md|txt|xml)$/],
