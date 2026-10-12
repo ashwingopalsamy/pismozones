@@ -1,0 +1,53 @@
+# Pismo Zones
+
+> What time is it for the team? Pismo Zones shows every Pismo office at a glance — local time, working state, daylight, holidays — and converts any moment you type, drag or share. Every calculation runs on your device, it works offline, and it is exact across daylight-saving changes.
+
+Canonical: https://pismozones.ashwingopalsamy.in/
+Author: Ashwin Gopalsamy, https://ashwingopalsamy.in
+Source: https://github.com/ashwingopalsamy/pismozones (text and code under CC0 1.0 Universal)
+
+Pismo Zones is a web app. It shows the local time, working state, daylight and holidays for each Pismo office, and converts any moment you pick into every office's time. It needs no account and can be installed as an app. The one server-side piece is a small Cloudflare Worker that writes link previews for share links and receives anonymous product events.
+
+## Offices
+
+The app shows 12 offices: São Paulo (headquarters), Austin, Bristol, Bengaluru, Singapore, Warsaw, Mexico City, Buenos Aires, Bogotá, Sydney, Ho Chi Minh and Jakarta.
+
+## Features
+
+### Zones
+A card per office with the local time (live seconds), working / early / late / off hours, holidays and half days, a sky that follows the real sun, and upcoming clock changes. Tap a time to set it. Drag the ruler to scrub. The left and right arrow keys nudge by 15 minutes.
+
+### Plan
+The reference city's day in 30-minute slots across every office, DST-exact (23- and 25-hour days included), with the best window in which the same people are all working.
+
+### Command bar
+Type a conversion such as `3pm bristol to austin`, `noon sg to sp` or `in 2 hours`. Portuguese works too: `amanhã 9h sp para ist`. One deterministic parser previews as you type, explains what it understood, and says when a time does not exist or happens twice.
+
+### Sharing
+`/s/<token>` links pin an exact instant, not a wall time, so the same link means the same moment in every office. Link previews are rendered by the Worker in each office's own time. Links from the first version keep working.
+
+### Holidays
+Company holiday calendars for India, Brazil, the UK, the US and Poland, with observed days and half days. Only 2026 is published; other years show as unpublished. Seven offices have no calendar: Singapore, Mexico City, Buenos Aires, Bogotá, Sydney, Ho Chi Minh and Jakarta.
+
+### Installable app
+Installable, and it works offline after the first visit. It checks for a new version hourly and when the tab regains focus.
+
+### Languages
+English and Brazilian Portuguese.
+
+## Privacy
+
+- Every calculation the app shows runs on your device. Share-link previews are the one exception: when a crawler or chat app fetches a `/s/` link, the Worker decodes the token to write the preview.
+- No cookies, no accounts, and nothing that identifies you. Saved cities and preferences stay in your browser.
+- Anonymous product events go to the app's own Worker: which features are used, never what you type. Cloudflare Web Analytics counts page views.
+- What is collected, and what never is: https://github.com/ashwingopalsamy/pismozones/blob/main/docs/analytics.md
+
+## Licence and reuse
+
+Text and code: CC0 1.0 Universal (https://github.com/ashwingopalsamy/pismozones/blob/main/LICENSE). Inter and JetBrains Mono: SIL Open Font License 1.1. Rules for automated readers: https://pismozones.ashwingopalsamy.in/ai.txt
+
+## Related files
+
+- https://pismozones.ashwingopalsamy.in/index.md (shorter Markdown overview)
+- https://pismozones.ashwingopalsamy.in/llms.txt
+- https://pismozones.ashwingopalsamy.in/sitemap.xml

@@ -50,7 +50,8 @@ export default defineConfig({
         // The link-preview image is for crawlers, not the offline app.
         globIgnores: ['og-image.png'],
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/s\//, /^\/e$/],
+        // Plain-text and Markdown files are read directly; without this the shell answers /llms.txt.
+        navigateFallbackDenylist: [/^\/s\//, /^\/e$/, /\.(?:md|txt|xml)$/],
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.pathname.startsWith('/s/'),

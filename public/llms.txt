@@ -1,0 +1,17 @@
+# Pismo Zones
+
+> What time is it for the team? Pismo Zones shows every Pismo office at a glance — local time, working state, daylight, holidays — and converts any moment you type, drag or share. Every calculation runs on your device, it works offline, and it is exact across daylight-saving changes.
+
+Pismo Zones is a web app at https://pismozones.ashwingopalsamy.in/. It needs no account. The source is public under CC0 1.0 Universal.
+
+## Docs
+
+- [Overview (Markdown)](https://pismozones.ashwingopalsamy.in/index.md): what the app does, how to use it, share links and privacy.
+- [Full text](https://pismozones.ashwingopalsamy.in/llms-full.txt): the same facts in more detail, in one file.
+
+## Optional
+
+- [Reuse rules](https://pismozones.ashwingopalsamy.in/ai.txt): how automated readers may use and cite the site.
+- [Sitemap](https://pismozones.ashwingopalsamy.in/sitemap.xml)
+- [Source code](https://github.com/ashwingopalsamy/pismozones): the app, its tests and the holiday data.
+- [Analytics](https://github.com/ashwingopalsamy/pismozones/blob/main/docs/analytics.md): what is collected, and what never is.

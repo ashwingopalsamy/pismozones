@@ -1,0 +1,4 @@
+Pismo Zones
+Made by Ashwin Gopalsamy, https://ashwingopalsamy.in
+Source: https://github.com/ashwingopalsamy/pismozones
+Type: Inter and JetBrains Mono (SIL Open Font License 1.1). Icons: Lucide (ISC).
